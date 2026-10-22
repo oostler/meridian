@@ -1,6 +1,12 @@
 {
   "name": "Meridian: Learn the World",
   "short_name": "Meridian",
+  "description": "Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.",
+  "categories": [
+    "education",
+    "books",
+    "travel"
+  ],
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

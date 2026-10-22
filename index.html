@@ -3,6 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meridian: Learn World Geography and History</title>
+<meta name="description" content="Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.">
+<link rel="canonical" href="https://meridianglobe.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Meridian">
+<meta property="og:title" content="Meridian: Learn World Geography and History">
+<meta property="og:description" content="Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.">
+<meta property="og:url" content="https://meridianglobe.app/">
+<meta property="og:image" content="https://meridianglobe.app/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Meridian: Learn World Geography and History">
+<meta name="twitter:description" content="Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.">
+<meta name="twitter:image" content="https://meridianglobe.app/social.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Meridian","url":"https://meridianglobe.app/","description":"Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.","applicationCategory":"EducationalApplication","operatingSystem":"Web, iOS","inLanguage":"en","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"about":["World geography","World history","Countries and capitals","Maps"]}</script>
 <meta name="theme-color" content="#0b47c8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -16,7 +32,14 @@
 <script src="maplibre-gl.js"></script>
 </head>
 <body>
-<title>Meridian</title>
+<noscript><main style="font:16px/1.5 system-ui;padding:24px;max-width:640px;margin:auto">
+<h1>Meridian: learn world geography and history</h1>
+<p>Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.</p>
+<h2>What you can learn</h2>
+<ul><li>All 197 countries, their capitals and flags, by continent</li><li>The 50 US states, Canada's provinces and territories, China's provinces, and the five oceans</li>
+<li>A timeline of world history on the map: the first civilisations, Rome, the Silk Road, the Mongols, the age of empires, the world wars, the Cold War and the world today</li>
+<li>The history of the United States, China and Canada, state by state</li><li>Quizzes: multiple choice, typing and finding places on the globe</li></ul>
+<p>Meridian needs JavaScript to show the globe.</p></main></noscript>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap">
 <style>
@@ -97,6 +120,18 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 .maplibregl-ctrl-attrib { font-size: 10px; font-family: system-ui, sans-serif; font-weight: 400; }
 
 #toast { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); transform: translate(-50%, -6px); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; font-size: 15px; font-weight: 800; opacity: 0; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; z-index: 5; }
+.report { position: absolute; inset: 0; z-index: 8; background: rgb(0 0 0 / .35); display: grid; align-items: start; justify-items: center; padding: calc(env(safe-area-inset-top, 0px) + 64px) 16px 16px; animation: fade .2s; }
+.report[hidden] { display: none; }
+.rcard { width: min(440px, 100%); background: var(--bg); border-radius: 20px; padding: 18px; display: grid; gap: 10px; box-shadow: 0 10px 40px rgb(0 0 0 / .25); }
+.rtitle { font-size: 20px; font-weight: 900; }
+.rwhere { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+#rText { font: 600 16px/1.4 var(--font); color: var(--ink); background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; resize: none; -webkit-user-select: text; user-select: text; }
+#rText:focus { outline: none; border-color: var(--blue); }
+.rnote { margin: 0; font-size: 12px; color: var(--ink-3); font-weight: 800; }
+.rbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.flag { justify-self: start; border: 0; background: none; padding: 2px 0; font: 800 13px var(--font); color: var(--ink-3); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@keyframes fade { from { opacity: 0; } }
+#brand { display: none; }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
 #toast.wrap { white-space: normal; width: max-content; max-width: min(360px, calc(100% - 32px)); border-radius: 16px; text-align: center; line-height: 1.3; }
 
@@ -157,6 +192,16 @@ h1, h2, h3 { margin: 0; }
 .result .r-fl { font-size: 28px; line-height: 1; width: 34px; text-align: center; flex: none; }
 .result b { display: block; font-weight: 900; font-size: 16px; }
 .result small { color: var(--ink-2); font-size: 13px; font-weight: 700; }
+.home-h { margin: 6px 0 -4px; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.go, .pod { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; text-align: left; padding: 12px 14px; }
+.go-ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, var(--bg)); color: var(--c); }
+.go-ic .ic { width: 24px; height: 24px; }
+.go b, .pod b { display: block; font-size: 16px; font-weight: 900; line-height: 1.2; }
+.go small, .pod small { display: block; font-size: 13px; color: var(--ink-2); font-weight: 700; line-height: 1.35; }
+.go > .ic { width: 18px; height: 18px; color: var(--ink-3); }
+.pod { grid-template-columns: auto 1fr; }
+.pod .flag { font-size: 34px; line-height: 1; }
+.pod small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .empty { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: center; }
 .empty .em-ic { grid-row: span 2; width: 58px; height: 58px; }
 .empty .em-ic svg { width: 100%; height: 100%; }
@@ -182,6 +227,28 @@ h1, h2, h3 { margin: 0; }
 /* Story */
 .story { display: grid; gap: 8px; font-size: 16px; line-height: 1.55; font-weight: 600; }
 .story p { margin: 0; }
+.hq { gap: 12px; }
+.hq .opts { display: grid; gap: 8px; }
+.hq .verdict { position: static; margin: 0; border-radius: 14px; padding: 14px; }
+.hopt { display: flex; align-items: center; gap: 10px; text-align: left; }
+.hopt i { flex: none; width: 14px; height: 14px; border-radius: 4px; }
+.hopt.right { border-color: var(--green); background: var(--green-l); }
+.hopt.wrong { border-color: var(--red); background: var(--red-l); }
+.hopt.dim { opacity: .5; }
+#hqGo { display: flex; align-items: center; justify-content: center; gap: 8px; }
+#hqGo .ic { width: 20px; height: 20px; }
+.tl { display: grid; gap: 6px; }
+.tlrow { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: center; text-align: left; border: 2px solid var(--line); border-left: 5px solid var(--sc); background: var(--bg); border-radius: 12px; padding: 8px 10px; color: var(--ink); font: inherit; }
+.tlrow:active { transform: translateY(2px); }
+.tlrow i { width: 12px; height: 12px; border-radius: 4px; }
+.tlrow b { display: block; font-size: 14px; font-weight: 900; line-height: 1.25; }
+.tlrow small { display: block; font-size: 12px; color: var(--ink-2); font-weight: 800; line-height: 1.3; }
+.tlrow .ic { width: 16px; height: 16px; color: var(--ink-3); }
+.tl details { display: grid; gap: 6px; }
+.tl details[open] { display: grid; }
+.tl details > .tlrow { margin-top: 6px; }
+.tl summary { list-style: none; cursor: pointer; font-size: 14px; font-weight: 900; color: var(--blue-d); padding: 4px 2px; }
+.tl summary::-webkit-details-marker { display: none; }
 .story h4 { margin: 8px 0 -2px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 900; }
 .eras { display: flex; flex-wrap: wrap; gap: 8px; }
 .era { border: 2px solid var(--gold); border-radius: 12px; padding: 4px 10px; font-size: 13px; font-weight: 900; background: var(--gold-l); color: var(--ink); box-shadow: 0 2px 0 var(--gold-d); }
@@ -376,8 +443,12 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 /* ---- tablets and desktops: a floating panel on the left, the globe beside it ---- */
 @media (min-width: 760px) {
   #mapwrap { left: 432px; }
-  #sheet, #sheet.sized { left: 16px; right: auto; top: auto; bottom: calc(var(--tabs-h, 0px) + 16px); width: 400px; height: auto !important; max-height: calc(100% - 32px - var(--tabs-h, 0px)); border: 2px solid var(--line); border-bottom: 0; border-radius: 24px 24px 0 0; padding: 16px 18px 18px; box-shadow: none; transition: none; }
-  body.in-round #sheet { bottom: 16px; border-radius: 24px; border-bottom: 2px solid var(--line); max-height: calc(100% - 32px); }
+  #brand { display: flex; position: absolute; left: 20px; top: 16px; width: 396px; height: 56px; align-items: center; gap: 12px; z-index: 3; }
+  #brand svg { width: 46px; height: 46px; flex: none; }
+  #brand b { display: block; font-size: 28px; font-weight: 900; letter-spacing: -.5px; line-height: 1; color: var(--blue); }
+  #brand small { display: block; font-size: 13px; font-weight: 800; color: var(--ink-2); margin-top: 3px; }
+  #sheet, #sheet.sized { left: 16px; right: auto; top: 84px; bottom: calc(var(--tabs-h, 0px) + 16px); width: 400px; height: auto !important; max-height: none; border: 2px solid var(--line); border-bottom: 0; border-radius: 24px 24px 0 0; padding: 16px 18px 18px; box-shadow: none; transition: none; }
+  body.in-round #sheet { bottom: 16px; border-radius: 24px; border-bottom: 2px solid var(--line); max-height: none; }
   .verdict { bottom: -18px; margin: 4px -18px -18px; border-radius: 0 0 22px 22px; }
   .handle { display: none; }
   #tabs { left: 16px; right: auto; bottom: 16px; width: 400px; border: 2px solid var(--line); border-radius: 0 0 24px 24px; padding: 8px 10px; }
@@ -391,6 +462,7 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 </style>
 
 <div id="app">
+  <div id="brand" aria-hidden="true"><svg viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1899d6"/><circle cx="256" cy="256" r="166" fill="#fff" stroke="#e5e5e5" stroke-width="10"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#58cc02"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffc800" stroke-width="20"/><circle cx="330" cy="256" r="24" fill="#ffc800" stroke="#fff" stroke-width="8"/></svg><span><b>meridian</b><small>Learn the world and its history</small></span></div>
   <div id="mapwrap">
     <div id="map" aria-label="Globe. Drag to spin, pinch or scroll to zoom, tap a place to learn about it."></div>
     <header id="top">
@@ -414,6 +486,12 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
       </div>
     </div>
     <div id="toast" role="status"></div>
+    <div id="report" class="report" hidden><form class="rcard" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+      <div class="rtitle" id="rTitle">Report an error</div><div class="rwhere" id="rWhere"></div>
+      <textarea id="rText" rows="4" maxlength="2000" placeholder="What's wrong? A source helps." aria-label="What's wrong"></textarea>
+      <p class="rnote">Sent as a GitHub issue that the Meridian team reviews.</p>
+      <div class="rbtns"><button type="button" class="btn" id="rCancel">Cancel</button><button type="submit" class="btn primary" id="rSend">Send</button></div>
+    </form></div>
   </div>
   <section id="sheet" aria-live="polite"></section>
   <nav id="tabs" role="tablist" aria-label="Sections">
@@ -499,7 +577,7 @@ if (state.scope.noCap) state.subj = 'name';
 const TILES_ON = window.ATLAS_TILES !== false;
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const ESRI_ATTR = 'Map &copy; <a href="https://www.esri.com">Esri</a>, GEBCO, Garmin, Maxar';
-const NE_ATTR = 'Borders: <a href="https://www.naturalearthdata.com">Natural Earth</a>';
+const NE_ATTR = 'Borders: <a href="https://www.naturalearthdata.com">Natural Earth</a> · Country facts: <a href="https://github.com/mledoze/countries">mledoze/countries</a> (ODbL), <a href="https://www.wikidata.org">Wikidata</a>';
 const raster = (path, maxzoom) => ({ type: 'raster', tiles: [ESRI + path + '/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom, attribution: ESRI_ATTR });
 
 const decodeRing = ring => {
@@ -614,7 +692,7 @@ map.on('load', () => {
   const at = document.querySelector('.maplibregl-ctrl-attrib'); if (at) { at.classList.remove('maplibregl-compact-show'); at.removeAttribute('open'); }
 });
 
-const subMode = () => !!state.scope.sub && state.mode !== 'era';
+const subMode = () => state.mode === 'era' ? !!(anchorById[state.era] && anchorById[state.era].track) : !!state.scope.sub;
 let LAYER = [];
 let layerSub = null;
 function refreshLayer() {
@@ -702,6 +780,12 @@ function styleFor(f) {
       fill = PAL[M.groups[r.gi].color] || C.target; fo = dim ? 0.1 : r.part ? 0.3 : 0.6; lc = INK; lo = dim ? 0.25 : 0.6; lw = 1;
     } else if (!M && f.h && f.h.a.includes(state.era)) { fill = C.target; fo = 0.42; lc = INK; lo = 0.7; lw = 1; }
     if (state.sel && state.sel.id === f.id) { if (!r) fill = C.target; fo = Math.max(fo, 0.7) + 0.08; lc = sat ? '#ffffff' : INK; lo = 1; lw = 2.2; }
+    const hq = state.hq;
+    if (hq && hq.picked == null) {
+      // A map quiz question: every lit place in one neutral shade, the asked one in gold.
+      if (r) { fill = '#8796a0'; fo = r.part ? 0.18 : 0.32; lc = INK; lo = 0.35; lw = 0.8; }
+      if (hq.q[hq.i] === f.id) { fill = C.target; fo = 0.8; lc = INK; lo = 1; lw = 2.2; }
+    } else if (hq && hq.q[hq.i] === f.id) { lc = sat ? '#ffffff' : INK; lo = 1; lw = 2.4; fo = Math.max(fo, 0.7); }
   }
   if (state.flash && state.flash.id === f.id && state.flash.until > now) { fill = C.bad; fo = 0.6; lc = INK; lo = 1; lw = 2; }
   if ((state.target && state.target.id === f.id) || (state.mode === 'explore' && state.sel && state.sel.id === f.id)) {
@@ -747,7 +831,8 @@ function paint() {
     map.setFeatureState({ source: 'seas', id: f.id }, st);
   }
   drawSeaLabels();
-  drawPulse(state.target || (state.mode === 'explore' && state.sel) || null);
+  const hqT = state.mode === 'era' && state.hq && byId[state.hq.q[state.hq.i]];
+  drawPulse(state.target || hqT || (state.mode === 'explore' && state.sel) || null);
 }
 map.on('zoomend', draw);
 map.on('moveend', () => { if (ready) drawSeaLabels(); });
@@ -879,6 +964,26 @@ else $('#zbase').hidden = true;
 // ---------- toast ----------
 let toastT;
 function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('wrap', msg.length > 40); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
+// Error reports: a short form whose text becomes a GitHub issue on the app's repository, with
+// where it was sent from filled in. Change REPORT_URL to point reports somewhere else.
+const REPORT_URL = 'https://github.com/oostler/meridian/issues/new';
+function openReport(where) {
+  const box = $('#report'), t = $('#rText');
+  $('#rWhere').textContent = where; t.value = ''; box.hidden = false;
+  setTimeout(() => t.focus(), 50);
+  const close = () => { box.hidden = true; t.blur(); };
+  $('#rCancel').onclick = close;
+  box.onclick = e => { if (e.target === box) close(); };
+  box.querySelector('form').onsubmit = e => {
+    e.preventDefault();
+    const text = t.value.trim(); if (!text) return t.focus();
+    if (!navigator.onLine) return toast("You're offline. Try again when connected.", 2600);
+    const body = `${text}\n\n---\nWhere: ${where}\nData as of: ${G.asOf || 'unknown'}`;
+    window.open(`${REPORT_URL}?title=${encodeURIComponent('Error report: ' + where)}&body=${encodeURIComponent(body)}`, '_blank', 'noopener');
+    close(); toast('Thanks! Your report helps.', 2200);
+  };
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-report]'); if (b) { e.stopPropagation(); buzz(5); openReport(b.dataset.report); } });
 // A light tap of feedback where the device supports it.
 const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 
@@ -1062,11 +1167,17 @@ sheet.addEventListener('pointerdown', e => {
 const ANCHORS = G.anchors || [];
 const anchorById = Object.fromEntries(ANCHORS.map(a => [a.id, a]));
 // Section headings in the chapter list, at the first chapter of each.
-const SECTION = { cradles: 'The ancient world', islam: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
+const SECTION = { cradles: 'The ancient world', americas: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
 // Each section has its own colour, carried by its chapters' year badges and the chapter view.
-const SEC_COLOR = { cradles: '#ff9600', islam: '#ce82ff', old: '#1cb0f6', ww1: '#ffc800', today: '#58cc02' };
+const SEC_COLOR = { cradles: '#ff9600', americas: '#ce82ff', old: '#1cb0f6', ww1: '#ffc800', today: '#58cc02' };
+const ERA_COLOR = { ancient: '#ff9600', middle: '#ce82ff', empires: '#1cb0f6', c20: '#ffc800', today: '#58cc02' };
 const secColor = {};
-{ let c = '#afafaf'; for (const a of ANCHORS) { if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
+{ let c = '#afafaf'; for (const a of ANCHORS) { if (a.track) { secColor[a.id] = ERA_COLOR[a.sec] || '#afafaf'; continue; } if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
+// The timeline has a world track and country tracks; each chapter belongs to one.
+const TRACKS = [{ id: 'world', name: 'World' }, { id: 'us', name: 'US' }, { id: 'cn', name: 'China' }, { id: 'ca', name: 'Canada' }];
+const trackOf = a => a.track || 'world';
+// Chapters still being written (no maps yet) stay out of the list until they are ready.
+const trackList = t => ANCHORS.filter(a => trackOf(a) === t && a.maps);
 // Chapter tags open the chapter view; inside a quiz they are plain labels so a tap can't end the round.
 const eraChips = (f, link) => `<div class="eras">${f.h.a.map(id => {
   const a = anchorById[id]; if (!a) return '';
@@ -1082,11 +1193,43 @@ function leadersHtml(f) {
 function storyHtml(f, link = true) {
   if (!f || !f.h) return '';
   const h = f.h;
-  return `<div class="story">${eraChips(f, link)}
-    <h4>History</h4><p>${esc(h.t)}</p>
-    <h4>Today</h4><p>${esc(h.c)}</p>${h.p ? `<p>${esc(h.p)}</p>` : ''}${leadersHtml(f)}</div>`;
+  // Linked cards list every map the place is on; the chapter chips only stand in where there are none.
+  const tl = link ? onTimeline(f) : '';
+  return `<div class="story">${tl ? '' : eraChips(f, link)}
+    <h4>History</h4><p>${esc(h.t)}</p>${tl}
+    <h4>Today</h4><p>${esc(h.c)}</p>${h.p ? `<p>${esc(h.p)}</p>` : ''}${leadersHtml(f)}${link ? `<button class="flag" data-report="${esc(f.n + ' · story')}">Report an error</button>` : ''}</div>`;
 }
-function bindEras(root = sheet) { root.querySelectorAll('[data-era]').forEach(b => b.onclick = () => eraSheet(b.dataset.era)); }
+// Every chapter map a country is lit or noted on, oldest first: its whole history at a glance.
+let histIdx = null;
+function histFor(id) {
+  if (!histIdx) {
+    histIdx = {};
+    const add = (c, e) => { const l = histIdx[c] || (histIdx[c] = []); if (!l.some(x => x.a === e.a && x.m === e.m)) l.push(e); };
+    for (const a of ANCHORS) (a.maps || []).forEach((M, m) => {
+      M.groups.forEach(g => { for (const c of [...(g.full || []), ...(g.part || [])]) add(c, { a: a.id, m, tab: M.tab, label: g.label, color: PAL[g.color] }); });
+      for (const c of Object.keys(M.notes || {})) add(c, { a: a.id, m, tab: M.tab, label: M.title, color: null });
+    });
+  }
+  return histIdx[id] || [];
+}
+function onTimeline(f) {
+  const own = histFor(f.id).map(e => ({ ...e, sel: f.id })), up = parentId(f) !== f.id ? histFor(parentId(f)).map(e => ({ ...e, sel: parentId(f) })) : [];
+  const order = Object.fromEntries(ANCHORS.map((a, k) => [a.id, k]));
+  const rows = [...own, ...up].sort((x, y) => order[x.a] - order[y.a] || x.m - y.m).filter(e => !(state.mode === 'era' && e.a === state.era && e.m === (state.mapI || 0)));
+  if (!rows.length) return '';
+  const row = e => { const a = anchorById[e.a]; return `<button class="tlrow" data-era="${e.a}" data-m="${e.m}" data-sel="${e.sel}" style="--sc:${secColor[e.a]}"><i style="background:${e.color || 'transparent'}"></i><span><b>${esc(e.label)}</b><small>${esc(a.title)} · ${esc(e.tab)}</small></span>${IC.next}</button>`; };
+  const first = rows.slice(0, 5).map(row).join(''), more = rows.slice(5).map(row).join('');
+  return `<h4>On the timeline</h4><div class="tl">${first}${more ? `<details><summary>${rows.length - 5} more</summary>${more}</details>` : ''}</div>`;
+}
+function bindEras(root = sheet) {
+  root.querySelectorAll('[data-era]').forEach(b => b.onclick = () => {
+    if (b.dataset.m == null) return eraSheet(b.dataset.era);
+    // A timeline row: open that map with the country picked and in view.
+    buzz(5); const f = byId[b.dataset.sel];
+    eraSheet(b.dataset.era, false, +b.dataset.m);
+    state.sel = f; eraSheet(b.dataset.era, true);
+  });
+}
 const eraMembers = id => LAYER.filter(f => f.h && f.h.a.includes(id));
 
 // ---------- chapter maps ----------
@@ -1106,7 +1249,7 @@ function histRole(f) {
   return roleCache.get(f.id) || roleCache.get(parentId(f)) || null;
 }
 // "[Hungary](HUN)" in chapter text becomes a link that picks the country on the globe.
-const linkText = t => esc(t).replace(/\[([^\]]+)\]\(([A-Z]{3})\)/g, (m, n, id) => byId[id] ? `<button class="lk" data-id="${id}">${n}</button>` : n);
+const linkText = t => esc(t).replace(/\[([^\]]+)\]\(([A-Z]{2,3}(?:-[A-Z]{2})?)\)/g, (m, n, id) => byId[id] ? `<button class="lk" data-id="${id}">${n}</button>` : n);
 function roleLine(f) {
   const r = histRole(f), M = curMap(); if (!r) return '';
   const g = M.groups[r.gi];
@@ -1263,6 +1406,21 @@ function placeCard(sel) {
     ${quizzable ? `<div class="status"><span class="${st(pn)}">Name · ${word(pn)}</span>${sel.cap[0] ? `<span class="${st(pc)}">Capital · ${word(pc)}</span>` : ''}</div>` : `<p class="hint">A territory: shown on the globe, not in the quiz.</p>`}
     ${storyHtml(sel)}`;
 }
+// The Explore home: a place of the day, and the three ways to learn.
+function placeOfDay() {
+  const pool = F.filter(f => f.k === 'c' && f.h).sort((a, b) => a.id.localeCompare(b.id));
+  let h = 0; for (const ch of dayKey()) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return pool[h % pool.length];
+}
+function startHtml() {
+  const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
+  const go = (tab, ic, c, t, sub) => `<button class="go tile" data-go="${tab}" style="--c:${c}"><span class="go-ic">${ic}</span><span><b>${t}</b><small>${sub}</small></span>${IC.next}</button>`;
+  return `${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
+    <h4 class="home-h">Ways to learn</h4>
+    ${go('learn', IC.cap, 'var(--green)', 'Learn the map', 'Name every country, capital, state and province')}
+    ${go('find', IC.pin, 'var(--orange)', 'Find it on the globe', 'We name a place, you tap it')}
+    ${go('history', IC.clock, 'var(--purple)', 'Travel through time', `${trackList("world").length} chapters, from the first cities to today`)}`;
+}
 function homeSheet() {
   state.mode = 'explore'; state.target = null; state.solved.clear();
   setRound(false); setTab('explore');
@@ -1272,7 +1430,7 @@ function homeSheet() {
     <div class="results" id="results" hidden></div>
     <div id="exploreBody" style="display:grid;gap:14px">
       ${sel ? placeCard(sel) : `<div class="empty"><span class="em-ic">${ART.globe}</span><b>Tap any place on the globe</b><p>Countries, states and oceans. Green means you've learned it.</p></div>
-        <button class="btn" id="surprise">${IC.shuffle}Surprise me</button>`}
+        <button class="btn" id="surprise">${IC.shuffle}Surprise me</button>${startHtml()}`}
     </div>`);
   const q = $('#q'), res = $('#results'), body = $('#exploreBody'), box = $('#searchBox');
   q.oninput = () => {
@@ -1286,6 +1444,8 @@ function homeSheet() {
   $('#qClear').onclick = () => { q.value = ''; q.oninput(); q.focus(); };
   if ($('#surprise')) $('#surprise').onclick = () => { buzz(8); const pool = state.scope.items.filter(f => f.h || f.k === 'o'); selectPlace(pool[Math.random() * pool.length | 0], true); };
   if ($('#unsel')) $('#unsel').onclick = () => { state.sel = null; homeSheet(); draw(); };
+  sheet.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { buzz(5); showTab(b.dataset.go); });
+  sheet.querySelectorAll('[data-pod]').forEach(b => b.onclick = () => { buzz(5); selectPlace(byId[b.dataset.pod], true); });
   bindEras();
   updateTop(); draw();
 }
@@ -1348,26 +1508,35 @@ function findSheet() {
 function historySheet() {
   state.mode = 'explore'; state.target = null; state.era = null; state.solved.clear();
   setRound(false); setTab('history');
-  setSheet(`<div><div class="title">Timeline</div><p class="hint">From the first cities to today, in five eras.</p></div>
-    <div class="chapters">${ANCHORS.map(a => {
-      const sub = a.maps ? a.maps.map(m => m.tab).join(' · ') : '';
-      const hd = SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
+  if (!state.track) state.track = store.track || ({ us: 'us', usca: 'us', ca: 'ca', cn: 'cn' }[state.scope.id]) || 'world';
+  const tracks = TRACKS.filter(t => t.id === 'world' || trackList(t.id).length);
+  const list = trackList(state.track);
+  const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
+  setSheet(`<div><div class="title">Timeline</div><p class="hint">${hint}</p></div>
+    ${tracks.length > 1 ? `<div class="seg" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}">${t.name}</button>`).join('')}</div>` : ''}
+    <div class="chapters">${list.map(a => {
+      const sub = !a.maps ? '' : a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
+      const hd = !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
       return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
+  sheet.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { buzz(5); state.track = store.track = b.dataset.track; save(); historySheet(); sheet.scrollTop = 0; fitBox(G.views[{ us: 'us', cn: 'cn', ca: 'ca' }[state.track] || 'world']); });
   // The list reads as one journey from the first cities to today, so it opens at the top.
   updateTop(); draw();
 }
 function eraSheet(id, keepView, mapI) {
   clearTimeout(advanceT); keyHandler = null;
-  const i = ANCHORS.findIndex(a => a.id === id); if (i < 0) return;
-  const a = ANCHORS[i];
+  const a0 = anchorById[id]; if (!a0) return;
+  const TL = trackList(trackOf(a0)), i = TL.indexOf(a0), a = a0;
+  state.track = trackOf(a);
   const fresh = state.mode !== 'era' || state.era !== id;
-  if (fresh) { state.sel = null; state.mapI = 0; state.focusG = null; }
-  if (mapI != null && mapI !== state.mapI) { state.mapI = mapI; state.focusG = null; }
+  if (fresh) { state.sel = null; state.mapI = 0; state.focusG = null; state.hq = null; }
+  if (mapI != null && mapI !== state.mapI) { state.mapI = mapI; state.focusG = null; state.hq = null; }
   state.mode = 'era'; state.era = id; state.target = null; state.flash = null; state.solved.clear();
   setRound(false); setTab('history');
   const M = curMap(), sel = state.sel;
+  if (state.hq && state.hq.M !== M) state.hq = null;
+  const hq = state.hq;
   const maps = a.maps || [];
   const members = M ? null : eraMembers(id);
   const kind = state.scope.id === 'oceans' ? 'countries' : state.scope.unit.toLowerCase();
@@ -1387,21 +1556,25 @@ function eraSheet(id, keepView, mapI) {
     card = `<div class="picked" id="picked">${pc.slice(0, cut)}${hn}${pc.slice(cut)}</div>`;
   }
   setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
-    <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${ANCHORS.length}</span><h2>${esc(a.title)}</h2></div>
+    <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${TL.length}</span><h2>${esc(a.title)}</h2></div>
     ${M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
     ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${esc(m.tab)}</button>`).join('')}</div>` : ''}
-    ${M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
-      <div class="legend">${legend}${(M.lines || []).filter((l, k, a) => a.findIndex(x => x.label === l.label) === k).map(l => `<div class="lrow"><i style="--gc:${PAL[l.color]}"></i><b>${esc(l.label)}</b></div>`).join('')}</div>${M.groups.some(g => g.part && g.part.length) ? `<p class="fine">Shown on today's borders. Lighter shading: only part of that country.</p>` : ''}</div>` : ''}
-    ${card}
+    ${hq ? hquizHtml(hq) : M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
+      <div class="legend">${legend}${(M.lines || []).filter((l, k, a) => a.findIndex(x => x.label === l.label) === k).map(l => `<div class="lrow"><i style="--gc:${PAL[l.color]}"></i><b>${esc(l.label)}</b></div>`).join('')}</div>${M.groups.some(g => g.part && g.part.length) ? `<p class="fine">Shown on today's borders. Lighter shading: only part of that country.</p>` : ''}
+      <button class="flag" data-report="${esc(a.title + ' · ' + M.tab + (sel ? ' · ' + sel.n : ''))}">Report an error</button>
+      ${hquizPool(M).length >= 3 ? `<button class="btn primary" id="hqGo">${IC.target}Quiz me on this map</button>` : ''}</div>` : ''}
+    ${hq ? '' : card}
     ${M ? `<div class="era-sum"><h4>The chapter in brief</h4><p class="era-intro">${esc(a.text)}</p></div>` : ''}
     <div class="era-nav"><button class="btn" id="eraPrev" aria-label="Previous chapter" ${i ? '' : 'disabled'}>${IC.back}</button>
       <span class="era-count">${M ? 'Tap a lit country for its part in the story.' : members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
-      <button class="btn" id="eraNext" aria-label="Next chapter" ${i < ANCHORS.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>`);
+      <button class="btn" id="eraNext" aria-label="Next chapter" ${i < TL.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>`);
   sheet.style.setProperty('--sc', secColor[a.id]);
-  $('#eraPrev').onclick = () => eraSheet(ANCHORS[i - 1].id);
-  $('#eraNext').onclick = () => eraSheet(ANCHORS[i + 1].id);
+  $('#eraPrev').onclick = () => eraSheet(TL[i - 1].id);
+  $('#eraNext').onclick = () => eraSheet(TL[i + 1].id);
   $('#eraDone').onclick = () => { state.era = null; state.sel = null; historySheet(); fitBox(G.views[state.scope.id]); };
   if ($('#unsel')) $('#unsel').onclick = () => { state.sel = null; eraSheet(id, true); };
+  if ($('#hqGo')) $('#hqGo').onclick = () => { buzz(8); startHQ(M); eraSheet(id, true); };
+  if (hq) bindHQ(id);
   sheet.querySelectorAll('.mtabs [data-m]').forEach(b => b.onclick = () => { buzz(5); eraSheet(id, false, +b.dataset.m); });
   sheet.querySelectorAll('.grp').forEach(b => b.onclick = () => { buzz(5); state.focusG = state.focusG === +b.dataset.g ? null : +b.dataset.g; eraSheet(id, true); });
   sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { buzz(5); const f = byId[b.dataset.id]; state.sel = f; eraSheet(id, true); showOnGlobe(f); });
@@ -1429,6 +1602,53 @@ function mapBox(M) {
   const b = [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))];
   return b[2] - b[0] > 150 ? G.views.world : [b[0] - 3, b[1] - 3, b[2] + 3, b[3] + 3];
 }
+// Map quiz: five lit places from the current map; name the group each belongs to. Places with a
+// note come first, since those are the ones the map is about.
+function hquizPool(M) {
+  const ids = [];
+  for (const g of M.groups) for (const c of [...(g.full || []), ...(g.part || [])]) if (byId[c] && LAYER.includes(byId[c])) ids.push(c);
+  return M.groups.length >= 2 ? ids : [];
+}
+function startHQ(M) {
+  const pool = shuffle(hquizPool(M)), noted = pool.filter(c => M.notes && M.notes[c]);
+  const q = [...noted, ...pool.filter(c => !noted.includes(c))].slice(0, 5);
+  state.hq = { M, q: shuffle(q), i: 0, picked: null, right: 0 };
+  state.sel = null; state.focusG = null;
+}
+function hquizHtml(hq) {
+  const M = hq.M;
+  if (hq.i >= hq.q.length) return `<div class="hmap hq"><div class="done"><span class="badge">${hq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${hq.right} of ${hq.q.length} right</div><div class="sub">${esc(M.title)}</div></div>
+    <button class="btn primary" id="hqAgain">Quiz me again</button><button class="btn" id="hqEnd">Back to the map</button></div>`;
+  const f = byId[hq.q[hq.i]], r = histRole(f);
+  const opts = M.groups.map((g, gi) => {
+    const cls = hq.picked == null ? '' : gi === r.gi ? ' right' : gi === hq.picked ? ' wrong' : ' dim';
+    return `<button class="opt hopt${cls}" data-g="${gi}" ${hq.picked == null ? '' : 'disabled'}><i style="background:${PAL[g.color]}"></i><span>${esc(g.label)}</span></button>`;
+  }).join('');
+  const note = M.notes && M.notes[f.id];
+  const after = hq.picked == null ? '' : `<div class="verdict ${hq.picked === r.gi ? 'good' : 'bad'}"><div class="v-head"><span class="v-ic">${hq.picked === r.gi ? IC.check : IC.cross}</span><div><b>${hq.picked === r.gi ? 'Right!' : `Answer: ${esc(M.groups[r.gi].label)}`}</b>${note ? `<span>${esc(note)}</span>` : ''}</div></div>
+    <button class="btn primary" id="hqNext">${hq.i + 1 < hq.q.length ? 'Next' : 'See score'}</button></div>`;
+  return `<div class="hmap hq"><div class="qhead"><button class="qx" id="hqEnd" aria-label="End quiz">${IC.x}</button><div class="qbar"><i style="width:${hq.i / hq.q.length * 100}%"></i></div></div>
+    <span class="pill">Map quiz · ${esc(M.tab)}</span>
+    <p class="prompt">${r.part ? `Part of today's <em>${esc(f.n)}</em> belonged to which?` : `Which group was <em>${esc(f.n)}</em> in?`}</p>
+    <div class="opts">${opts}</div>${after}</div>`;
+}
+function bindHQ(id) {
+  const hq = state.hq;
+  sheet.querySelectorAll('.hopt').forEach(b => b.onclick = () => {
+    const r = histRole(byId[hq.q[hq.i]]); hq.picked = +b.dataset.g;
+    if (hq.picked === r.gi) { hq.right++; buzz(12); } else buzz([30, 40, 30]);
+    eraSheet(id, true);
+  });
+  if ($('#hqNext')) $('#hqNext').onclick = () => { hq.i++; hq.picked = null; eraSheet(id, true); const f = byId[hq.q[hq.i]]; if (f) showOnGlobe(f); };
+  if ($('#hqAgain')) $('#hqAgain').onclick = () => { startHQ(hq.M); eraSheet(id, true); showOnGlobe(byId[state.hq.q[0]]); };
+  sheet.querySelectorAll('#hqEnd').forEach(b => b.onclick = () => { state.hq = null; eraSheet(id, true); });
+  if (hq.i === 0 && hq.picked == null) showOnGlobe(byId[hq.q[0]]);
+  // Keep the quiz itself in view, under the chapter title.
+  const box = sheet.querySelector('.hq'), sr = sheet.getBoundingClientRect();
+  if (box) sheet.scrollTop += box.getBoundingClientRect().top - sr.top - 12;
+  // After an answer, make sure the explanation and Next button are on screen too.
+  const v = sheet.querySelector('.hq .verdict'); if (v) { const over = v.getBoundingClientRect().bottom - sr.bottom + 16; if (over > 0) sheet.scrollTop += over; }
+}
 // Turn the globe to a country (keeping the zoom) if it is out of view.
 function showOnGlobe(f) {
   if (!f) return;
@@ -1448,7 +1668,7 @@ function onPick(f) {
   if (state.mode === 'summary') return;
   const pick = f && f.id !== 'ATA' ? f : null;
   if (pick) { buzz(5); toast(pick.n); }
-  if (state.mode === 'era') { state.sel = pick && byId[parentId(pick)] || pick; return eraSheet(state.era, true); }
+  if (state.mode === 'era') { state.sel = pick && !anchorById[state.era].track && byId[parentId(pick)] || pick; return eraSheet(state.era, true); }
   state.sel = pick;
   homeSheet();
 }
