@@ -214,16 +214,17 @@ h1, h2, h3 { margin: 0; }
 
 /* ---- timeline ---- */
 .chapters { display: grid; gap: 12px; }
-.chapters .sec { margin: 10px 0 -2px; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.chapters .sec { margin: 10px 0 -2px; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--sc) 70%, var(--ink)); display: flex; align-items: center; gap: 8px; }
+.chapters .sec::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--sc); }
 .chapters .sec:first-child { margin-top: 0; }
 .chapter { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; text-align: left; }
 .chapter .yr { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; text-align: center; font-weight: 900; font-size: 11px; line-height: 1.1; background: var(--surface); color: var(--ink-2); border: 2px solid var(--line); font-variant-numeric: tabular-nums; white-space: pre-line; }
-.chapter.c20 .yr { background: var(--gold-l); border-color: var(--gold); color: var(--gold-d); }
+.chapter .yr { background: color-mix(in srgb, var(--sc) 16%, var(--bg)); border-color: var(--sc); color: color-mix(in srgb, var(--sc) 62%, var(--ink)); }
 .chapter b { display: block; font-weight: 900; font-size: 16px; line-height: 1.2; }
 .chapter small { color: var(--ink-2); font-size: 13px; font-weight: 800; }
 .chapter .ic { width: 18px; height: 18px; color: var(--ink-3); }
 .era-head { display: grid; gap: 4px; }
-.era-head .yrs { font-size: 13px; color: var(--gold-d); font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.era-head .yrs { font-size: 13px; color: color-mix(in srgb, var(--sc, var(--gold)) 70%, var(--ink)); font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
 .era-head h2 { font-weight: 900; font-size: 26px; line-height: 1.1; text-wrap: balance; }
 .era-nav { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
 .era-nav .btn { min-height: 46px; width: 52px; padding: 0; color: var(--ink-2); }
@@ -234,7 +235,7 @@ h1, h2, h3 { margin: 0; }
 .mtabs::-webkit-scrollbar { display: none; }
 .mtabs button { flex: none; border: 2px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 900; color: var(--ink-2); box-shadow: 0 3px 0 var(--line); }
 .mtabs button:active { transform: translateY(3px); box-shadow: none; }
-.mtabs button[aria-selected="true"] { border-color: var(--gold); background: var(--gold-l); color: var(--ink); box-shadow: 0 3px 0 var(--gold-d); }
+.mtabs button[aria-selected="true"] { border-color: var(--sc, var(--gold)); background: color-mix(in srgb, var(--sc, var(--gold)) 18%, var(--bg)); color: var(--ink); box-shadow: 0 3px 0 color-mix(in srgb, var(--sc, var(--gold)) 80%, #000); }
 .hmap { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 18px; padding: 14px; }
 .hmap h3 { margin: 0; font-size: 18px; font-weight: 900; line-height: 1.2; }
 .hmap > p { margin: 0; }
@@ -1062,7 +1063,10 @@ const ANCHORS = G.anchors || [];
 const anchorById = Object.fromEntries(ANCHORS.map(a => [a.id, a]));
 // Section headings in the chapter list, at the first chapter of each.
 const SECTION = { cradles: 'The ancient world', islam: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
-const C20 = new Set(['ww1', 'ww2', 'coldwar', 'asia', 'africa', 'islands', 'collapse', 'balkans', 'recent']);
+// Each section has its own colour, carried by its chapters' year badges and the chapter view.
+const SEC_COLOR = { cradles: '#ff9600', islam: '#ce82ff', old: '#1cb0f6', ww1: '#ffc800', today: '#58cc02' };
+const secColor = {};
+{ let c = '#afafaf'; for (const a of ANCHORS) { if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
 // Chapter tags open the chapter view; inside a quiz they are plain labels so a tap can't end the round.
 const eraChips = (f, link) => `<div class="eras">${f.h.a.map(id => {
   const a = anchorById[id]; if (!a) return '';
@@ -1344,11 +1348,11 @@ function findSheet() {
 function historySheet() {
   state.mode = 'explore'; state.target = null; state.era = null; state.solved.clear();
   setRound(false); setTab('history');
-  setSheet(`<div><div class="title">Timeline</div><p class="hint">From the first cities to today. Gold chapters are the 20th century.</p></div>
+  setSheet(`<div><div class="title">Timeline</div><p class="hint">From the first cities to today, in five eras.</p></div>
     <div class="chapters">${ANCHORS.map(a => {
       const sub = a.maps ? a.maps.map(m => m.tab).join(' · ') : '';
-      const hd = SECTION[a.id] ? `<h4 class="sec">${SECTION[a.id]}</h4>` : '';
-      return `${hd}<button class="chapter tile${C20.has(a.id) ? ' c20' : ''}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
+      const hd = SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
+      return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
   // The list reads as one journey from the first cities to today, so it opens at the top.
@@ -1383,7 +1387,7 @@ function eraSheet(id, keepView, mapI) {
     card = `<div class="picked" id="picked">${pc.slice(0, cut)}${hn}${pc.slice(cut)}</div>`;
   }
   setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
-    <div class="era-head"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${ANCHORS.length}</span><h2>${esc(a.title)}</h2></div>
+    <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${ANCHORS.length}</span><h2>${esc(a.title)}</h2></div>
     ${M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
     ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${esc(m.tab)}</button>`).join('')}</div>` : ''}
     ${M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
@@ -1393,6 +1397,7 @@ function eraSheet(id, keepView, mapI) {
     <div class="era-nav"><button class="btn" id="eraPrev" aria-label="Previous chapter" ${i ? '' : 'disabled'}>${IC.back}</button>
       <span class="era-count">${M ? 'Tap a lit country for its part in the story.' : members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
       <button class="btn" id="eraNext" aria-label="Next chapter" ${i < ANCHORS.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>`);
+  sheet.style.setProperty('--sc', secColor[a.id]);
   $('#eraPrev').onclick = () => eraSheet(ANCHORS[i - 1].id);
   $('#eraNext').onclick = () => eraSheet(ANCHORS[i + 1].id);
   $('#eraDone').onclick = () => { state.era = null; state.sel = null; historySheet(); fitBox(G.views[state.scope.id]); };
