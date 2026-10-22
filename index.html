@@ -192,6 +192,11 @@ h1, h2, h3 { margin: 0; }
 .result .r-fl { font-size: 28px; line-height: 1; width: 34px; text-align: center; flex: none; }
 .result b { display: block; font-weight: 900; font-size: 16px; }
 .result small { color: var(--ink-2); font-size: 13px; font-weight: 700; }
+.foot { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 8px 0 2px; font-size: 14px; color: var(--ink-3); }
+.foot .link, a.link { font: 800 14px var(--font); text-transform: none; letter-spacing: 0; color: var(--ink-2); text-decoration: none; background: none; border: 0; padding: 4px; cursor: pointer; }
+.setrow { display: grid; gap: 8px; padding: 12px 0; border-top: 2px solid var(--line); }
+.setrow b { font-size: 16px; font-weight: 900; }
+.setrow .hint { margin: 0; }
 .home-h { margin: 6px 0 -4px; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .go, .pod { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; text-align: left; padding: 12px 14px; }
 .go-ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, var(--bg)); color: var(--c); }
@@ -298,10 +303,24 @@ h1, h2, h3 { margin: 0; }
 .era-count { font-size: 14px; color: var(--ink-2); text-align: center; font-weight: 800; }
 .era-sum h4 { margin: 0 0 4px; font-size: 13px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .era-intro { margin: 0; color: var(--ink-2); font-size: 15px; }
+.chs { display: grid; gap: 6px; }
+.chs h4 { margin: 8px 0 0; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--sc) 70%, var(--ink)); }
+.chs p { margin: 0; line-height: 1.55; }
+.kd { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 0; border-left: 3px solid var(--sc); }
+.kd li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 5px 0 5px 12px; position: relative; font-size: 15px; line-height: 1.35; }
+.kd li::before { content: ""; position: absolute; left: -7.5px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 3px solid var(--sc); }
+.kd b { font-weight: 900; font-variant-numeric: tabular-nums; }
+.chs-go { display: flex; align-items: center; gap: 6px; margin-top: 6px !important; font-size: 14px; font-weight: 900; color: var(--ink-3); }
+.chs-go .ic { width: 18px; height: 18px; }
 .mtabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px 2px 4px; }
 .mtabs::-webkit-scrollbar { display: none; }
 .mtabs button { flex: none; border: 2px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 900; color: var(--ink-2); box-shadow: 0 3px 0 var(--line); }
 .mtabs button:active { transform: translateY(3px); box-shadow: none; }
+.mt-ok { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--green); color: #fff; margin-right: 6px; vertical-align: -3px; }
+.mt-ok .ic { width: 12px; height: 12px; }
+.chapter .mst { display: flex; width: fit-content; align-items: center; gap: 3px; margin-top: 4px; font-style: normal; font-size: 12px; font-weight: 900; color: var(--green-d); }
+.chapter .mst .ic { width: 13px; height: 13px; }
+.chapter .mst.all { color: #fff; background: var(--green); border-radius: 999px; padding: 1px 8px 1px 5px; }
 .mtabs button[aria-selected="true"] { border-color: var(--sc, var(--gold)); background: color-mix(in srgb, var(--sc, var(--gold)) 18%, var(--bg)); color: var(--ink); box-shadow: 0 3px 0 color-mix(in srgb, var(--sc, var(--gold)) 80%, #000); }
 .hmap { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 18px; padding: 14px; }
 .hmap h3 { margin: 0; font-size: 18px; font-weight: 900; line-height: 1.2; }
@@ -552,6 +571,9 @@ const KEY = 'atlas-drill:v1';
 let store = { prog: {}, scope: 'world', subj: 'name' };
 try { const raw = localStorage.getItem(KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+// Appearance: follow the device, or a fixed light or dark theme.
+function applyTheme() { if (store.theme === 'light' || store.theme === 'dark') document.documentElement.dataset.theme = store.theme; else delete document.documentElement.dataset.theme; }
+applyTheme();
 const pkey = (id, subj = state.subj) => subj + ':' + id;
 const prog = (id, subj) => store.prog[pkey(id, subj)] || { s: 0, c: 0, w: 0, t: 0 };
 function setProg(id, p) { store.prog[pkey(id)] = p; save(); }
@@ -1176,6 +1198,9 @@ const secColor = {};
 // The timeline has a world track and country tracks; each chapter belongs to one.
 const TRACKS = [{ id: 'world', name: 'World' }, { id: 'us', name: 'US' }, { id: 'cn', name: 'China' }, { id: 'ca', name: 'Canada' }];
 const trackOf = a => a.track || 'world';
+// Map quizzes passed (4 of 5 or better), per chapter.
+const mapDone = (id, m) => !!(store.hqBest && store.hqBest[id + ':' + m + '!']);
+const quizMaps = a => (a.maps || []).map((M, m) => M.groups.length >= 2 ? m : -1).filter(m => m >= 0);
 // Chapters still being written (no maps yet) stay out of the list until they are ready.
 const trackList = t => ANCHORS.filter(a => trackOf(a) === t && a.maps);
 // Chapter tags open the chapter view; inside a quiz they are plain labels so a tap can't end the round.
@@ -1419,7 +1444,35 @@ function startHtml() {
     <h4 class="home-h">Ways to learn</h4>
     ${go('learn', IC.cap, 'var(--green)', 'Learn the map', 'Name every country, capital, state and province')}
     ${go('find', IC.pin, 'var(--orange)', 'Find it on the globe', 'We name a place, you tap it')}
-    ${go('history', IC.clock, 'var(--purple)', 'Travel through time', `${trackList("world").length} chapters, from the first cities to today`)}`;
+    ${go('history', IC.clock, 'var(--purple)', 'Travel through time', `${trackList("world").length} chapters, from the first cities to today`)}
+    <div class="foot"><button class="link" id="openSettings">Settings</button><span>·</span><button class="link" id="openAbout">About</button><span>·</span><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a></div>`;
+}
+// Settings and About open inside the Explore panel, with a back link.
+function settingsSheet() {
+  const th = store.theme || 'auto';
+  setSheet(`<button class="back" id="setBack">${IC.back}Explore</button>
+    <div class="title">Settings</div>
+    <div class="setrow"><b>Appearance</b><div class="seg">${[['auto', 'Automatic'], ['light', 'Light'], ['dark', 'Dark']].map(([k, n]) => `<button data-theme-set="${k}" aria-pressed="${th === k}">${n}</button>`).join('')}</div></div>
+    <div class="setrow"><b>Progress</b><p class="hint">Your progress, streak and quiz scores are saved on this device only.</p>
+      <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
+    <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
+      <button class="btn" data-report="General feedback">Send feedback</button></div>`);
+  $('#setBack').onclick = homeSheet;
+  sheet.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { buzz(5); store.theme = b.dataset.themeSet; save(); applyTheme(); settingsSheet(); });
+  $('#resetAsk').onclick = () => {
+    $('#resetAll').innerHTML = `<p class="hint">This clears everything you've learned, your streak and map quiz scores. It can't be undone.</p><div class="rbtns"><button class="btn" id="resetKeep">Keep</button><button class="btn" id="resetGo" style="background:var(--red);border-color:var(--red);color:#fff">Reset</button></div>`;
+    $('#resetKeep').onclick = settingsSheet;
+    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; save(); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
+  };
+}
+function aboutSheet() {
+  setSheet(`<button class="back" id="setBack">${IC.back}Explore</button>
+    <div class="title">About Meridian</div>
+    <p>Meridian teaches the world: every country, state, province and ocean on a 3D globe, and the history that shaped them, from the first cities to today.</p>
+    <p class="hint">Histories and maps are written for Meridian and checked against published sources (encyclopedias, national statistics offices, the UN, Pew Research and others). Leaders are as of ${esc(asOf || 'the last update')}. History is shown on today's borders, so lighter shading means only part of a country belonged.</p>
+    <div class="setrow"><b>Credits</b><p class="hint">Borders: Natural Earth (public domain). Country facts: mledoze/countries (ODbL) and Wikidata (CC0). Map tiles: Esri, GEBCO, Garmin, Maxar. Globe: MapLibre GL (BSD). Font: Nunito (SIL OFL).</p></div>
+    <div class="foot"><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a><span>·</span><button class="link" data-report="General feedback">Send feedback</button></div>`);
+  $('#setBack').onclick = homeSheet;
 }
 function homeSheet() {
   state.mode = 'explore'; state.target = null; state.solved.clear();
@@ -1445,6 +1498,8 @@ function homeSheet() {
   if ($('#surprise')) $('#surprise').onclick = () => { buzz(8); const pool = state.scope.items.filter(f => f.h || f.k === 'o'); selectPlace(pool[Math.random() * pool.length | 0], true); };
   if ($('#unsel')) $('#unsel').onclick = () => { state.sel = null; homeSheet(); draw(); };
   sheet.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { buzz(5); showTab(b.dataset.go); });
+  if ($('#openSettings')) $('#openSettings').onclick = () => settingsSheet();
+  if ($('#openAbout')) $('#openAbout').onclick = () => aboutSheet();
   sheet.querySelectorAll('[data-pod]').forEach(b => b.onclick = () => { buzz(5); selectPlace(byId[b.dataset.pod], true); });
   bindEras();
   updateTop(); draw();
@@ -1517,7 +1572,9 @@ function historySheet() {
     <div class="chapters">${list.map(a => {
       const sub = !a.maps ? '' : a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
       const hd = !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
-      return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
+      const qm = quizMaps(a), done = qm.filter(m => mapDone(a.id, m)).length;
+      const prog = done ? `<em class="mst${done === qm.length ? ' all' : ''}">${IC.check}${done}/${qm.length}</em>` : '';
+      return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
   sheet.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { buzz(5); state.track = store.track = b.dataset.track; save(); historySheet(); sheet.scrollTop = 0; fitBox(G.views[{ us: 'us', cn: 'cn', ca: 'ca' }[state.track] || 'world']); });
@@ -1557,14 +1614,14 @@ function eraSheet(id, keepView, mapI) {
   }
   setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
     <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${TL.length}</span><h2>${esc(a.title)}</h2></div>
-    ${M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
-    ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${esc(m.tab)}</button>`).join('')}</div>` : ''}
+    ${a.story ? storyBlock(a) : M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
+    ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${mapDone(a.id, k) ? `<span class="mt-ok" aria-label="Mastered">${IC.check}</span>` : ''}${esc(m.tab)}</button>`).join('')}</div>` : ''}
     ${hq ? hquizHtml(hq) : M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
       <div class="legend">${legend}${(M.lines || []).filter((l, k, a) => a.findIndex(x => x.label === l.label) === k).map(l => `<div class="lrow"><i style="--gc:${PAL[l.color]}"></i><b>${esc(l.label)}</b></div>`).join('')}</div>${M.groups.some(g => g.part && g.part.length) ? `<p class="fine">Shown on today's borders. Lighter shading: only part of that country.</p>` : ''}
       <button class="flag" data-report="${esc(a.title + ' · ' + M.tab + (sel ? ' · ' + sel.n : ''))}">Report an error</button>
       ${hquizPool(M).length >= 3 ? `<button class="btn primary" id="hqGo">${IC.target}Quiz me on this map</button>` : ''}</div>` : ''}
     ${hq ? '' : card}
-    ${M ? `<div class="era-sum"><h4>The chapter in brief</h4><p class="era-intro">${esc(a.text)}</p></div>` : ''}
+    ${M && !a.story ? `<div class="era-sum"><h4>The chapter in brief</h4><p class="era-intro">${esc(a.text)}</p></div>` : ''}
     <div class="era-nav"><button class="btn" id="eraPrev" aria-label="Previous chapter" ${i ? '' : 'disabled'}>${IC.back}</button>
       <span class="era-count">${M ? 'Tap a lit country for its part in the story.' : members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
       <button class="btn" id="eraNext" aria-label="Next chapter" ${i < TL.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>`);
@@ -1591,6 +1648,17 @@ function eraSheet(id, keepView, mapI) {
     }
   }
   draw();
+}
+// A chapter's story: what happened, why, what it changed, and the key dates.
+function storyBlock(a) {
+  const st = a.story, now = a.years === 'Today';
+  const [h1, h2, h3] = now ? ['The picture today', 'Why it looks like this', 'What it means'] : ['What happened', 'Why it happened', 'What it changed'];
+  return `<div class="chs" style="--sc:${secColor[a.id]}">
+    <h4>${h1}</h4><p>${esc(st.what)}</p>
+    <h4>${h2}</h4><p>${esc(st.why)}</p>
+    <h4>${h3}</h4><p>${esc(st.after)}</p>
+    <h4>Key dates</h4><ol class="kd">${st.dates.map(([y, t]) => `<li><b>${esc(y)}</b><span>${esc(t)}</span></li>`).join('')}</ol>
+    ${a.maps ? `<p class="chs-go">${IC.globe}Explore it on the map below</p>` : ''}</div>`;
 }
 // Frame a chapter map: its countries, lines and pins, or the whole world if they span it.
 function mapBox(M) {
@@ -1639,7 +1707,17 @@ function bindHQ(id) {
     if (hq.picked === r.gi) { hq.right++; buzz(12); } else buzz([30, 40, 30]);
     eraSheet(id, true);
   });
-  if ($('#hqNext')) $('#hqNext').onclick = () => { hq.i++; hq.picked = null; eraSheet(id, true); const f = byId[hq.q[hq.i]]; if (f) showOnGlobe(f); };
+  if ($('#hqNext')) $('#hqNext').onclick = () => {
+    hq.i++; hq.picked = null;
+    if (hq.i >= hq.q.length) {
+      // Keep the best score per map; 4 of 5 or better counts as mastered.
+      const k = state.era + ':' + (state.mapI || 0);
+      store.hqBest = store.hqBest || {}; store.hqBest[k] = Math.max(store.hqBest[k] || 0, hq.right);
+      if (hq.right >= hq.q.length - 1) store.hqBest[k + '!'] = 1;
+      save(); practisedToday(); updateTop();
+    }
+    eraSheet(id, true); const f = byId[hq.q[hq.i]]; if (f) showOnGlobe(f);
+  };
   if ($('#hqAgain')) $('#hqAgain').onclick = () => { startHQ(hq.M); eraSheet(id, true); showOnGlobe(byId[state.hq.q[0]]); };
   sheet.querySelectorAll('#hqEnd').forEach(b => b.onclick = () => { state.hq = null; eraSheet(id, true); });
   if (hq.i === 0 && hq.picked == null) showOnGlobe(byId[hq.q[0]]);
