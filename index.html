@@ -214,6 +214,8 @@ h1, h2, h3 { margin: 0; }
 
 /* ---- timeline ---- */
 .chapters { display: grid; gap: 12px; }
+.chapters .sec { margin: 10px 0 -2px; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.chapters .sec:first-child { margin-top: 0; }
 .chapter { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; text-align: left; }
 .chapter .yr { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; text-align: center; font-weight: 900; font-size: 11px; line-height: 1.1; background: var(--surface); color: var(--ink-2); border: 2px solid var(--line); font-variant-numeric: tabular-nums; white-space: pre-line; }
 .chapter.c20 .yr { background: var(--gold-l); border-color: var(--gold); color: var(--gold-d); }
@@ -1058,6 +1060,8 @@ sheet.addEventListener('pointerdown', e => {
 // ---------- history layer ----------
 const ANCHORS = G.anchors || [];
 const anchorById = Object.fromEntries(ANCHORS.map(a => [a.id, a]));
+// Section headings in the chapter list, at the first chapter of each.
+const SECTION = { cradles: 'The ancient world', islam: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
 const C20 = new Set(['ww1', 'ww2', 'coldwar', 'asia', 'africa', 'islands', 'collapse', 'balkans', 'recent']);
 // Chapter tags open the chapter view; inside a quiz they are plain labels so a tap can't end the round.
 const eraChips = (f, link) => `<div class="eras">${f.h.a.map(id => {
@@ -1340,15 +1344,14 @@ function findSheet() {
 function historySheet() {
   state.mode = 'explore'; state.target = null; state.era = null; state.solved.clear();
   setRound(false); setTab('history');
-  setSheet(`<div><div class="title">Timeline</div><p class="hint">How the map got its shape. Gold chapters are the 20th century.</p></div>
+  setSheet(`<div><div class="title">Timeline</div><p class="hint">From the first cities to today. Gold chapters are the 20th century.</p></div>
     <div class="chapters">${ANCHORS.map(a => {
       const sub = a.maps ? a.maps.map(m => m.tab).join(' · ') : '';
-      return `<button class="chapter tile${C20.has(a.id) ? ' c20' : ''}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
+      const hd = SECTION[a.id] ? `<h4 class="sec">${SECTION[a.id]}</h4>` : '';
+      return `${hd}<button class="chapter tile${C20.has(a.id) ? ' c20' : ''}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
-  // Open at World War I: the 20th century is the anchor, earlier chapters are a scroll away.
-  const ww1 = sheet.querySelector('[data-era="ww1"]');
-  if (ww1 && phone()) requestAnimationFrame(() => { sheet.scrollTop = Math.max(0, ww1.offsetTop - 34); });
+  // The list reads as one journey from the first cities to today, so it opens at the top.
   updateTop(); draw();
 }
 function eraSheet(id, keepView, mapI) {

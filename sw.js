@@ -1,5 +1,5 @@
 // Cache-first service worker: the app works offline, and so do map areas you've already seen.
-const CACHE = 'atlas-drill-3893a174e9d5';
+const CACHE = 'atlas-drill-d18367c5f2bc';
 const TILES = 'atlas-drill-tiles';
 const CORE = ["./","index.html","geo-live.json","maplibre-gl.js","manifest.webmanifest","icon.svg","icon-180.png","icon-192.png","icon-512.png"];
 const isTile = url => /arcgisonline\.com/.test(url);
