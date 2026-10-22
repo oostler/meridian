@@ -1230,7 +1230,7 @@ function findSheet() {
   const found = items.filter(f => store.prog[key(f.id)]).length;
   setSheet(`${hero('blue', 'Find them on the globe', found, items.length, `${found} of ${items.length} found first try`, 'goLocate', 'Start')}
     ${subjSeg()}
-    <p class="hint" style="text-align:center">We name a place. Spin the globe and tap it. Ten places a round, three tries each.</p>`);
+    <p class="hint" style="text-align:center">We name a place. Spin the globe and tap it. Every place in the set, three tries each. Stop any time.</p>`);
   bindSubj(findSheet);
   $('#goLocate').onclick = () => { buzz(8); startLocate(); };
   $('#pickScope').onclick = openPicker;
@@ -1344,7 +1344,7 @@ function qhead(kind) {
   const label = kind === 'mc' ? 'Pick one' : kind === 'type' ? 'Type it' : 'Find it';
   const total = session.done + session.queue.length + 1;
   return `<div class="qhead"><button class="qx" id="quit" aria-label="End round">${IC.x}</button><div class="qbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${session.done}"><i style="width:${session.done / total * 100}%"></i></div></div>
-    <span class="pill ${kind}">${label === 'Pick one' ? 'New place' : label === 'Type it' ? 'Type the answer' : 'Find it'}</span>`;
+    <span class="pill ${kind}">${label === 'Pick one' ? 'New place' : label === 'Type it' ? 'Type the answer' : `Find it · ${session.done + 1} of ${total}`}</span>`;
 }
 function promptFor(f) {
   if (state.subj === 'cap') return `What is the capital of <em>${esc(f.n)}</em>?`;
@@ -1489,9 +1489,8 @@ function summary() {
 function startLocate() {
   const items = quizItems();
   const key = id => 'loc-' + state.subj + ':' + id;
-  const unseen = shuffle(items.filter(f => !store.prog[key(f.id)]));
-  const seen = shuffle(items.filter(f => store.prog[key(f.id)]));
-  const pick = unseen.concat(seen).slice(0, 10);
+  // Every place in the set, in random order.
+  const pick = shuffle(items.slice());
   session = { queue: pick.map(f => ({ f, kind: 'loc' })), done: 0, first: new Map(), mastered: 0, total: pick.length, key };
   roundFrom = 'find';
   state.mode = 'locate'; state.locate = true; state.sel = null; state.solved.clear();
