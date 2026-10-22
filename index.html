@@ -29,7 +29,9 @@
   --red: #ff4b4b; --red-d: #ea2b2b; --red-l: #ffdfe0;
   --gold: #ffc800; --gold-d: #e5a400; --gold-l: #fff5d3;
   --orange: #ff9600; --purple: #ce82ff; --purple-d: #a560e8;
-  --space: radial-gradient(120% 90% at 50% 40%, #ffffff 0%, #eef6fa 55%, #dfeef5 100%);
+  /* a soft sky with a few faint stars behind the globe */
+  --stars: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><circle cx='84' cy='39' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='19' cy='139' r='0.8' fill='%23fff' opacity='0.9'/><circle cx='15' cy='132' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='113' cy='18' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='110' cy='215' r='0.6' fill='%23fff' opacity='0.5'/><circle cx='164' cy='152' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='152' cy='13' r='0.8' fill='%23fff' opacity='0.35'/><circle cx='145' cy='35' r='1' fill='%23fff' opacity='0.5'/><circle cx='141' cy='148' r='1.2' fill='%23fff' opacity='0.5'/><circle cx='27' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='25' cy='185' r='1.2' fill='%23fff' opacity='0.35'/><circle cx='161' cy='129' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='202' cy='121' r='1' fill='%23fff' opacity='0.6'/><circle cx='78' cy='207' r='1.5' fill='%23fff' opacity='0.5'/><circle cx='21' cy='78' r='1' fill='%23fff' opacity='0.6'/><circle cx='190' cy='75' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='133' cy='43' r='0.8' fill='%23fff' opacity='0.5'/><circle cx='243' cy='110' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='199' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='181' cy='155' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='18' cy='24' r='0.8' fill='%23fff' opacity='0.8'/><circle cx='181' cy='17' r='1.5' fill='%23fff' opacity='0.6'/></svg>");
+  --space: var(--stars), radial-gradient(120% 90% at 50% 38%, #f6fbff 0%, #deeefa 50%, #c3dff3 100%);
   /* read by the globe */
   --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d7ffb8; --m2: #89e219; --target: #ffc800; --target-ink: #3c2a00;
   --good: #58cc02; --bad: #ff4b4b; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
@@ -40,7 +42,7 @@
   :root:not([data-theme="light"]) {
     --bg: #131f24; --surface: #1a2a31; --ink: #f1f7fb; --ink-2: #a5b6bf; --ink-3: #52656d; --line: #37464f;
     --green-l: #2b4a12; --blue-l: #13394d; --red-l: #4a1d20; --gold-l: #3d3315;
-    --space: radial-gradient(120% 90% at 50% 40%, #1d3b4b 0%, #11232c 55%, #0b171d 100%);
+    --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #1b3a52 0%, #0f2232 55%, #08111b 100%);
     --land: #2b3b43; --m1: #2f5a3b; --m2: #4f9b2a; --veil: #000000; --label: #e3edf0; --halo: rgba(16, 41, 58, .85);
     color-scheme: dark;
   }
@@ -48,7 +50,7 @@
 :root[data-theme="dark"] {
   --bg: #131f24; --surface: #1a2a31; --ink: #f1f7fb; --ink-2: #a5b6bf; --ink-3: #52656d; --line: #37464f;
   --green-l: #2b4a12; --blue-l: #13394d; --red-l: #4a1d20; --gold-l: #3d3315;
-  --space: radial-gradient(120% 90% at 50% 40%, #1d3b4b 0%, #11232c 55%, #0b171d 100%);
+  --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #1b3a52 0%, #0f2232 55%, #08111b 100%);
   --land: #2b3b43; --m1: #2f5a3b; --m2: #4f9b2a; --veil: #000000; --label: #e3edf0; --halo: rgba(16, 41, 58, .85);
   color-scheme: dark;
 }
@@ -96,6 +98,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 
 #toast { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); transform: translate(-50%, -6px); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; font-size: 15px; font-weight: 800; opacity: 0; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; z-index: 5; }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
+#toast.wrap { white-space: normal; width: max-content; max-width: min(360px, calc(100% - 32px)); border-radius: 16px; text-align: center; line-height: 1.3; }
 
 /* ---- panel and tab bar ---- */
 #sheet { background: var(--bg); border-radius: 24px 24px 0 0; padding: 0 16px 16px; box-shadow: 0 -2px 0 var(--line), 0 -10px 30px rgba(0, 0, 0, .06);
@@ -223,6 +226,37 @@ h1, h2, h3 { margin: 0; }
 .era-nav { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
 .era-nav .btn { min-height: 46px; width: 52px; padding: 0; color: var(--ink-2); }
 .era-count { font-size: 14px; color: var(--ink-2); text-align: center; font-weight: 800; }
+.era-sum h4 { margin: 0 0 4px; font-size: 13px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.era-intro { margin: 0; color: var(--ink-2); font-size: 15px; }
+.mtabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px 2px 4px; }
+.mtabs::-webkit-scrollbar { display: none; }
+.mtabs button { flex: none; border: 2px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 900; color: var(--ink-2); box-shadow: 0 3px 0 var(--line); }
+.mtabs button:active { transform: translateY(3px); box-shadow: none; }
+.mtabs button[aria-selected="true"] { border-color: var(--gold); background: var(--gold-l); color: var(--ink); box-shadow: 0 3px 0 var(--gold-d); }
+.hmap { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 18px; padding: 14px; }
+.hmap h3 { margin: 0; font-size: 18px; font-weight: 900; line-height: 1.2; }
+.hmap > p { margin: 0; }
+.lk { border: 0; padding: 0 1px; background: none; font: inherit; color: var(--blue-d); font-weight: 900; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--blue) 45%, transparent); cursor: pointer; }
+.legend { display: grid; gap: 6px; }
+.grp { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; text-align: left; border: 2px solid var(--line); background: var(--bg); border-radius: 14px; padding: 8px 12px; color: var(--ink); box-shadow: 0 3px 0 var(--line); }
+.grp:active { transform: translateY(3px); box-shadow: none; }
+.grp.on { border-color: var(--blue); box-shadow: 0 3px 0 #84d8ff; }
+.grp i { width: 22px; height: 22px; border-radius: 7px; background: var(--gc); box-shadow: inset 0 -3px 0 rgb(0 0 0 / .18); }
+.grp b { display: block; font-size: 15px; font-weight: 900; line-height: 1.2; }
+.grp small { display: block; font-size: 13px; color: var(--ink-2); font-weight: 800; line-height: 1.25; }
+.grp em { font-style: normal; font-size: 13px; font-weight: 900; color: var(--ink-3); }
+.lrow { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: center; padding: 4px 14px; font-size: 15px; }
+.lrow i { height: 5px; border-radius: 3px; background: repeating-linear-gradient(90deg, var(--gc) 0 7px, transparent 7px 11px); }
+.gchips { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 6px; }
+.lk.chip { text-decoration: none; border: 2px solid var(--line); border-radius: 10px; padding: 3px 9px; font-size: 13px; color: var(--ink); background: var(--surface); }
+.lk.chip.part { border-style: dashed; color: var(--ink-2); }
+.fine { margin: 0; font-size: 12px; color: var(--ink-3); font-weight: 800; }
+.hnote { display: grid; gap: 6px; background: var(--surface); border-radius: 14px; padding: 12px; }
+.hnote p { margin: 0; }
+.role { display: flex; gap: 8px; align-items: baseline; font-weight: 900; }
+.role i { flex: none; width: 12px; height: 12px; border-radius: 4px; transform: translateY(1px); }
+.hpin { display: flex; align-items: center; gap: 5px; border: 0; background: none; padding: 0; font: 800 12px var(--font); color: #1d3640; white-space: nowrap; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; cursor: pointer; }
+.hpin i { width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2.5px solid #1d3640; flex: none; }
 .picked { border-top: 2px solid var(--line); padding-top: 14px; display: grid; gap: 12px; }
 .back { display: flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--blue); font-size: 14px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; padding: 4px 0; justify-self: start; }
 .back .ic { width: 18px; height: 18px; }
@@ -525,6 +559,7 @@ const style = {
     borders: { type: 'geojson', data: borders, promoteId: 'id', tolerance: 0.25 },
     dots: { type: 'geojson', data: dots, promoteId: 'id' },
     seas: { type: 'geojson', data: seas, promoteId: 'id', tolerance: 0.4 },
+    hist: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
     ...(TILES_ON ? {
       map: raster('Ocean/World_Ocean_Base', 10), mapLabels: raster('Ocean/World_Ocean_Reference', 10),
       sat: raster('World_Imagery', 18), satLabels: raster('Reference/World_Boundaries_and_Places', 18),
@@ -548,6 +583,9 @@ const style = {
       'line-color': ['coalesce', ['feature-state', 'lc'], '#5d7680'],
       'line-opacity': ['coalesce', ['feature-state', 'lo'], 0],
       'line-width': ['coalesce', ['feature-state', 'lw'], 1] } },
+    // Timeline routes and frontiers (the Silk Road, the Iron Curtain), over a white casing.
+    { id: 'hist-case', type: 'line', source: 'hist', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 6.5, 'line-opacity': 0.9 } },
+    { id: 'hist-line', type: 'line', source: 'hist', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': ['get', 'c'], 'line-width': 3.5, 'line-dasharray': [2, 1.2] } },
     ...(TILES_ON ? [
       { id: 'ref-map', type: 'raster', source: 'mapLabels', layout: { visibility: 'none' } },
       { id: 'ref-sat', type: 'raster', source: 'satLabels', layout: { visibility: 'none' } },
@@ -573,9 +611,11 @@ map.on('load', () => {
   const at = document.querySelector('.maplibregl-ctrl-attrib'); if (at) { at.classList.remove('maplibregl-compact-show'); at.removeAttribute('open'); }
 });
 
-const subMode = () => !!state.scope.sub;
+const subMode = () => !!state.scope.sub && state.mode !== 'era';
 let LAYER = [];
+let layerSub = null;
 function refreshLayer() {
+  layerSub = subMode();
   LAYER = F.filter(f => f.id !== 'ATA' && f.k !== 'o' && (subMode() ? !SPLIT.includes(f.id) : !f.sub1));
   if (!ready) return;
   const filter = subMode() ? ['!', ['in', ['get', 'id'], ['literal', SPLIT]]] : ['!=', ['get', 'sub1'], true];
@@ -651,10 +691,14 @@ function styleFor(f) {
     if (s >= 2) { fill = C.m2; fo = 0.55; } else if (s === 1) { fill = C.m1; fo = 0.6; }
   } else if (state.solved.has(f.id)) { fill = C.m2; fo = 0.45; }
   if (state.mode === 'era') {
-    // Chapter view: light up every place this chapter created or reshaped.
-    fill = C.veil; fo = ins ? 0 : fo; lo = ins ? 0.35 : 0;
-    if (f.h && f.h.a.includes(state.era)) { fill = C.target; fo = 0.42; lc = INK; lo = 0.7; lw = 1; }
-    if (state.sel && state.sel.id === f.id) { fill = C.target; fo = 0.78; lc = sat ? '#ffffff' : INK; lo = 1; lw = 1.8; }
+    // Chapter map: each group in its colour; lighter where only part of today's country belonged.
+    const r = histRole(f), M = curMap();
+    fill = C.veil; fo = 0; lc = sat ? '#ffffff' : '#5d7680'; lo = TILES_ON ? 0.3 : 0.55; lw = 0.7;
+    if (r) {
+      const dim = state.focusG != null && state.focusG !== r.gi;
+      fill = PAL[M.groups[r.gi].color] || C.target; fo = dim ? 0.1 : r.part ? 0.3 : 0.6; lc = INK; lo = dim ? 0.25 : 0.6; lw = 1;
+    } else if (!M && f.h && f.h.a.includes(state.era)) { fill = C.target; fo = 0.42; lc = INK; lo = 0.7; lw = 1; }
+    if (state.sel && state.sel.id === f.id) { if (!r) fill = C.target; fo = Math.max(fo, 0.7) + 0.08; lc = sat ? '#ffffff' : INK; lo = 1; lw = 2.2; }
   }
   if (state.flash && state.flash.id === f.id && state.flash.until > now) { fill = C.bad; fo = 0.6; lc = INK; lo = 1; lw = 2; }
   if ((state.target && state.target.id === f.id) || (state.mode === 'explore' && state.sel && state.sel.id === f.id)) {
@@ -671,13 +715,16 @@ function draw() {
   requestAnimationFrame(() => { drawQueued = false; paint(); });
 }
 function paint() {
+  if (layerSub !== subMode()) refreshLayer();
   setBase();
+  drawHist();
   const z = map.getZoom();
   for (const f of LAYER) {
     const st = styleFor(f);
     // Dots for places too small to see at this zoom.
     const small = (f.k !== 't' || f.sub1) && pxSize(f) < 9 && !(z < 2.5 && f.nb.length && f.size > 0.6 && !f.sub1);
-    const showDot = small && (inScope(f) || z >= 3.5);
+    const era = state.mode === 'era';
+    const showDot = small && (era ? !!(histRole(f) || state.sel === f) : inScope(f) || z >= 3.5);
     const dot = showDot ? { r: inScope(f) ? 5 : 3.5, op: 1, fill: st.fo > 0.3 ? st.fill : '#ffffff' } : { r: 0, op: 0, fill: '#ffffff' };
     const key = JSON.stringify([st, dot]);
     if (f.styleKey === key) continue;
@@ -828,7 +875,7 @@ else $('#zbase').hidden = true;
 
 // ---------- toast ----------
 let toastT;
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1800); }
+function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('wrap', msg.length > 40); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
 // A light tap of feedback where the device supports it.
 const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 
@@ -1033,6 +1080,58 @@ function storyHtml(f, link = true) {
 }
 function bindEras(root = sheet) { root.querySelectorAll('[data-era]').forEach(b => b.onclick = () => eraSheet(b.dataset.era)); }
 const eraMembers = id => LAYER.filter(f => f.h && f.h.a.includes(id));
+
+// ---------- chapter maps ----------
+// Each chapter has one or more maps (data/timeline/<chapter>.json): groups of today's countries
+// in a colour, routes and frontiers as lines, and pins. Empires that are gone are shown on the
+// land of the countries there today; "part" marks a country only partly inside.
+const PAL = { red: '#e03131', blue: '#2846c4', gold: '#f2a900', green: '#2f9e44', purple: '#8f3fe0', teal: '#0c9c9c', orange: '#f76707', pink: '#d6336c', brown: '#96693d', slate: '#5c7684', navy: '#283c8c', lime: '#82b81a' };
+const parentId = f => f.k === 's' ? 'USA' : f.k === 'p' ? 'CAN' : f.k === 'r' && !['HKG', 'MAC'].includes(f.id) ? 'CHN' : f.id;
+let roleCache = null, roleFor = null;
+const curMap = () => { const a = anchorById[state.era]; return a && a.maps ? a.maps[Math.min(state.mapI || 0, a.maps.length - 1)] : null; };
+function histRole(f) {
+  const M = curMap(); if (!M) return null;
+  if (roleFor !== M) {
+    roleFor = M; roleCache = new Map();
+    M.groups.forEach((g, gi) => { for (const id of g.full || []) roleCache.set(id, { gi, part: false }); for (const id of g.part || []) roleCache.set(id, { gi, part: true }); });
+  }
+  return roleCache.get(f.id) || roleCache.get(parentId(f)) || null;
+}
+// "[Hungary](HUN)" in chapter text becomes a link that picks the country on the globe.
+const linkText = t => esc(t).replace(/\[([^\]]+)\]\(([A-Z]{3})\)/g, (m, n, id) => byId[id] ? `<button class="lk" data-id="${id}">${n}</button>` : n);
+function roleLine(f) {
+  const r = histRole(f), M = curMap(); if (!r) return '';
+  const g = M.groups[r.gi];
+  return `<p class="role"><i style="background:${PAL[g.color]}"></i><span>${esc(g.label)}${r.part ? `<small> · part of today's ${esc(f.n)}</small>` : ''}</span></p>`;
+}
+let histPins = [], pinsFor = null;
+function drawHist() {
+  const M = state.mode === 'era' ? curMap() : null;
+  if (pinsFor === M) return;
+  pinsFor = M;
+  for (const m of histPins) m.remove();
+  histPins = [];
+  const lines = (M && M.lines || []).map(l => ({ type: 'Feature', properties: { c: PAL[l.color] || PAL.gold }, geometry: { type: 'LineString', coordinates: l.pts } }));
+  map.getSource('hist')?.setData({ type: 'FeatureCollection', features: lines });
+  for (const p of M && M.pins || []) {
+    const el = document.createElement('button'); el.className = 'hpin'; el.innerHTML = `<i></i><span>${esc(p.n)}</span>`;
+    if (p.note) el.onclick = e => { e.stopPropagation(); buzz(5); toast(p.n + ': ' + p.note, 4200); };
+    histPins.push(new maplibregl.Marker({ element: el, anchor: 'left', offset: [-7, 0], opacityWhenCovered: '0' }).setLngLat(p.l).addTo(map));
+  }
+  requestAnimationFrame(declutterPins);
+}
+// Pin names that would overlap an earlier one hide (the dot stays) until the map is zoomed in.
+function declutterPins() {
+  const kept = [];
+  for (const m of histPins) {
+    const s = m.getElement().querySelector('span'); s.style.visibility = '';
+    if (m.getElement().style.opacity === '0') continue;
+    const r = s.getBoundingClientRect(), d = m.getElement().querySelector('i').getBoundingClientRect();
+    const box = { l: Math.min(r.left, d.left) - 2, r: r.right + 2, t: r.top - 1, b: r.bottom + 1 };
+    if (kept.some(k => box.l < k.r && box.r > k.l && box.t < k.b && box.b > k.t)) s.style.visibility = 'hidden'; else kept.push(box);
+  }
+}
+map.on('moveend', () => { if (histPins.length) declutterPins(); });
 
 // ---------- icons ----------
 const svg = (d, w = 2) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
@@ -1243,9 +1342,8 @@ function historySheet() {
   setRound(false); setTab('history');
   setSheet(`<div><div class="title">Timeline</div><p class="hint">How the map got its shape. Gold chapters are the 20th century.</p></div>
     <div class="chapters">${ANCHORS.map(a => {
-      const n = eraMembers(a.id).length;
-      const unit = state.scope.id === 'oceans' ? (n === 1 ? 'country' : 'countries') : n === 1 ? (state.scope.one || 'country') : state.scope.unit.toLowerCase();
-      return `<button class="chapter tile${C20.has(a.id) ? ' c20' : ''}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${n} ${esc(unit)}</small></span>${IC.next}</button>`;
+      const sub = a.maps ? a.maps.map(m => m.tab).join(' · ') : '';
+      return `<button class="chapter tile${C20.has(a.id) ? ' c20' : ''}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small></span>${IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
   // Open at World War I: the 20th century is the anchor, earlier chapters are a scroll away.
@@ -1253,34 +1351,82 @@ function historySheet() {
   if (ww1 && phone()) requestAnimationFrame(() => { sheet.scrollTop = Math.max(0, ww1.offsetTop - 34); });
   updateTop(); draw();
 }
-function eraSheet(id, keepView) {
+function eraSheet(id, keepView, mapI) {
   clearTimeout(advanceT); keyHandler = null;
   const i = ANCHORS.findIndex(a => a.id === id); if (i < 0) return;
   const a = ANCHORS[i];
-  if (state.mode !== 'era' || state.era !== id) state.sel = null;
+  const fresh = state.mode !== 'era' || state.era !== id;
+  if (fresh) { state.sel = null; state.mapI = 0; state.focusG = null; }
+  if (mapI != null && mapI !== state.mapI) { state.mapI = mapI; state.focusG = null; }
   state.mode = 'era'; state.era = id; state.target = null; state.flash = null; state.solved.clear();
   setRound(false); setTab('history');
-  const members = eraMembers(id);
-  const sel = state.sel;
+  const M = curMap(), sel = state.sel;
+  const maps = a.maps || [];
+  const members = M ? null : eraMembers(id);
   const kind = state.scope.id === 'oceans' ? 'countries' : state.scope.unit.toLowerCase();
+  const byName = (x, y) => x.n.localeCompare(y.n);
+  const legend = M ? M.groups.map((g, gi) => {
+    const ids = [...(g.full || []), ...(g.part || [])].map(x => byId[x]).filter(Boolean);
+    const on = state.focusG === gi;
+    const chips = on ? `<div class="gchips">${ids.sort(byName).map(f => `<button class="lk chip${(g.part || []).includes(f.id) ? ' part' : ''}" data-id="${f.id}">${esc(f.n)}</button>`).join('')}</div>` : '';
+    return `<button class="grp${on ? ' on' : ''}" data-g="${gi}" aria-expanded="${on}"><i style="--gc:${PAL[g.color]}"></i><span><b>${esc(g.label)}</b>${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</span><em>${ids.length}</em></button>${chips}`;
+  }).join('') : '';
+  const note = sel && M && M.notes && (M.notes[sel.id] || M.notes[parentId(sel)]);
+  // The place card with this map's part of its story under the name.
+  let card = '';
+  if (sel) {
+    const pc = placeCard(sel), cut = pc.indexOf('</div>') + 6;
+    const hn = M && (histRole(sel) || note) ? `<div class="hnote">${roleLine(sel)}${note ? `<p>${esc(note)}</p>` : ''}</div>` : '';
+    card = `<div class="picked" id="picked">${pc.slice(0, cut)}${hn}${pc.slice(cut)}</div>`;
+  }
   setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
     <div class="era-head"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${ANCHORS.length}</span><h2>${esc(a.title)}</h2></div>
-    <p style="margin:0">${esc(a.text)}</p>
+    ${M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
+    ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${esc(m.tab)}</button>`).join('')}</div>` : ''}
+    ${M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
+      <div class="legend">${legend}${(M.lines || []).filter((l, k, a) => a.findIndex(x => x.label === l.label) === k).map(l => `<div class="lrow"><i style="--gc:${PAL[l.color]}"></i><b>${esc(l.label)}</b></div>`).join('')}</div>${M.groups.some(g => g.part && g.part.length) ? `<p class="fine">Shown on today's borders. Lighter shading: only part of that country.</p>` : ''}</div>` : ''}
+    ${card}
+    ${M ? `<div class="era-sum"><h4>The chapter in brief</h4><p class="era-intro">${esc(a.text)}</p></div>` : ''}
     <div class="era-nav"><button class="btn" id="eraPrev" aria-label="Previous chapter" ${i ? '' : 'disabled'}>${IC.back}</button>
-      <span class="era-count">${members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
-      <button class="btn" id="eraNext" aria-label="Next chapter" ${i < ANCHORS.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>
-    ${sel ? `<div class="picked">${placeCard(sel)}</div>` : ''}`);
+      <span class="era-count">${M ? 'Tap a lit country for its part in the story.' : members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
+      <button class="btn" id="eraNext" aria-label="Next chapter" ${i < ANCHORS.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>`);
   $('#eraPrev').onclick = () => eraSheet(ANCHORS[i - 1].id);
   $('#eraNext').onclick = () => eraSheet(ANCHORS[i + 1].id);
   $('#eraDone').onclick = () => { state.era = null; state.sel = null; historySheet(); fitBox(G.views[state.scope.id]); };
   if ($('#unsel')) $('#unsel').onclick = () => { state.sel = null; eraSheet(id, true); };
+  sheet.querySelectorAll('.mtabs [data-m]').forEach(b => b.onclick = () => { buzz(5); eraSheet(id, false, +b.dataset.m); });
+  sheet.querySelectorAll('.grp').forEach(b => b.onclick = () => { buzz(5); state.focusG = state.focusG === +b.dataset.g ? null : +b.dataset.g; eraSheet(id, true); });
+  sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { buzz(5); const f = byId[b.dataset.id]; state.sel = f; eraSheet(id, true); showOnGlobe(f); });
   bindEras();
+  // A newly picked country: bring its card into view.
+  if (sel && sel !== state.shownSel) { const pk = $('#picked'); if (pk) requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollTop + pk.getBoundingClientRect().top - sheet.getBoundingClientRect().top - 12, behavior: 'smooth' })); }
+  state.shownSel = sel;
   if (!keepView) {
-    // Frame the chapter's places; if they span the globe, show the whole scope.
-    const b = members.reduce((t, f) => [Math.min(t[0], f.f[0]), Math.min(t[1], f.f[1]), Math.max(t[2], f.f[2]), Math.max(t[3], f.f[3])], [Infinity, Infinity, -Infinity, -Infinity]);
-    fitBox(members.length && b[2] - b[0] < 150 ? [b[0] - 4, b[1] - 3, b[2] + 4, b[3] + 3] : G.views[state.scope.id]);
+    if (M) fitBox(M.box || mapBox(M));
+    else {
+      // Frame the chapter's places; if they span the globe, show the whole scope.
+      const b = members.reduce((t, f) => [Math.min(t[0], f.f[0]), Math.min(t[1], f.f[1]), Math.max(t[2], f.f[2]), Math.max(t[3], f.f[3])], [Infinity, Infinity, -Infinity, -Infinity]);
+      fitBox(members.length && b[2] - b[0] < 150 ? [b[0] - 4, b[1] - 3, b[2] + 4, b[3] + 3] : G.views[state.scope.id]);
+    }
   }
   draw();
+}
+// Frame a chapter map: its countries, lines and pins, or the whole world if they span it.
+function mapBox(M) {
+  const pts = [];
+  for (const g of M.groups) for (const id of [...(g.full || []), ...(g.part || [])]) { const f = byId[id]; if (f && id !== 'RUS' && id !== 'USA' && id !== 'CAN') pts.push([f.f[0], f.f[1]], [f.f[2], f.f[3]]); }
+  for (const l of M.lines || []) pts.push(...l.pts);
+  for (const p of M.pins || []) pts.push(p.l);
+  if (!pts.length) return G.views.world;
+  const b = [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))];
+  return b[2] - b[0] > 150 ? G.views.world : [b[0] - 3, b[1] - 3, b[2] + 3, b[3] + 3];
+}
+// Turn the globe to a country (keeping the zoom) if it is out of view.
+function showOnGlobe(f) {
+  if (!f) return;
+  const p = map.project(f.ll), r = wrapEl.getBoundingClientRect(), P = pads();
+  const inView = p.x > P.left && p.x < r.width - P.right && p.y > P.top && p.y < r.height - P.bottom && map.getBounds().contains(f.ll);
+  if (!inView) map.easeTo({ center: f.ll, duration: 700, padding: P });
 }
 
 function onPick(f) {
@@ -1294,7 +1440,7 @@ function onPick(f) {
   if (state.mode === 'summary') return;
   const pick = f && f.id !== 'ATA' ? f : null;
   if (pick) { buzz(5); toast(pick.n); }
-  if (state.mode === 'era') { state.sel = pick; return eraSheet(state.era, true); }
+  if (state.mode === 'era') { state.sel = pick && byId[parentId(pick)] || pick; return eraSheet(state.era, true); }
   state.sel = pick;
   homeSheet();
 }
