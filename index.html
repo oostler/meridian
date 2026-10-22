@@ -747,12 +747,21 @@ map.on('click', e => {
 
 // ---------- camera ----------
 let vw = 0, vh = 0;
+// Keep the app pinned to the visible part of the screen. When the iPhone keyboard opens, iOS
+// shrinks the visual viewport and scrolls it; the app follows instead of sliding off-screen.
+function fitViewport() {
+  const vv = window.visualViewport, app = $('#app');
+  app.style.height = (vv ? vv.height : innerHeight) + 'px';
+  app.style.transform = vv && vv.offsetTop ? `translateY(${vv.offsetTop}px)` : '';
+}
 function resize() {
-  const vv = window.visualViewport;
-  $('#app').style.height = (vv ? vv.height : innerHeight) + 'px';
+  fitViewport();
   const r = wrapEl.getBoundingClientRect(); vw = r.width; vh = r.height;
   map.resize();
   setSnap(snap);
+  // Typing an answer: keep the question and the box in view above the keyboard.
+  const a = document.activeElement;
+  if (a && a.tagName === 'INPUT' && sheet.contains(a)) requestAnimationFrame(() => { sheet.scrollTop = 0; });
 }
 // The part of the map you can actually see: below the header and, on phones, above the panel.
 // The globe is framed inside it through MapLibre's camera padding, so the canvas never resizes
@@ -1372,7 +1381,7 @@ function askMC(item) {
 function askType(item) {
   const f = item.f;
   setSheet(`${qhead('type')}<p class="prompt">${promptFor(f)}</p>
-    <form class="typerow" id="tf" autocomplete="off"><input id="ans" type="text" inputmode="text" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="${state.subj === 'cap' ? 'Capital city' : 'Name'}" aria-label="Your answer"><button class="btn primary" type="submit">Check</button></form>
+    <form class="typerow" id="tf" autocomplete="off"><input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="go" data-form-type="other" name="quiz-guess" placeholder="${state.subj === 'cap' ? 'Type the capital' : 'Type your answer'}" aria-label="Your answer"><button class="btn primary" type="submit">Check</button></form>
     <div class="row"><button class="btn" id="hintBtn">First letter</button><button class="btn" id="idk">Show me</button></div>
     <div class="fb" id="fb"></div>`);
   bindQuit();
@@ -1537,6 +1546,7 @@ readColors();
 refreshLayer();
 window.addEventListener('resize', resize);
 window.visualViewport?.addEventListener('resize', () => { resize(); window.scrollTo(0, 0); });
+window.visualViewport?.addEventListener('scroll', fitViewport);
 // First layout without animation, so the globe starts centred in the space above the panel.
 $('#app').classList.add('dragging');
 homeSheet();
