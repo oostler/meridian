@@ -54,7 +54,7 @@
   --orange: #ff9600; --purple: #ce82ff; --purple-d: #a560e8;
   /* a soft sky with a few faint stars behind the globe */
   --stars: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><circle cx='84' cy='39' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='19' cy='139' r='0.8' fill='%23fff' opacity='0.9'/><circle cx='15' cy='132' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='113' cy='18' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='110' cy='215' r='0.6' fill='%23fff' opacity='0.5'/><circle cx='164' cy='152' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='152' cy='13' r='0.8' fill='%23fff' opacity='0.35'/><circle cx='145' cy='35' r='1' fill='%23fff' opacity='0.5'/><circle cx='141' cy='148' r='1.2' fill='%23fff' opacity='0.5'/><circle cx='27' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='25' cy='185' r='1.2' fill='%23fff' opacity='0.35'/><circle cx='161' cy='129' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='202' cy='121' r='1' fill='%23fff' opacity='0.6'/><circle cx='78' cy='207' r='1.5' fill='%23fff' opacity='0.5'/><circle cx='21' cy='78' r='1' fill='%23fff' opacity='0.6'/><circle cx='190' cy='75' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='133' cy='43' r='0.8' fill='%23fff' opacity='0.5'/><circle cx='243' cy='110' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='199' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='181' cy='155' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='18' cy='24' r='0.8' fill='%23fff' opacity='0.8'/><circle cx='181' cy='17' r='1.5' fill='%23fff' opacity='0.6'/></svg>");
-  --space: var(--stars), radial-gradient(120% 90% at 50% 38%, #f6fbff 0%, #deeefa 50%, #c3dff3 100%);
+  --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #eef7fe 0%, #c4e1f6 52%, #94c4ea 100%);
   /* read by the globe */
   --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d7ffb8; --m2: #89e219; --target: #ffc800; --target-ink: #3c2a00;
   --good: #58cc02; --bad: #ff4b4b; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
@@ -310,16 +310,37 @@ h1, h2, h3 { margin: 0; }
 .kd li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 5px 0 5px 12px; position: relative; font-size: 15px; line-height: 1.35; }
 .kd li::before { content: ""; position: absolute; left: -7.5px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 3px solid var(--sc); }
 .kd b { font-weight: 900; font-variant-numeric: tabular-nums; }
-.plusc { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; text-align: left; color: #fff; background: linear-gradient(135deg, var(--gold), var(--orange)); border-color: var(--gold-d); box-shadow: 0 3px 0 var(--gold-d); }
-.plusc:active { box-shadow: 0 0 0 var(--gold-d); }
-.plusc .go-ic { background: rgba(255, 255, 255, .22); color: #fff; }
-.plusc b { display: block; font-size: 16px; font-weight: 900; line-height: 1.2; }
-.plusc small { display: block; font-size: 13px; font-weight: 800; line-height: 1.35; opacity: .95; }
-.plusc .ic { color: #fff; }
 .chapter .lk-ic { color: var(--gold-d); }
 .chapter .lk-ic .ic { color: var(--gold-d); }
-.chapters.locked .chapter { opacity: .55; }
-.chapters.locked .chapter .yr { filter: grayscale(.6); }
+.chapter.locked { opacity: .55; }
+.chapter.locked .yr { filter: grayscale(.6); }
+.chapter .freeb { display: block; width: fit-content; font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--green); border-radius: 999px; padding: 1px 8px; margin-bottom: 3px; }
+.sec .sec-n { margin-left: 6px; font-size: 11px; color: var(--ink-3); }
+.pwall { display: grid; gap: 10px; padding: 18px; border-radius: 22px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #ffd84d 0%, var(--gold) 35%, var(--orange) 100%); box-shadow: 0 5px 0 var(--gold-d); }
+.pwall .ptag { background: rgba(255, 255, 255, .25); }
+.pwall h3 { margin: 0; font-size: 22px; line-height: 1.15; font-weight: 900; text-shadow: 0 1px 0 rgba(0, 0, 0, .08); }
+.pwall p { margin: 0; font-weight: 800; font-size: 15px; line-height: 1.4; opacity: .95; }
+.pstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pstats div { background: rgba(255, 255, 255, .2); border-radius: 14px; padding: 8px 6px; text-align: center; }
+.pstats b { display: block; font-size: 22px; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.pstats span { display: block; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; opacity: .9; }
+.btn.pbtn { background: #fff; border-color: #fff; color: var(--gold-d); box-shadow: 0 4px 0 rgba(0, 0, 0, .15); }
+.pwall .unlock { gap: 6px; }
+.pwall .unlock input { background: #fff; border-color: #fff; color: #3c2a00; }
+.pwall .unlock .err { color: #fff; background: rgba(234, 43, 43, .85); border-radius: 10px; padding: 0 10px; min-height: 0; width: fit-content; }
+.pwall .unlock .err:empty { display: none; }
+.pwall .plink { color: #fff; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; justify-self: center; }
+.pben { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.pben li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: start; }
+.pben li .ic { width: 40px; height: 40px; padding: 9px; border-radius: 12px; background: var(--gold-l); color: var(--gold-d); }
+.pben b { display: block; font-size: 16px; font-weight: 900; }
+.pben span { font-size: 14px; color: var(--ink-2); font-weight: 700; line-height: 1.4; }
+.pcats { display: grid; gap: 6px; }
+.pcats details { border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.pcats summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; list-style: none; }
+.pcats summary::-webkit-details-marker { display: none; }
+.pcats summary em { font-style: normal; font-weight: 900; font-size: 13px; color: var(--gold-d); background: var(--gold-l); border-radius: 999px; padding: 1px 9px; }
+.pcats p { margin: 8px 0 0; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
 .seg.tracks { grid-auto-columns: auto; gap: 6px; }
 .seg.tracks button { padding: 9px 8px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
 .seg.tracks button .ic { width: 14px; height: 14px; }
@@ -331,9 +352,6 @@ h1, h2, h3 { margin: 0; }
 .unlock input { font: inherit; font-size: 18px; font-weight: 800; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); letter-spacing: .2em; text-align: center; }
 .unlock input:focus { outline: none; border-color: var(--gold); }
 .unlock .err { color: var(--red); font-weight: 900; font-size: 14px; margin: 0; min-height: 1.2em; }
-.pinc { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-.pinc li { display: flex; gap: 8px; align-items: baseline; font-weight: 800; font-size: 15px; }
-.pinc li i { width: 8px; height: 8px; border-radius: 50%; background: var(--sc); flex: none; transform: translateY(-1px); }
 .chs .dd { display: grid; gap: 6px; margin: 6px 0 2px; padding: 4px 0 10px 14px; border-left: 3px solid color-mix(in srgb, var(--sc) 55%, var(--line)); }
 .chs-go { display: flex; align-items: center; gap: 6px; margin-top: 6px !important; font-size: 14px; font-weight: 900; color: var(--ink-3); }
 .chs-go .ic { width: 18px; height: 18px; }
@@ -1266,7 +1284,7 @@ function histFor(id) {
 function onTimeline(f) {
   const own = histFor(f.id).map(e => ({ ...e, sel: f.id })), up = parentId(f) !== f.id ? histFor(parentId(f)).map(e => ({ ...e, sel: parentId(f) })) : [];
   const order = Object.fromEntries(ANCHORS.map((a, k) => [a.id, k]));
-  const rows = [...own, ...up].filter(e => store.plus || trackOf(anchorById[e.a]) !== 'plus').sort((x, y) => order[x.a] - order[y.a] || x.m - y.m).filter(e => !(state.mode === 'era' && e.a === state.era && e.m === (state.mapI || 0)));
+  const rows = [...own, ...up].filter(e => !plusLocked(e.a)).sort((x, y) => order[x.a] - order[y.a] || x.m - y.m).filter(e => !(state.mode === 'era' && e.a === state.era && e.m === (state.mapI || 0)));
   if (!rows.length) return '';
   const row = e => { const a = anchorById[e.a]; return `<button class="tlrow" data-era="${e.a}" data-m="${e.m}" data-sel="${e.sel}" style="--sc:${secColor[e.a]}"><i style="background:${e.color || 'transparent'}"></i><span><b>${esc(e.label)}</b><small>${esc(a.title)} · ${esc(e.tab)}</small></span>${IC.next}</button>`; };
   const first = rows.slice(0, 5).map(row).join(''), more = rows.slice(5).map(row).join('');
@@ -1601,18 +1619,21 @@ function historySheet() {
   const plus = state.track === 'plus', locked = plus && !store.plus;
   const list = trackList(state.track);
   const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : plus ? `${list.length} longer stories on religions, empires, wars and ideas, each with maps and a quiz.` : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
-  setSheet(`<div><div class="title">Timeline</div><p class="hint">${hint}</p></div>
+  setSheet(`<div><div class="title">Timeline</div>${plus && !store.plus ? '' : `<p class="hint">${hint}</p>`}</div>
     ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !store.plus ? ' class="faint"' : ''}>${t.id === 'plus' && !store.plus ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
-    ${locked ? `<button class="plusc tile" id="plusUnlock"><span class="go-ic">${IC.star}</span><span><b>Meridian Plus</b><small>Unlock every deep dive</small></span>${IC.lock}</button>` : ''}
-    <div class="chapters${locked ? ' locked' : ''}">${list.map((a, k) => {
+    ${locked ? plusHero(list) : ''}
+    <div class="chapters">${list.map((a, k) => {
       const sub = !a.maps ? '' : a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
-      const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}</h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
-      const qm = quizMaps(a), done = locked ? 0 : qm.filter(m => mapDone(a.id, m)).length;
+      const n = plus && a.cat ? list.filter(x => x.cat === a.cat).length : 0;
+      const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}<span class="sec-n">${n}</span></h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
+      const lk = plusLocked(a.id), free = plus && !store.plus && a.id === PLUS_FREE;
+      const qm = quizMaps(a), done = lk ? 0 : qm.filter(m => mapDone(a.id, m)).length;
       const prog = done ? `<em class="mst${done === qm.length ? ' all' : ''}">${IC.check}${done}/${qm.length}</em>` : '';
-      return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${locked ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
+      return `${hd}<button class="chapter tile${lk ? ' locked' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
   if ($('#plusUnlock')) $('#plusUnlock').onclick = () => { buzz(5); unlockSheet(); };
+  if ($('#plusFree')) $('#plusFree').onclick = () => { buzz(5); eraSheet(PLUS_FREE); };
   sheet.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { buzz(5); state.track = store.track = b.dataset.track; save(); historySheet(); sheet.scrollTop = 0; fitBox(G.views[{ us: 'us', cn: 'cn', ca: 'ca' }[state.track] || 'world']); });
   // The list reads as one journey from the first cities to today, so it opens at the top.
   updateTop(); draw();
@@ -1620,31 +1641,58 @@ function historySheet() {
 // Meridian Plus: deep dives on the stories people love, shown faint and locked until unlocked.
 // The access code is a placeholder until in-app purchase arrives with the iOS app.
 const PLUS_CODE = '1234';
+// One deep dive is free to read, so people can see what Plus is like before they unlock it.
+const PLUS_FREE = 'dd-vikings';
+const plusLocked = id => !store.plus && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
 const PLUS_CAT = { faith: 'Religions and beliefs', empires: 'Empires and civilisations', wars: 'Wars and conflicts', ideas: 'Ideas, science and money', nations: 'Nations and regions' };
 function plusSheet() { state.track = 'plus'; historySheet(); }
+// What Plus holds, counted from the data so it stays true as dives are added.
+function plusStats(list) {
+  const maps = list.reduce((t, a) => t + (a.maps || []).length, 0);
+  return [[list.length, 'deep dives'], [maps, 'maps'], [new Set(list.map(a => a.cat)).size, 'themes']];
+}
+// The top of the locked Deep dives tab: what you get, a free sample, and the way in.
+function plusHero(list) {
+  const free = anchorById[PLUS_FREE];
+  return `<div class="pwall"><span class="ptag">${IC.star}Meridian Plus</span>
+    <h3>Go deeper into the stories that made the world</h3>
+    <p>Religions, empires, wars and big ideas, each told in full with its own maps and quiz.</p>
+    <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
+    <button class="btn pbtn" id="plusUnlock">${IC.lock}Unlock Meridian Plus</button>
+    ${free && free.maps ? `<button class="link plink" id="plusFree">Read a free deep dive: ${esc(free.title)}</button>` : ''}</div>`;
+}
+// The paywall itself. For now an access code opens it; in-app purchase replaces the form later.
 function unlockSheet(id) {
-  const list = trackList('plus');
+  const list = trackList('plus'), want = id && anchorById[id];
+  const cats = Object.keys(PLUS_CAT).map(c => [c, list.filter(a => a.cat === c)]).filter(([, l]) => l.length);
   setSheet(`<button class="back" id="ulBack">${IC.back}Timeline</button>
-    <div><span class="ptag">${IC.star}Meridian Plus</span><div class="title" style="margin-top:6px">Unlock deep dives</div>
-    <p class="hint">${list.length} longer stories with their own maps and quizzes, and more to come.</p></div>
-    <ul class="pinc">${list.map(a => `<li style="--sc:${secColor[a.id]}"><i></i>${esc(a.title)}</li>`).join('')}</ul>
-    <form class="unlock" id="ulForm" autocomplete="off"><label class="hint" for="ulCode" style="margin:0">Have an access code?</label>
-      <input id="ulCode" type="password" inputmode="numeric" autocomplete="off" name="plus-code" data-form-type="other" placeholder="Access code" aria-label="Access code">
-      <p class="err" id="ulErr" role="alert"></p>
-      <button class="btn primary" type="submit">${IC.lock}Unlock</button></form>`);
-  $('#ulBack').onclick = plusSheet;
+    <div class="pwall"><span class="ptag">${IC.star}Meridian Plus</span>
+      <h3>${want ? `Unlock ${esc(want.title)} and every deep dive` : 'Unlock every deep dive'}</h3>
+      <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
+      <form class="unlock" id="ulForm" autocomplete="off">
+        <input id="ulCode" type="password" inputmode="numeric" autocomplete="off" name="plus-code" data-form-type="other" placeholder="Access code" aria-label="Access code">
+        <p class="err" id="ulErr" role="alert"></p>
+        <button class="btn pbtn" type="submit">${IC.lock}Unlock</button></form></div>
+    <ul class="pben">
+      <li>${IC.clock}<span><b>The full story</b>What happened, why, and what it changed, with the turning points most courses skip.</span></li>
+      <li>${IC.globe}<span><b>Maps that show it</b>Empires, faiths and front lines lit up on today's globe, country by country.</span></li>
+      <li>${IC.target}<span><b>Quizzes that make it stick</b>A quiz on every map, with your progress saved.</span></li>
+    </ul>
+    <div class="pcats">${cats.map(([c, l]) => `<details><summary><b>${PLUS_CAT[c]}</b><em>${l.length}</em></summary><p>${l.map(a => esc(a.title)).join(' · ')}</p></details>`).join('')}</div>
+    <p class="fine" style="text-align:center">Subscriptions are coming soon. Your progress stays on this device.</p>`);
+  $('#ulBack').onclick = () => { if (want) { state.track = 'plus'; } historySheet(); };
   $('#ulForm').onsubmit = e => {
     e.preventDefault();
     const v = $('#ulCode').value.trim();
     if (v !== PLUS_CODE) { buzz(30); $('#ulErr').textContent = v ? "That code didn't work." : 'Enter your access code.'; $('#ulCode').select(); return; }
-    $('#ulCode').blur(); buzz(12); store.plus = true; save(); histIdx = null; toast('Deep dives unlocked');
+    $('#ulCode').blur(); buzz(12); store.plus = true; save(); histIdx = null; toast('Welcome to Meridian Plus');
     if (id) eraSheet(id); else plusSheet();
   };
 }
 function eraSheet(id, keepView, mapI) {
   clearTimeout(advanceT); keyHandler = null;
   const a0 = anchorById[id]; if (!a0) return;
-  if (trackOf(a0) === 'plus' && !store.plus) return unlockSheet(id);
+  if (plusLocked(id)) return unlockSheet(id);
   const TL = trackList(trackOf(a0)), i = TL.indexOf(a0), a = a0;
   state.track = trackOf(a);
   const fresh = state.mode !== 'era' || state.era !== id;
