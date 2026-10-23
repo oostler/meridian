@@ -1,8 +1,8 @@
 // Cache-first service worker: the app works offline, and so do map areas you've already seen.
-const CACHE = 'atlas-drill-2f0eaf0d200b';
-const TILES = 'atlas-drill-tiles';
+const CACHE = 'meridian-533de3bfd16e';
+const TILES = 'meridian-tiles';
 const CORE = ["./","index.html","geo-live.json","maplibre-gl.js","manifest.webmanifest","icon.svg","icon-180.png","icon-192.png","icon-512.png"];
-const isTile = url => /arcgisonline\.com/.test(url);
+const isTile = url => /arcgis(online)?\.com/.test(url);
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
 });

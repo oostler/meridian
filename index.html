@@ -52,9 +52,9 @@
   --red: #ff4b4b; --red-d: #ea2b2b; --red-l: #ffdfe0;
   --gold: #ffc800; --gold-d: #e5a400; --gold-l: #fff5d3;
   --orange: #ff9600; --purple: #ce82ff; --purple-d: #a560e8;
-  /* a soft sky with a few faint stars behind the globe */
   --stars: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><circle cx='84' cy='39' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='19' cy='139' r='0.8' fill='%23fff' opacity='0.9'/><circle cx='15' cy='132' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='113' cy='18' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='110' cy='215' r='0.6' fill='%23fff' opacity='0.5'/><circle cx='164' cy='152' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='152' cy='13' r='0.8' fill='%23fff' opacity='0.35'/><circle cx='145' cy='35' r='1' fill='%23fff' opacity='0.5'/><circle cx='141' cy='148' r='1.2' fill='%23fff' opacity='0.5'/><circle cx='27' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='25' cy='185' r='1.2' fill='%23fff' opacity='0.35'/><circle cx='161' cy='129' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='202' cy='121' r='1' fill='%23fff' opacity='0.6'/><circle cx='78' cy='207' r='1.5' fill='%23fff' opacity='0.5'/><circle cx='21' cy='78' r='1' fill='%23fff' opacity='0.6'/><circle cx='190' cy='75' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='133' cy='43' r='0.8' fill='%23fff' opacity='0.5'/><circle cx='243' cy='110' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='199' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='181' cy='155' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='18' cy='24' r='0.8' fill='%23fff' opacity='0.8'/><circle cx='181' cy='17' r='1.5' fill='%23fff' opacity='0.6'/></svg>");
-  --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #eef7fe 0%, #c4e1f6 52%, #94c4ea 100%);
+  /* by day a clear sky, lightest near the globe; the stars only come out at night */
+  --space: radial-gradient(120% 90% at 50% 40%, #e3f2fd 0%, #a9d5f5 50%, #6db4e8 100%);
   /* read by the globe */
   --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d7ffb8; --m2: #89e219; --target: #ffc800; --target-ink: #3c2a00;
   --good: #58cc02; --bad: #ff4b4b; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
@@ -610,9 +610,10 @@ const SPLIT = ['USA', 'CAN', 'CHN'];
 for (const s of SCOPES) s.items = F.filter(s.test);
 
 // ---------- storage ----------
-const KEY = 'atlas-drill:v1';
+const KEY = 'meridian:v1', OLD_KEY = 'atlas-drill:v1';
 let store = { prog: {}, scope: 'world', subj: 'name' };
-try { const raw = localStorage.getItem(KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
+// Progress saved under the app's earlier name carries over.
+try { const raw = localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 // Appearance: follow the device, or a fixed light or dark theme.
 function applyTheme() { if (store.theme === 'light' || store.theme === 'dark') document.documentElement.dataset.theme = store.theme; else delete document.documentElement.dataset.theme; }
@@ -640,10 +641,12 @@ if (state.scope.noCap) state.subj = 'name';
 // relative size. Underneath: Esri's official basemap tiles (ArcGIS Online) when they can load, else
 // plain land shapes. On top: Natural Earth 1:10m countries and states for highlighting and tapping.
 const TILES_ON = window.ATLAS_TILES !== false;
-const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+// For commercial release the same basemaps come through an ArcGIS Location Platform key (set at build time).
+const ESRI_KEY = window.MERIDIAN_ESRI_KEY || '';
+const ESRI = ESRI_KEY ? 'https://ibasemaps-api.arcgis.com/arcgis/rest/services/' : 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const ESRI_ATTR = 'Map &copy; <a href="https://www.esri.com">Esri</a>, GEBCO, Garmin, Maxar';
 const NE_ATTR = 'Borders: <a href="https://www.naturalearthdata.com">Natural Earth</a> · Country facts: <a href="https://github.com/mledoze/countries">mledoze/countries</a> (ODbL), <a href="https://www.wikidata.org">Wikidata</a>';
-const raster = (path, maxzoom) => ({ type: 'raster', tiles: [ESRI + path + '/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom, attribution: ESRI_ATTR });
+const raster = (path, maxzoom) => ({ type: 'raster', tiles: [ESRI + path + '/MapServer/tile/{z}/{y}/{x}' + (ESRI_KEY ? '?token=' + ESRI_KEY : '')], tileSize: 256, maxzoom, attribution: ESRI_ATTR });
 
 const decodeRing = ring => {
   const out = []; let x = 0, y = 0;
@@ -1331,7 +1334,9 @@ function drawHist() {
   pinsFor = M;
   for (const m of histPins) m.remove();
   histPins = [];
-  const lines = (M && M.lines || []).map(l => ({ type: 'Feature', properties: { c: PAL[l.color] || PAL.gold }, geometry: { type: 'LineString', coordinates: l.pts } }));
+  // A route across the 180° line (a Pacific voyage) keeps going the short way instead of circling the globe.
+  const unwrap = pts => { let prev; return pts.map(([x, y]) => { if (prev != null) x += Math.round((prev - x) / 360) * 360; prev = x; return [x, y]; }); };
+  const lines = (M && M.lines || []).map(l => ({ type: 'Feature', properties: { c: PAL[l.color] || PAL.gold }, geometry: { type: 'LineString', coordinates: unwrap(l.pts) } }));
   map.getSource('hist')?.setData({ type: 'FeatureCollection', features: lines });
   for (const p of M && M.pins || []) {
     const el = document.createElement('button'); el.className = 'hpin'; el.innerHTML = `<i></i><span>${esc(p.n)}</span>`;
@@ -1520,7 +1525,8 @@ function aboutSheet() {
     <p>Meridian teaches the world: every country, state, province and ocean on a 3D globe, and the history that shaped them, from the first cities to today.</p>
     <p class="hint">Histories and maps are written for Meridian and checked against published sources (encyclopedias, national statistics offices, the UN, Pew Research and others). Leaders are as of ${esc(asOf || 'the last update')}. History is shown on today's borders, so lighter shading means only part of a country belonged.</p>
     <div class="setrow"><b>Credits</b><p class="hint">Borders: Natural Earth (public domain). Country facts: mledoze/countries (ODbL) and Wikidata (CC0). Map tiles: Esri, GEBCO, Garmin, Maxar. Globe: MapLibre GL (BSD). Font: Nunito (SIL OFL).</p></div>
-    <div class="foot"><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a><span>·</span><button class="link" data-report="General feedback">Send feedback</button></div>`);
+    <div class="foot"><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a><span>·</span><a class="link" href="terms.html" target="_blank" rel="noopener">Terms</a><span>·</span><a class="link" href="support.html" target="_blank" rel="noopener">Support</a></div>
+    <p class="fine" style="text-align:center">&copy; ${new Date().getFullYear()} Meridian. All rights reserved.</p>`);
   $('#setBack').onclick = homeSheet;
 }
 function homeSheet() {
