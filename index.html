@@ -317,7 +317,14 @@ h1, h2, h3 { margin: 0; }
 .plusc small { display: block; font-size: 13px; font-weight: 800; line-height: 1.35; opacity: .95; }
 .plusc .ic { color: #fff; }
 .chapter .lk-ic { color: var(--gold-d); }
-.chapter.locked b { color: var(--ink-2); }
+.chapter .lk-ic .ic { color: var(--gold-d); }
+.chapters.locked .chapter { opacity: .55; }
+.chapters.locked .chapter .yr { filter: grayscale(.6); }
+.seg.tracks { grid-auto-columns: auto; gap: 6px; }
+.seg.tracks button { padding: 9px 8px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
+.seg.tracks button .ic { width: 14px; height: 14px; }
+.seg.tracks button.faint { opacity: .5; }
+.seg.tracks button.faint[aria-pressed="true"] { opacity: 1; border-color: var(--gold); background: var(--gold-l); color: var(--gold-d); box-shadow: 0 3px 0 var(--gold); }
 .ptag { display: inline-flex; align-items: center; gap: 4px; width: fit-content; border-radius: 999px; padding: 2px 9px 2px 6px; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, var(--gold), var(--orange)); }
 .ptag .ic { width: 13px; height: 13px; }
 .unlock { display: grid; gap: 10px; }
@@ -1587,52 +1594,37 @@ function findSheet() {
 function historySheet() {
   state.mode = 'explore'; state.target = null; state.era = null; state.solved.clear();
   setRound(false); setTab('history');
-  if (state.track === 'plus') return plusSheet();
   if (!state.track) state.track = store.track || ({ us: 'us', usca: 'us', ca: 'ca', cn: 'cn' }[state.scope.id]) || 'world';
   const tracks = TRACKS.filter(t => t.id === 'world' || trackList(t.id).length);
+  if (trackList('plus').length) tracks.push({ id: 'plus', name: 'Deep dives' });
+  if (!tracks.some(t => t.id === state.track)) state.track = 'world';
+  const plus = state.track === 'plus', locked = plus && !store.plus;
   const list = trackList(state.track);
-  const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
+  const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : plus ? `${list.length} longer stories on religions, empires, wars and ideas, each with maps and a quiz.` : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
   setSheet(`<div><div class="title">Timeline</div><p class="hint">${hint}</p></div>
-    ${tracks.length > 1 ? `<div class="seg" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}">${t.name}</button>`).join('')}</div>` : ''}
-    ${trackList('plus').length ? `<button class="plusc tile" id="plusOpen"><span class="go-ic">${IC.star}</span><span><b>Deep dives</b><small>${store.plus ? `${trackList('plus').length} stories, from pharaohs to the space race` : `Meridian Plus · ${trackList('plus').length} stories, from pharaohs to the space race`}</small></span>${store.plus ? IC.next : IC.lock}</button>` : ''}
-    <div class="chapters">${list.map(a => {
+    ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !store.plus ? ' class="faint"' : ''}>${t.id === 'plus' && !store.plus ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
+    ${locked ? `<button class="plusc tile" id="plusUnlock"><span class="go-ic">${IC.star}</span><span><b>Meridian Plus</b><small>Unlock every deep dive</small></span>${IC.lock}</button>` : ''}
+    <div class="chapters${locked ? ' locked' : ''}">${list.map((a, k) => {
       const sub = !a.maps ? '' : a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
-      const hd = !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
-      const qm = quizMaps(a), done = qm.filter(m => mapDone(a.id, m)).length;
+      const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}</h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
+      const qm = quizMaps(a), done = locked ? 0 : qm.filter(m => mapDone(a.id, m)).length;
       const prog = done ? `<em class="mst${done === qm.length ? ' all' : ''}">${IC.check}${done}/${qm.length}</em>` : '';
-      return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${IC.next}</button>`;
+      return `${hd}<button class="chapter tile" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${locked ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
-  if ($('#plusOpen')) $('#plusOpen').onclick = () => { buzz(5); state.track = 'plus'; plusSheet(); sheet.scrollTop = 0; fitBox(G.views.world); };
+  if ($('#plusUnlock')) $('#plusUnlock').onclick = () => { buzz(5); unlockSheet(); };
   sheet.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { buzz(5); state.track = store.track = b.dataset.track; save(); historySheet(); sheet.scrollTop = 0; fitBox(G.views[{ us: 'us', cn: 'cn', ca: 'ca' }[state.track] || 'world']); });
   // The list reads as one journey from the first cities to today, so it opens at the top.
   updateTop(); draw();
 }
-// Meridian Plus: deep dives on the stories people love. Locked chapters open the unlock screen.
+// Meridian Plus: deep dives on the stories people love, shown faint and locked until unlocked.
 // The access code is a placeholder until in-app purchase arrives with the iOS app.
 const PLUS_CODE = '1234';
-function plusSheet() {
-  state.mode = 'explore'; state.target = null; state.era = null; state.track = 'plus'; state.solved.clear();
-  setRound(false); setTab('history');
-  const list = trackList('plus');
-  setSheet(`<button class="back" id="plusBack">${IC.back}Timeline</button>
-    <div><span class="ptag">${IC.star}Meridian Plus</span><div class="title" style="margin-top:6px">Deep dives</div>
-    <p class="hint">${store.plus ? 'Longer stories on the topics people love, each with maps and a quiz.' : 'Longer stories on the topics people love, each with maps and a quiz. Unlock them with Meridian Plus.'}</p></div>
-    ${store.plus ? '' : `<button class="btn primary" id="plusUnlock">${IC.lock}Unlock deep dives</button>`}
-    <div class="chapters">${list.map(a => {
-      const sub = a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
-      const qm = quizMaps(a), done = qm.filter(m => mapDone(a.id, m)).length;
-      const prog = store.plus && done ? `<em class="mst${done === qm.length ? ' all' : ''}">${IC.check}${done}/${qm.length}</em>` : '';
-      return `<button class="chapter tile${store.plus ? '' : ' locked'}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span><b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${store.plus ? IC.next : `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>`}</button>`;
-    }).join('')}</div>`);
-  bindEras();
-  $('#plusBack').onclick = () => { buzz(5); state.track = store.track && store.track !== 'plus' ? store.track : 'world'; historySheet(); sheet.scrollTop = 0; };
-  if ($('#plusUnlock')) $('#plusUnlock').onclick = () => unlockSheet();
-  updateTop(); draw();
-}
+const PLUS_CAT = { faith: 'Religions and beliefs', empires: 'Empires and civilisations', wars: 'Wars and conflicts', ideas: 'Ideas, science and money', nations: 'Nations and regions' };
+function plusSheet() { state.track = 'plus'; historySheet(); }
 function unlockSheet(id) {
   const list = trackList('plus');
-  setSheet(`<button class="back" id="ulBack">${IC.back}Deep dives</button>
+  setSheet(`<button class="back" id="ulBack">${IC.back}Timeline</button>
     <div><span class="ptag">${IC.star}Meridian Plus</span><div class="title" style="margin-top:6px">Unlock deep dives</div>
     <p class="hint">${list.length} longer stories with their own maps and quizzes, and more to come.</p></div>
     <ul class="pinc">${list.map(a => `<li style="--sc:${secColor[a.id]}"><i></i>${esc(a.title)}</li>`).join('')}</ul>
@@ -1681,7 +1673,7 @@ function eraSheet(id, keepView, mapI) {
     const hn = M && (histRole(sel) || note) ? `<div class="hnote">${roleLine(sel)}${note ? `<p>${esc(note)}</p>` : ''}</div>` : '';
     card = `<div class="picked" id="picked">${pc.slice(0, cut)}${hn}${pc.slice(cut)}</div>`;
   }
-  setSheet(`<button class="back" id="eraDone">${IC.back}${trackOf(a) === 'plus' ? 'Deep dives' : 'Timeline'}</button>
+  setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
     <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${TL.length}</span><h2>${esc(a.title)}</h2></div>
     ${a.story ? storyBlock(a) : M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
     ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${mapDone(a.id, k) ? `<span class="mt-ok" aria-label="Mastered">${IC.check}</span>` : ''}${esc(m.tab)}</button>`).join('')}</div>` : ''}
