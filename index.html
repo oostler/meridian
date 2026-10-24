@@ -571,6 +571,23 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .sum span { display: block; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; padding: 4px 2px 3px; }
 .sum b { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); background: var(--bg); border-radius: 13px; padding: 10px 2px; }
 .sum b .ic { width: 22px; height: 22px; }
+.sum.two { grid-template-columns: 1fr 1fr; }
+.reward { position: relative; display: grid; gap: 10px; justify-items: center; width: 100%; }
+.rw-xp { display: flex; align-items: center; gap: 8px; padding: 8px 20px 8px 12px; border-radius: 999px; background: var(--gold-l, #fff4c2); color: var(--gold-d); font-weight: 900; animation: pop .5s .15s var(--ease) both; }
+.rw-xp .rw-bolt { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--gold, #ffc800); color: #fff; }
+.rw-xp .rw-bolt .ic { width: 22px; height: 22px; }
+.rw-xp .rw-n { font-size: 34px; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+.rw-xp .rw-u { font-size: 18px; }
+.reward.landed .rw-xp { animation: thump .35s var(--ease); }
+@keyframes thump { 40% { transform: scale(1.12); } }
+.rw-streak { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; color: var(--orange, #ff9600); font-weight: 900; animation: rise .5s .5s var(--ease) both; }
+.rw-streak .ic { width: 22px; height: 22px; }
+.rw-streak span { width: 100%; text-align: center; color: var(--ink-2); font-weight: 800; font-size: 13px; }
+.rw-goal { width: 100%; animation: rise .5s .65s var(--ease) both; }
+.rw-goal .gb-bar i { transition: width .9s var(--ease); }
+.confetti { position: absolute; left: 50%; top: 24px; width: 0; height: 0; pointer-events: none; z-index: 5; }
+.confetti i { position: absolute; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: burst var(--d) cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes burst { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(var(--x), calc(var(--y) + 260px)) rotate(var(--r)); opacity: 0; } }
 .confirm { display: flex; gap: 12px; align-items: center; justify-content: center; font-size: 14px; flex-wrap: wrap; color: var(--ink-2); }
 
 /* ---- scope picker ---- */
@@ -1242,21 +1259,25 @@ function weekId(d = new Date()) {
   return y + '-W' + String(w).padStart(2, '0');
 }
 const weekPts = () => store.wk && store.wk.id === weekId() ? store.wk.pts : 0;
+// What the current round has earned, celebrated on its last screen.
+let gain = { xp: 0, streakUp: false, goal: false };
+const gainStart = () => { gain = { xp: 0, streakUp: false, goal: false }; };
 function addPoints(n) {
   if (!n) return;
+  gain.xp += n;
   const id = weekId(); if (!store.wk || store.wk.id !== id) store.wk = { id, pts: 0 };
   store.wk.pts += n; pushStatsSoon();
 }
 function practisedToday(pts = 0) {
   const days = store.days || (store.days = []), today = dayKey();
-  if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); }
+  if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); gain.streakUp = true; }
   addPoints(pts);
   if (CLOUD && !ME && store.skippedSignIn) store.gateN = (store.gateN || 0) + 1;
   // The daily goal counts answers; reaching it is celebrated once a day.
   const t = store.today && store.today.d === today ? store.today : (store.today = { d: today, n: 0 });
   t.n++;
-  if (store.goal && t.n === store.goal) addPoints(50);
-  if (store.goal && t.n === store.goal) setTimeout(() => toast(streak() > 1 ? `Daily goal reached. ${streak()} days in a row!` : 'Daily goal reached. See you tomorrow!', 2600), 600);
+  if (store.goal && t.n === store.goal) { addPoints(50); gain.goal = true; }
+  if (store.goal && t.n === store.goal && state.mode !== 'summary') setTimeout(() => toast(streak() > 1 ? `Daily goal reached. ${streak()} days in a row!` : 'Daily goal reached. See you tomorrow!', 2600), 600);
   save();
 }
 const answeredToday = () => store.today && store.today.d === dayKey() ? store.today.n : 0;
@@ -1266,6 +1287,39 @@ function goalBar() {
   const n = answeredToday(), g = store.goal, done = n >= g, c = store.commit, st = streak();
   const commit = !c ? '' : st >= c ? `<div class="gb-c">You kept your ${c}-day promise.${c < 30 ? ` <button class="link" id="goal30">Go for 30 days</button>` : ''}</div>` : `<div class="gb-c">Day ${st || 0} of your ${c}-day streak</div>`;
   return `<div class="goalbar${done ? ' done' : ''}"><div class="gb-top"><b>${done ? `${IC.check}Goal reached` : "Today's goal"}</b><span>${Math.min(n, g)} / ${g} answers</span></div><div class="gb-bar"><i style="width:${Math.min(100, n / g * 100)}%"></i></div>${commit}</div>`;
+}
+// The end-of-round reward: XP counting up, the streak if today's practice extended it, and the daily goal
+// filling. Rendered by rewardBlock(), animated by celebrate() once it is on screen.
+function rewardBlock() {
+  const n = answeredToday(), g = store.goal, st = streak();
+  return `<div class="reward" data-xp="${gain.xp}">
+    <div class="rw-xp"><span class="rw-bolt">${IC.bolt}</span><b class="rw-n">${reduceMotion ? gain.xp : 0}</b><span class="rw-u">XP</span></div>
+    ${gain.streakUp && st ? `<div class="rw-streak">${IC.flame}<b>${st}-day streak</b>${st > 1 ? '<span>Keep it going tomorrow</span>' : '<span>Come back tomorrow to make it 2</span>'}</div>` : ''}
+    ${g ? `<div class="goalbar rw-goal${n >= g ? ' done' : ''}"><div class="gb-top"><b>${n >= g ? `${IC.check}Daily goal reached` : 'Daily goal'}</b><span>${Math.min(n, g)} / ${g}</span></div><div class="gb-bar"><i style="width:${reduceMotion ? Math.min(100, n / g * 100) : 0}%" data-w="${Math.min(100, n / g * 100)}"></i></div></div>` : ''}
+  </div>`;
+}
+function celebrate(big) {
+  const r = $('.reward:not([data-run])'); if (!r) return;
+  r.dataset.run = 1;
+  const target = +r.dataset.xp, num = r.querySelector('.rw-n'), bar = r.querySelector('.gb-bar i');
+  if (reduceMotion) return;
+  const t0 = performance.now(), dur = Math.min(1400, 500 + target * 6);
+  let last = 0;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur), v = Math.round(target * (1 - Math.pow(1 - k, 3)));
+    num.textContent = v;
+    if (v - last >= 20) { last = v; buzz(4); }
+    if (k < 1) requestAnimationFrame(step);
+    else { r.classList.add('landed'); if (bar) bar.style.width = bar.dataset.w + '%'; if (big && target) confetti(r); }
+  };
+  if (target) setTimeout(() => requestAnimationFrame(step), 350); else if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 350);
+}
+// A short burst of colour for a great round. Pure CSS pieces, removed when they land.
+function confetti(host) {
+  const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
+  const cols = ['#58cc02', '#1cb0f6', '#ffc800', '#ff4b4b', '#ce82ff', '#ff9600'];
+  box.innerHTML = Array.from({ length: 28 }, (_, i) => `<i style="--x:${Math.round((Math.random() - .5) * 340)}px;--y:${Math.round(-120 - Math.random() * 160)}px;--r:${Math.round(Math.random() * 720 - 360)}deg;--d:${(.9 + Math.random() * .6).toFixed(2)}s;background:${cols[i % cols.length]}"></i>`).join('');
+  host.appendChild(box); setTimeout(() => box.remove(), 1800);
 }
 function bindGoal(redraw) { if ($('#goal30')) $('#goal30').onclick = () => { store.commit = 30; save(); toast('30 days it is'); redraw(); }; }
 function streak() {
@@ -1534,6 +1588,7 @@ const IC = {
   star: svg('<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>', 2),
   clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 1.9),
   trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M17 5h3a3 3 0 01-3 4M7 5H4a3 3 0 003 4"/>', 1.9),
+  bolt: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2L4.5 13.5h6.2L9.5 22l9-11.5h-6.2L13.5 2z"/></svg>',
   flame: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 2.2c.4 2.6-.7 4.4-2.1 5.9-1.6 1.7-3.5 3.4-3.5 6.6 0 3.6 2.6 6.8 6.5 7.1-1.6-.8-2.6-2.4-2.6-4.2 0-2 1.3-3.2 2.3-4.3.7-.8 1.3-1.6 1.3-2.8 1.8 1.2 3.4 3.4 3.4 6.2 0 2.3-1.2 4-3 5 3.4-.6 6.1-3.5 6.1-7.3 0-5.3-4.2-9.9-8.4-12.2z"/></svg>',
   crown: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M3 7.5l4.6 3.6L12 4l4.4 7.1L21 7.5 19.2 18H4.8L3 7.5z"/><rect x="4.8" y="19.2" width="14.4" height="2.2" rx="1.1" fill="currentColor"/></svg>',
   target: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>',
@@ -2033,7 +2088,7 @@ const understood = id => (store.cqBest && store.cqBest[id] || 0) >= 4;
 function chapterQuiz(id) {
   const a = anchorById[id]; if (!a || !a.quiz) return;
   clearTimeout(advanceT);
-  const cq = { i: 0, right: 0, orders: a.quiz.map(() => shuffle([0, 1, 2, 3])) };
+  const cq = { i: 0, right: 0, orders: a.quiz.map(() => shuffle([0, 1, 2, 3])) }; gainStart();
   const back = () => { keyHandler = null; setRound(false); eraSheet(id, true); };
   setRound(true);
   const show = () => {
@@ -2043,10 +2098,11 @@ function chapterQuiz(id) {
       best[id] = Math.max(best[id] || 0, cq.right); save();
       const TL = trackList(trackOf(a)), next = TL[TL.indexOf(a) + 1];
       setSheet(`<div class="done"><span class="badge">${cq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${cq.right} of ${n} right</div><div class="sub">${esc(a.title)}</div></div>
+        ${rewardBlock()}
         <p class="hint" style="text-align:center">${cq.right >= 4 ? 'You understand this chapter. ' : 'Reread the story and try again. '}These questions will come back in your daily review.</p>
         ${next && !plusLocked(next.id) ? `<button class="btn primary" id="cqNext">Next chapter: ${esc(next.title)}</button>` : ''}
         <button class="btn" id="cqAgain">Try again</button><button class="btn" id="cqBack">Back to the chapter</button>`);
-      buzz(cq.right >= 4 ? [10, 60, 10] : 10);
+      buzz(cq.right >= 4 ? [10, 60, 10] : 10); celebrate(cq.right >= 4);
       if ($('#cqNext')) $('#cqNext').onclick = () => { setRound(false); eraSheet(next.id); };
       $('#cqAgain').onclick = () => chapterQuiz(id);
       $('#cqBack').onclick = back;
@@ -2114,12 +2170,12 @@ function hquizPool(M) {
 function startHQ(M) {
   const pool = shuffle(hquizPool(M)), noted = pool.filter(c => M.notes && M.notes[c]);
   const q = [...noted, ...pool.filter(c => !noted.includes(c))].slice(0, 5);
-  state.hq = { M, q: shuffle(q), i: 0, picked: null, right: 0 };
+  state.hq = { M, q: shuffle(q), i: 0, picked: null, right: 0 }; gainStart();
   state.sel = null; state.focusG = null;
 }
 function hquizHtml(hq) {
   const M = hq.M;
-  if (hq.i >= hq.q.length) return `<div class="hmap hq"><div class="done"><span class="badge">${hq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${hq.right} of ${hq.q.length} right</div><div class="sub">${esc(M.title)}</div></div>
+  if (hq.i >= hq.q.length) return `<div class="hmap hq"><div class="done"><span class="badge">${hq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${hq.right} of ${hq.q.length} right</div><div class="sub">${esc(M.title)}</div></div>${rewardBlock()}
     <button class="btn primary" id="hqAgain">Quiz me again</button><button class="btn" id="hqEnd">Back to the map</button></div>`;
   const f = byId[hq.q[hq.i]], r = histRole(f);
   const opts = M.groups.map((g, gi) => {
@@ -2150,7 +2206,8 @@ function bindHQ(id) {
       if (hq.right >= hq.q.length - 1) store.hqBest[k + '!'] = 1;
       save(); practisedToday(hq.right * 10); updateTop();
     }
-    eraSheet(id, true); const f = byId[hq.q[hq.i]]; if (f) showOnGlobe(f);
+    eraSheet(id, true); if (hq.i >= hq.q.length) celebrate(hq.right >= 4);
+    const f = byId[hq.q[hq.i]]; if (f) showOnGlobe(f);
   };
   if ($('#hqAgain')) $('#hqAgain').onclick = () => { startHQ(hq.M); eraSheet(id, true); showOnGlobe(byId[state.hq.q[0]]); };
   sheet.querySelectorAll('#hqEnd').forEach(b => b.onclick = () => { state.hq = null; eraSheet(id, true); });
@@ -2212,7 +2269,7 @@ function startLearn() {
   const mcs = q.filter(x => x.kind === 'mc'), rest = q.filter(x => x.kind !== 'mc');
   const queue = [];
   while (mcs.length || rest.length) { if (mcs.length) queue.push(mcs.shift()); if (mcs.length) queue.push(mcs.shift()); if (rest.length) queue.push(rest.shift()); }
-  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length };
+  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length }; gainStart();
   roundFrom = 'learn';
   state.mode = 'learn'; state.locate = false; state.sel = null; state.solved.clear();
   setRound(true);
@@ -2241,7 +2298,7 @@ function startReview() {
   const { places, hist } = reviewDue();
   const ps = places.map(f => ({ f, kind: 'type' })), hs = hist.map(h => ({ h, kind: 'hist' })), queue = [];
   while (ps.length || hs.length) { if (ps.length) queue.push(ps.shift()); if (ps.length) queue.push(ps.shift()); if (hs.length) queue.push(hs.shift()); }
-  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length, review: true };
+  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length, review: true }; gainStart();
   roundFrom = state.tab === 'learn' ? 'learn' : 'explore';
   state.mode = 'learn'; state.locate = false; state.sel = null; state.solved.clear();
   setRound(true);
@@ -2306,7 +2363,7 @@ function startHistQuiz() {
   const chs = shuffle(chQs).slice(0, 10 - maps.length);
   const ms = maps.map(q => ({ q, kind: 'hmap' })), hs = chs.map(h => ({ h, kind: 'hist' })), queue = [];
   while (ms.length || hs.length) { if (ms.length) queue.push(ms.shift()); if (hs.length) queue.push(hs.shift()); }
-  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length, histq: true };
+  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length, histq: true }; gainStart();
   roundFrom = 'learn';
   state.mode = 'learn'; state.locate = false; state.sel = null; state.solved.clear();
   setRound(true);
@@ -2491,10 +2548,11 @@ function summary() {
   const firstRight = [...session.first.values()].filter(Boolean).length, n = session.first.size;
   const great = n && firstRight / n >= 0.8;
   setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : session.review ? 'Review done!' : session.histq ? 'History quiz done!' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}</div></div>
-    <div class="sum"><div style="--c:var(--green)"><span>First try</span><b>${IC.target}${n ? Math.round(firstRight / n * 100) : 0}%</b></div><div style="--c:var(--blue)"><span>${state.locate ? 'Found' : session.review ? 'Reviewed' : session.histq ? 'Right' : 'Mastered'}</span><b>${IC.crown}${session.review ? n : session.histq ? firstRight : session.mastered}</b></div><div style="--c:var(--orange)"><span>Streak</span><b>${IC.flame}${streak()}</b></div></div>
+    ${rewardBlock()}
+    <div class="sum two"><div style="--c:var(--green)"><span>First try</span><b>${IC.target}${n ? Math.round(firstRight / n * 100) : 0}%</b></div><div style="--c:var(--blue)"><span>${state.locate ? 'Found' : session.review ? 'Reviewed' : session.histq ? 'Right' : 'Mastered'}</span><b>${IC.crown}${session.review ? n : session.histq ? firstRight : session.mastered}</b></div></div>
     <button class="btn primary" id="again">${session.review ? 'Learn something new' : session.histq ? 'Another history quiz' : 'Keep going'}</button>
     <button class="btn" id="home">Done</button>`);
-  buzz(great ? [10, 60, 10] : 10);
+  buzz(great ? [10, 60, 10] : 10); celebrate(great);
   const histq = session.histq;
   // After the very first round, offer a profile before going on (the gate makes it required a few answers later).
   const gate = fn => () => { if (offerSignIn() && store.firstRound) { store.firstRound = 0; save(); signInSheet({ then: fn }); } else fn(); };
@@ -2511,7 +2569,7 @@ function startLocate() {
   const key = id => 'loc-' + state.subj + ':' + id;
   // Every place in the set, in random order.
   const pick = shuffle(items.slice());
-  session = { queue: pick.map(f => ({ f, kind: 'loc' })), done: 0, first: new Map(), mastered: 0, total: pick.length, key };
+  session = { queue: pick.map(f => ({ f, kind: 'loc' })), done: 0, first: new Map(), mastered: 0, total: pick.length, key }; gainStart();
   roundFrom = 'find';
   state.mode = 'locate'; state.locate = true; state.sel = null; state.solved.clear();
   setRound(true);
@@ -2780,7 +2838,7 @@ function competeSheet(kind = state.board || 'week') {
   updateTop();
   CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}).then(() => CLOUD.leaderboard(kind, weekId())).then(({ rows, me }) => {
     if (state.tab !== 'compete' || state.board !== kind || !$('#lb')) return;
-    const fmt = v => kind === 'week' ? `${v} pts` : `${(v / 10).toFixed(1)}%`;
+    const fmt = v => kind === 'week' ? `${v} XP` : `${(v / 10).toFixed(1)}%`;
     const row = (r, i, mine) => `<div class="lb-row${mine ? ' me' : ''}"><span class="lb-n">${i}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
     const inTop = rows.some(r => r.uid === ME.uid);
     $('#lb').innerHTML = rows.length ? rows.map((r, i) => row(r, i + 1, r.uid === ME.uid)).join('') + (!inTop && me ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank || "–", true)}` : '')
