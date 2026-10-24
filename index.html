@@ -356,6 +356,62 @@ h1, h2, h3 { margin: 0; }
 .opts.col { grid-template-columns: 1fr; }
 .opts.col .opt { min-height: 0; padding: 12px 14px; text-align: left; justify-content: flex-start; }
 .verdict.inline, #fb.inline { position: static; }
+.cloud-only { display: none !important; }
+body.cloud .cloud-only { display: grid !important; }
+body.cloud #tabs { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
+.si { display: grid; gap: 12px; justify-items: center; text-align: center; position: relative; padding-top: 6px; }
+.si h3 { margin: 0; font-size: 24px; font-weight: 900; line-height: 1.2; }
+.si .hint { margin: 0; max-width: 340px; }
+.si-x { position: absolute; left: 0; top: 0; }
+.si-art { width: 76px; height: 76px; display: block; }
+.si-art svg { width: 100%; height: 100%; }
+.si-btns, .si-form { width: 100%; display: grid; gap: 10px; }
+.si-form input { font: inherit; font-size: 17px; font-weight: 700; padding: 13px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
+.si-form input:focus { outline: none; border-color: var(--blue); }
+.si .err { color: var(--red); font-weight: 800; font-size: 14px; margin: 0; min-height: 0; }
+.si .err:empty { display: none; }
+.btn.sso { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: none; letter-spacing: 0; font-size: 16px; }
+.btn.sso .sso-ic, .btn.sso .ic { width: 22px; height: 22px; flex: none; }
+.btn.sso-apple { background: #000; border-color: #000; color: #fff; box-shadow: 0 3px 0 #333; }
+.si-teaser { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 10px 0; }
+.si-teaser b { font-size: 18px; font-weight: 900; }
+.race-card { border: 2px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 8px; background: linear-gradient(135deg, color-mix(in srgb, var(--orange) 12%, var(--bg)), var(--bg)); }
+.race-card > b { display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 900; }
+.race-card > b .ic { color: var(--orange); width: 20px; height: 20px; }
+.race-card small { color: var(--ink-2); font-weight: 700; font-size: 14px; }
+.race-card .rbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.race-join { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.race-join input { font: inherit; font-size: 22px; font-weight: 900; letter-spacing: .3em; text-align: center; text-transform: uppercase; padding: 10px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
+.race-card .err, #raceErr { color: var(--red); font-weight: 800; font-size: 14px; margin: 0; }
+.race-card .err:empty { display: none; }
+.lb-hint { margin: -4px 0 0; font-size: 13px; }
+.lb { display: grid; gap: 6px; }
+.lb-row { display: grid; grid-template-columns: auto auto 1fr auto; gap: 10px; align-items: center; padding: 8px 12px; border: 2px solid var(--line); border-radius: 14px; }
+.lb-row.me { border-color: var(--blue); background: var(--blue-l); }
+.lb-n { min-width: 22px; font-weight: 900; color: var(--ink-2); text-align: center; font-variant-numeric: tabular-nums; }
+.lb-name { font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-name small { color: var(--ink-3); font-weight: 800; }
+.lb-row b { font-weight: 900; font-variant-numeric: tabular-nums; }
+.lb-gap { text-align: center; color: var(--ink-3); font-weight: 900; }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #fff; background: hsl(var(--h) 65% 52%); flex: none; }
+.rc-code { display: grid; gap: 6px; justify-items: center; padding: 14px; border-radius: 18px; background: var(--surface); }
+.rc-code small { font-size: 12px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.rc-code b { font-size: 44px; font-weight: 900; letter-spacing: .25em; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.rc-time i { background: var(--orange); transition: width .2s linear; }
+.rc-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rc-opt { border: 0; border-radius: 16px; padding: 18px 10px; min-height: 76px; font: inherit; font-size: 17px; font-weight: 900; color: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .2); transition: transform .08s, opacity .2s; }
+.rc-opt:active { transform: translateY(3px); box-shadow: none; }
+.rc-opt.c-red { background: #ff4b4b; } .rc-opt.c-blue { background: #1cb0f6; } .rc-opt.c-gold { background: #e5a400; } .rc-opt.c-green { background: #58a700; }
+.rc-opt:disabled { opacity: .45; }
+.rc-opt.picked { opacity: 1; outline: 4px solid var(--ink); outline-offset: 2px; }
+.podium { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: end; text-align: center; }
+.podium > div { display: grid; gap: 4px; justify-items: center; padding: 10px 4px; border-radius: 14px; background: var(--surface); }
+.podium .pod-1 { order: 2; padding-top: 22px; background: var(--gold-l); }
+.podium .pod-2 { order: 1; } .podium .pod-3 { order: 3; }
+.podium b { font-weight: 900; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.verdict.rc-verdict { animation: none; margin: 0; border-radius: 16px; }
+.podium > div > span:not(.av) { font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .goalbar { border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px 12px; display: grid; gap: 6px; }
 .goalbar .gb-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; }
 .goalbar .gb-top b { display: flex; align-items: center; gap: 4px; font-weight: 900; }
@@ -603,6 +659,7 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
     <button role="tab" data-tab="learn" aria-selected="false" style="--tc:var(--green)"><svg viewBox="0 0 32 32"><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4v18c-3.8-2.4-7.5-2.8-11-1.4z" fill="#58cc02"/><path d="M27 7.5c-3.5-1.4-7.2-1-11 1.4v18c3.8-2.4 7.5-2.8 11-1.4z" fill="#89e219"/><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4 3.8-2.4 7.5-2.8 11-1.4v18c-3.5-1.4-7.2-1-11 1.4-3.8-2.4-7.5-2.8-11-1.4z" fill="none" stroke="#58a700" stroke-width="2" stroke-linejoin="round"/><path d="M9 12.5c1.7-.4 3.4-.2 5 .6M9 16.5c1.7-.4 3.4-.2 5 .6M18 13.1c1.6-.8 3.3-1 5-.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>Learn</button>
     <button role="tab" data-tab="find" aria-selected="false" style="--tc:var(--red)"><svg viewBox="0 0 32 32"><path d="M16 29s-9.5-8.4-9.5-15.5a9.5 9.5 0 0119 0C25.5 20.6 16 29 16 29z" fill="#ff4b4b" stroke="#ea2b2b" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="13.5" r="4" fill="#fff"/></svg>Find</button>
     <button role="tab" data-tab="history" aria-selected="false" style="--tc:var(--purple-d)"><svg viewBox="0 0 32 32"><rect x="5" y="4" width="22" height="25" rx="5" fill="#ce82ff" stroke="#a560e8" stroke-width="2"/><rect x="9" y="9" width="14" height="3" rx="1.5" fill="#fff"/><rect x="9" y="15" width="10" height="3" rx="1.5" fill="#fff" opacity=".8"/><rect x="9" y="21" width="12" height="3" rx="1.5" fill="#fff" opacity=".6"/></svg>Timeline</button>
+    <button role="tab" data-tab="compete" aria-selected="false" style="--tc:var(--orange)" class="cloud-only"><svg viewBox="0 0 32 32"><path d="M9 5h14v7a7 7 0 01-14 0z" fill="#ffc800" stroke="#e5a400" stroke-width="2"/><path d="M9 8H5.5a3.5 3.5 0 003.8 4.6M23 8h3.5a3.5 3.5 0 01-3.8 4.6" fill="none" stroke="#e5a400" stroke-width="2.2"/><path d="M14 19h4v4h-4z" fill="#e5a400"/><rect x="10" y="23" width="12" height="4" rx="1.5" fill="#ff9600"/></svg>Compete</button>
   </nav>
   <div id="picker" hidden role="dialog" aria-modal="true" aria-label="Choose what to learn">
     <div class="scrim"></div>
@@ -1157,12 +1214,28 @@ function counts(scope = state.scope) {
 const subjLabel = () => state.subj === 'cap' ? 'Capitals' : state.scope.unit;
 // Daily streak: consecutive days with at least one answer, ending today or yesterday.
 const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-function practisedToday() {
+// Points for the weekly leaderboard: 10 per right answer, 50 for reaching the daily goal. The week starts on Monday.
+function weekId(d = new Date()) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y = t.getUTCFullYear(), w = Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7);
+  return y + '-W' + String(w).padStart(2, '0');
+}
+const weekPts = () => store.wk && store.wk.id === weekId() ? store.wk.pts : 0;
+function addPoints(n) {
+  if (!n) return;
+  const id = weekId(); if (!store.wk || store.wk.id !== id) store.wk = { id, pts: 0 };
+  store.wk.pts += n; pushStatsSoon();
+}
+function practisedToday(pts = 0) {
   const days = store.days || (store.days = []), today = dayKey();
   if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); }
+  addPoints(pts);
+  if (CLOUD && !ME && store.skippedSignIn) store.gateN = (store.gateN || 0) + 1;
   // The daily goal counts answers; reaching it is celebrated once a day.
   const t = store.today && store.today.d === today ? store.today : (store.today = { d: today, n: 0 });
   t.n++;
+  if (store.goal && t.n === store.goal) addPoints(50);
   if (store.goal && t.n === store.goal) setTimeout(() => toast(streak() > 1 ? `Daily goal reached. ${streak()} days in a row!` : 'Daily goal reached. See you tomorrow!', 2600), 600);
   save();
 }
@@ -1462,6 +1535,7 @@ function showTab(t) {
   setRound(false);
   if (t !== 'history') state.era = null;
   setTab(t);
+  if (t === 'compete') return competeSheet();
   if (t === 'learn') learnSheet(); else if (t === 'find') findSheet(); else if (t === 'history') historySheet(); else homeSheet();
 }
 // Quiz rounds take the whole panel: the tab bar slides away until the round ends.
@@ -1573,14 +1647,21 @@ function settingsSheet() {
     <div class="setrow"><b>Progress</b><p class="hint">Your progress, streak and quiz scores are saved on this device only.</p>
       <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
-    ${AUTH ? `<div class="setrow"><b>Account</b><p class="hint">${AUTH.user() ? 'Signed in. Progress is kept on all your devices.' : 'Optional. Sign in to keep progress on all your devices.'}</p><button class="btn" id="accOpen">${AUTH.user() ? 'Manage account' : 'Sign in'}</button></div>` : ''}
+    ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
+      ${ME ? `<button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
     <div class="setrow"><b>Meridian Plus</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Unlock the deep dives: longer stories with their own maps and quizzes.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.lock}Unlock deep dives`}</button></div>
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
       <button class="btn" data-report="General feedback">Send feedback</button></div>`);
   $('#setBack').onclick = homeSheet;
   sheet.querySelectorAll('[data-goal-set]').forEach(b => b.onclick = () => { buzz(5); store.goal = +b.dataset.goalSet; save(); settingsSheet(); });
-  if ($('#accOpen')) $('#accOpen').onclick = () => accountSheet();
+  if ($('#accIn')) $('#accIn').onclick = () => signInSheet({ then: settingsSheet });
+  if ($('#accOut')) $('#accOut').onclick = () => CLOUD.signOut().then(() => { toast('Signed out'); settingsSheet(); });
+  if ($('#accDelAsk')) $('#accDelAsk').onclick = () => {
+    $('#accDel').innerHTML = `<p class="hint">This permanently deletes your profile and leaderboard scores. Progress on this device stays.</p><div class="rbtns"><button class="btn" id="accKeep">Keep</button><button class="btn" id="accDelGo" style="background:var(--red);border-color:var(--red);color:#fff">Delete</button></div>`;
+    $('#accKeep').onclick = settingsSheet;
+    $('#accDelGo').onclick = () => CLOUD.deleteAccount().then(() => { toast('Account deleted'); settingsSheet(); }, e => toast(/recent/.test(e.code || '') ? 'Please sign in again, then delete' : 'Could not delete. Try again'));
+  };
   $('#plusSet').onclick = () => { buzz(5); if (store.plus) { store.plus = false; save(); histIdx = null; toast('Deep dives locked'); settingsSheet(); } else { showTab('history'); unlockSheet(); } };
   sheet.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { buzz(5); store.theme = b.dataset.themeSet; save(); applyTheme(); settingsSheet(); });
   $('#resetAsk').onclick = () => {
@@ -1883,7 +1964,7 @@ function chapterQuiz(id) {
       btns.find(x => +x.dataset.k === Q.c).classList.add('good');
       if (!ok) b.classList.add('bad');
       if (ok) cq.right++;
-      rememberCQ(id, cq.i, ok); practisedToday(); updateTop();
+      rememberCQ(id, cq.i, ok); practisedToday(ok ? 10 : 0); updateTop();
       const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : 'Not quite', esc(Q.why));
       buzz(ok ? 12 : [20, 40, 20]);
       requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
@@ -1963,7 +2044,7 @@ function bindHQ(id) {
       const k = state.era + ':' + (state.mapI || 0);
       store.hqBest = store.hqBest || {}; store.hqBest[k] = Math.max(store.hqBest[k] || 0, hq.right);
       if (hq.right >= hq.q.length - 1) store.hqBest[k + '!'] = 1;
-      save(); practisedToday(); updateTop();
+      save(); practisedToday(hq.right * 10); updateTop();
     }
     eraSheet(id, true); const f = byId[hq.q[hq.i]]; if (f) showOnGlobe(f);
   };
@@ -2077,7 +2158,7 @@ function askHist(item) {
     if (!session.first.has(key)) session.first.set(key, ok);
     rememberCQ(a.id, i, ok);
     if (!ok && session.review) requeue(item, 3);
-    practisedToday(); updateTop();
+    practisedToday(ok ? 10 : 0); updateTop();
     session.done++;
     const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
     const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : 'Not quite', esc(Q.why));
@@ -2142,7 +2223,7 @@ function askMapQ(item) {
     if (!ok) b.classList.add('bad');
     const key = 'm:' + a.id + ':' + m + ':' + f.id;
     if (!session.first.has(key)) session.first.set(key, ok);
-    practisedToday(); updateTop();
+    practisedToday(ok ? 10 : 0); updateTop();
     session.done++;
     const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
     const note = M.notes && (M.notes[f.id] || M.notes[parentId(f)]);
@@ -2159,6 +2240,7 @@ function askMapQ(item) {
 function requeue(item, gap) { session.queue.splice(Math.min(gap, session.queue.length), 0, item); session.total++; }
 function nextQ() {
   clearTimeout(advanceT);
+  if (mustSignIn()) return signInSheet({ hard: true, then: nextQ });
   if (!session.queue.length) return summary();
   const item = session.queue.shift();
   session.cur = item;
@@ -2265,7 +2347,7 @@ function answered(item, ok, hinted, note, typed) {
     fb = verdict(false, 'Correct answer:', `<span style="font-size:19px;font-weight:900">${esc(shown(f))}</span>` + (typed && state.flash && state.flash.until > performance.now() ? `${esc(typed)} is marked in red on the globe` : ''));
     buzz([20, 40, 20]);
   }
-  practisedToday();
+  practisedToday(ok ? 10 : 0);
   setProg(f.id, p); updateTop();
   session.done++;
   const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
@@ -2308,8 +2390,10 @@ function summary() {
     <button class="btn" id="home">Done</button>`);
   buzz(great ? [10, 60, 10] : 10);
   const histq = session.histq;
-  $('#again').onclick = () => state.locate ? startLocate() : histq ? startHistQuiz() : startLearn();
-  $('#home').onclick = () => { state.locate = false; showTab(roundFrom); };
+  // After the very first round, offer a profile before going on (the gate makes it required a few answers later).
+  const gate = fn => () => { if (offerSignIn() && store.firstRound) { store.firstRound = 0; save(); signInSheet({ then: fn }); } else fn(); };
+  $('#again').onclick = gate(() => state.locate ? startLocate() : histq ? startHistQuiz() : startLearn());
+  $('#home').onclick = gate(() => { state.locate = false; showTab(roundFrom); });
   setRound(true);
   fitBox(G.views[state.scope.id]);
   draw();
@@ -2357,7 +2441,7 @@ function locateReveal(ok) {
   session.first.set(f.id, first);
   if (first) { if (!store.prog[session.key(f.id)]) session.mastered++; store.prog[session.key(f.id)] = 1; save(); }
   state.target = f; state.solved.add(f.id); session.done++;
-  practisedToday(); updateTop();
+  practisedToday(ok ? 10 : 0); updateTop();
   const fb = ok ? verdict(true, PRAISE[Math.random() * PRAISE.length | 0], `That's ${esc(f.n)}` + (f.cap[0] ? ` · capital ${esc(f.cap[0])}` : '')) : verdict(false, `${esc(f.n)} is here`, 'Look where it sits on the globe.');
   if (ok) buzz(12);
   const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
@@ -2391,7 +2475,7 @@ function onboarding(step = 0) {
   const finish = (play) => {
     store.onb = 1; save();
     setRound(false);
-    if (play) { buzz(8); toast('Your first round: places near you', 2200); startLearn(); } else homeSheet();
+    if (play) { store.firstRound = 1; save(); buzz(8); toast('Your first round: places near you', 2200); startLearn(); } else homeSheet();
   };
   if (step === 0) {
     setSheet(`<div class="ob ob-hello"><span class="ob-logo">${ART.globe}</span>
@@ -2427,30 +2511,252 @@ function onboarding(step = 0) {
   if ($('#obSkip')) $('#obSkip').onclick = () => finish(false);
 }
 
-// ---------- account (optional) ----------
-// Playing never needs an account. Signing in only keeps progress and Meridian Plus across devices.
-// The native app (or a web build with an auth service) provides window.MeridianAuth:
-// { providers: ['apple', 'google', 'email'], user(), signIn(provider), signOut(), deleteAccount() } returning promises.
-const AUTH = window.MeridianAuth || null;
-function accountSheet(reason) {
-  const u = AUTH.user();
-  const btn = (p, label) => AUTH.providers.includes(p) ? `<button class="btn sso sso-${p}" data-sso="${p}">${label}</button>` : '';
-  setSheet(`<button class="back" id="accBack">${IC.back}Settings</button>
-    <div class="title">${u ? 'Your account' : 'Save your progress'}</div>
-    ${u ? `<p class="hint">Signed in as ${esc(u.name || u.email || 'you')}. Your progress and Meridian Plus are kept on all your devices.</p>
-      <button class="btn" id="accOut">Sign out</button>
-      <div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>`
-    : `<p class="hint">${esc(reason || 'Keep your progress and Meridian Plus on all your devices.')} It takes one tap.</p>
-      ${btn('apple', 'Continue with Apple')}${btn('google', 'Continue with Google')}${btn('email', 'Continue with email')}
-      <p class="fine">We only use your account to save your progress. See our <a class="link" href="privacy.html" target="_blank" rel="noopener">privacy policy</a>.</p>`}`);
-  $('#accBack').onclick = settingsSheet;
-  sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => AUTH.signIn(b.dataset.sso).then(() => { toast('Signed in'); accountSheet(); }, () => toast('Sign-in was cancelled')));
-  if ($('#accOut')) $('#accOut').onclick = () => AUTH.signOut().then(() => { toast('Signed out'); settingsSheet(); });
-  if ($('#accDelAsk')) $('#accDelAsk').onclick = () => {
-    $('#accDel').innerHTML = `<p class="hint">This permanently deletes your account and the progress saved with it. Progress on this device stays.</p><div class="rbtns"><button class="btn" id="accKeep">Keep</button><button class="btn" id="accDelGo" style="background:var(--red);border-color:var(--red);color:#fff">Delete</button></div>`;
-    $('#accKeep').onclick = () => accountSheet();
-    $('#accDelGo').onclick = () => AUTH.deleteAccount().then(() => { toast('Account deleted'); settingsSheet(); });
+// ---------- cloud: accounts, leaderboard, races ----------
+// All of this exists only when the site is built with a Firebase config. Without it, CLOUD stays null and
+// the app is the same offline app as before.
+let CLOUD = null, ME = null, authKnown = false;
+const FORCE_SIGNIN = window.MERIDIAN_FORCE_SIGNIN !== false;
+function cloudReady() {
+  CLOUD = window.MeridianCloud;
+  document.body.classList.add('cloud');
+  CLOUD.onUser(p => {
+    const wasNamed = !!(ME && ME.name); ME = p; authKnown = true;
+    if (ME && !ME.name) { if (!$('#nmForm') && !$('#siForm')) nameSheet(); return; }
+    // Fully signed in (with a name) for the first time this visit: lift the gate and carry on.
+    if (ME && !wasNamed) { store.skippedSignIn = 0; store.gateN = 0; save(); pushStatsSoon(); if (pendingAfterSignIn) { const f = pendingAfterSignIn; pendingAfterSignIn = null; f(); } }
+    if (state.tab === 'compete' && !state.race) competeSheet();
+    joinFromLink();
+    if (!ME && !store.offeredOnce && store.onb && !store.firstRound && state.mode === 'explore' && !state.race && !new URLSearchParams(location.search).get('race')) { store.offeredOnce = 1; save(); signInSheet({ then: homeSheet }); }
+  });
+}
+// Connect only once the app has finished starting, whichever of the two scripts loads first.
+if (window.MERIDIAN_FIREBASE) { if (window.MeridianCloud) setTimeout(cloudReady); else window.addEventListener('meridian-cloud', () => setTimeout(cloudReady), { once: true }); }
+
+// World knowledge, in tenths of a percent: countries and capitals named, states and provinces named, and
+// chapters understood (three times the weight of a place). Same rules for everyone, so it compares fairly.
+function knowledge() {
+  const pl = SCOPES.find(x => x.id === 'world').items, sub = ['us', 'ca', 'cn'].flatMap(id => SCOPES.find(x => x.id === id).items);
+  const m = (f, subj) => (store.prog[subj + ':' + f.id] || {}).s >= 2;
+  const ch = ANCHORS.filter(a => a.quiz && trackOf(a) !== 'plus');
+  const got = pl.filter(f => m(f, 'name')).length + pl.filter(f => f.cap[0] && m(f, 'cap')).length + sub.filter(f => m(f, 'name')).length + 3 * ch.filter(a => understood(a.id)).length;
+  const all = pl.length + pl.filter(f => f.cap[0]).length + sub.length + 3 * ch.length;
+  return Math.round(got / all * 1000);
+}
+let pushT = null;
+function pushStatsSoon() {
+  if (!CLOUD || !ME || !ME.name) return;
+  clearTimeout(pushT);
+  pushT = setTimeout(() => CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}), 4000);
+}
+
+// The sign-in gate: offered after the first round, then required after a few more answers (web only; the
+// App Store build can turn the requirement off with MERIDIAN_FORCE_SIGNIN=0).
+let pendingAfterSignIn = null;
+const mustSignIn = () => CLOUD && authKnown && !ME && FORCE_SIGNIN && store.skippedSignIn && (store.gateN || 0) >= 4;
+const offerSignIn = () => CLOUD && authKnown && !ME && !store.skippedSignIn;
+
+const G_LOGO = '<svg viewBox="0 0 48 48" class="sso-ic"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+const A_LOGO = '<svg viewBox="0 0 24 24" class="sso-ic"><path fill="currentColor" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.6 1.3-.1 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.4 1-1.4 1.4-2.7 1.4-2.8 0 0-2.6-1-2.5-4.2zM13.9 4.9c.7-.8 1.2-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></svg>';
+const AUTH_ERR = { 'auth/invalid-email': 'That email doesn\'t look right.', 'auth/email-already-in-use': 'There\'s already a profile with that email. Sign in instead.', 'auth/weak-password': 'Use at least 6 characters.', 'auth/invalid-credential': 'Email or password is wrong.', 'auth/wrong-password': 'Email or password is wrong.', 'auth/user-not-found': 'No profile with that email.', 'auth/too-many-requests': 'Too many tries. Wait a minute and try again.', 'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups and try again.', 'auth/network-request-failed': 'No connection. Check your internet and try again.' };
+// One screen, three ways in: Google, Apple, or email. Most people tap one button and are done.
+function signInSheet(opts = {}) {
+  const hard = !!opts.hard; let mode = opts.mode || 'new', email = false;
+  if (opts.then) pendingAfterSignIn = opts.then;
+  clearTimeout(advanceT); keyHandler = null;
+  state.target = null; state.flash = null; draw();
+  const render = () => {
+    setRound(true);
+    setSheet(`<div class="si">
+      ${hard || opts.noBack ? '' : `<button class="qx si-x" id="siX" aria-label="Close">${IC.x}</button>`}
+      <span class="si-art">${ART.trophy}</span>
+      <h3>${mode === 'in' ? 'Welcome back' : hard ? 'Create your profile to keep going' : 'Save your progress'}</h3>
+      <p class="hint">${mode === 'in' ? 'Sign in to pick up where you left off.' : 'Join the world leaderboard, race your friends and keep your streak on every device. It\'s free.'}</p>
+      ${email ? `<form class="si-form" id="siForm" autocomplete="on">
+          ${mode === 'new' ? `<input id="siName" name="given-name" autocomplete="given-name" placeholder="First name" aria-label="First name" maxlength="20" required>` : ''}
+          <input id="siEmail" type="email" name="email" autocomplete="email" placeholder="Email" aria-label="Email" required>
+          <input id="siPass" type="password" name="password" autocomplete="${mode === 'new' ? 'new-password' : 'current-password'}" placeholder="Password${mode === 'new' ? ' (6+ characters)' : ''}" aria-label="Password" minlength="6" required>
+          <p class="err" id="siErr" role="alert"></p>
+          <button class="btn primary" type="submit">${mode === 'new' ? 'Create profile' : 'Sign in'}</button>
+          ${mode === 'in' ? '<button class="link quiet" type="button" id="siForgot">Forgot password?</button>' : ''}
+          <button class="link quiet" type="button" id="siBackBtns">Other ways to sign in</button>
+        </form>` : `<div class="si-btns">
+          <button class="btn sso sso-google" data-sso="google">${G_LOGO}Continue with Google</button>
+          <button class="btn sso sso-apple" data-sso="apple">${A_LOGO}Continue with Apple</button>
+          <button class="btn sso" id="siEmailBtn">${IC.target}Continue with email</button>
+          <p class="err" id="siErr" role="alert"></p></div>`}
+      <button class="link" id="siMode">${mode === 'in' ? 'New here? Create a profile' : 'I already have a profile'}</button>
+      ${hard ? '' : '<button class="link quiet" id="siLater">Not now</button>'}
+      <p class="fine">By continuing you agree to our <a class="link" href="terms.html" target="_blank" rel="noopener">Terms</a> and <a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</p></div>`);
+    sheet.scrollTop = 0;
+    const err = m => { const e = $('#siErr'); if (e) e.textContent = m; };
+    const fail = e => err(AUTH_ERR[e && e.code] || (e && e.code === 'auth/popup-closed-by-user' ? '' : 'Something went wrong. Try again.'));
+    sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => { buzz(5); err(''); CLOUD.signIn(b.dataset.sso).catch(fail); });
+    if ($('#siEmailBtn')) $('#siEmailBtn').onclick = () => { email = true; render(); setTimeout(() => ($('#siName') || $('#siEmail')).focus(), 50); };
+    if ($('#siBackBtns')) $('#siBackBtns').onclick = () => { email = false; render(); };
+    $('#siMode').onclick = () => { mode = mode === 'in' ? 'new' : 'in'; render(); };
+    if ($('#siForgot')) $('#siForgot').onclick = () => { const v = $('#siEmail').value.trim(); if (!v) return err('Type your email first.'); CLOUD.resetPassword(v).then(() => err('Check your inbox for a reset link.'), fail); };
+    if ($('#siForm')) $('#siForm').onsubmit = e => {
+      e.preventDefault(); err('');
+      const b = $('#siForm button[type=submit]'); b.disabled = true;
+      const p = mode === 'new' ? CLOUD.emailSignUp($('#siName').value, $('#siEmail').value.trim(), $('#siPass').value) : CLOUD.emailSignIn($('#siEmail').value.trim(), $('#siPass').value);
+      p.then(() => {}, e2 => { b.disabled = false; fail(e2); });
+    };
+    const later = () => { store.skippedSignIn = 1; store.gateN = 0; save(); const f = pendingAfterSignIn; pendingAfterSignIn = null; setRound(false); if (f) f(); else homeSheet(); };
+    if ($('#siLater')) $('#siLater').onclick = later;
+    if ($('#siX')) $('#siX').onclick = later;
   };
+  render();
+}
+// Signed in without a name (Apple can hide it): ask once. People appear as "First name #1234".
+function nameSheet() {
+  setRound(true);
+  setSheet(`<div class="si"><span class="si-art">${ART.globe}</span><h3>What's your first name?</h3>
+    <p class="hint">It's how you'll appear on the leaderboard and in races, with a number to tell you apart.</p>
+    <form class="si-form" id="nmForm"><input id="nmName" name="given-name" autocomplete="given-name" placeholder="First name" maxlength="20" required aria-label="First name">
+    <p class="err" id="nmErr" role="alert"></p><button class="btn primary" type="submit">Continue</button></form></div>`);
+  setTimeout(() => $('#nmName').focus(), 50);
+  $('#nmForm').onsubmit = e => { e.preventDefault(); CLOUD.setName($('#nmName').value).catch(() => { $('#nmErr').textContent = 'Please type your first name.'; }); };
+}
+
+// ---------- compete: leaderboard and races ----------
+const avatar = (name, uid) => `<span class="av" style="--h:${[...(uid || name || 'x')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360}">${esc((name || '?')[0].toUpperCase())}</span>`;
+const who = r => `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`;
+function competeSheet(kind = state.board || 'week') {
+  state.mode = 'explore'; state.target = null; state.board = kind;
+  setRound(false); setTab('compete');
+  if (!ME) {
+    setSheet(`<div class="title">Compete</div><div class="si-teaser"><span class="si-art">${ART.trophy}</span><b>Race your friends and climb the world leaderboard</b><p class="hint">Make a free profile to take part.</p>
+      <button class="btn primary" id="cmpIn">Create a profile</button></div>`);
+    $('#cmpIn').onclick = () => signInSheet({ then: () => competeSheet() });
+    return updateTop();
+  }
+  setSheet(`<div class="title">Compete</div>
+    <div class="race-card"><b>${IC.flame}Race your friends</b><small>Same map, same questions. The fastest right answer scores most.</small>
+      <div class="rbtns"><button class="btn primary" id="raceNew">Start a race</button><button class="btn" id="raceJoin">Join with a code</button></div>
+      <form class="race-join" id="raceJoinForm" hidden><input id="raceCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Race code"><button class="btn primary" type="submit">Join</button></form>
+      <p class="err" id="raceErr" role="alert"></p></div>
+    <div class="seg" role="tablist"><button data-board="week" aria-pressed="${kind === 'week'}">This week</button><button data-board="all" aria-pressed="${kind === 'all'}">World knowledge</button></div>
+    <p class="hint lb-hint">${kind === 'week' ? '10 points for every right answer, 50 for reaching your daily goal. Resets every Monday.' : 'How much of the world you know: countries, capitals, states and provinces, and history chapters understood.'}</p>
+    <div class="lb" id="lb"><p class="hint">Loading…</p></div>`);
+  sheet.querySelectorAll('[data-board]').forEach(b => b.onclick = () => { buzz(5); competeSheet(b.dataset.board); });
+  $('#raceNew').onclick = () => { buzz(8); raceHost(); };
+  $('#raceJoin').onclick = () => { $('#raceJoinForm').hidden = false; $('#raceCode').focus(); };
+  $('#raceJoinForm').onsubmit = e => { e.preventDefault(); raceJoin($('#raceCode').value.trim().toUpperCase()); };
+  updateTop();
+  CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}).then(() => CLOUD.leaderboard(kind, weekId())).then(({ rows, me }) => {
+    if (state.tab !== 'compete' || state.board !== kind || !$('#lb')) return;
+    const fmt = v => kind === 'week' ? `${v} pts` : `${(v / 10).toFixed(1)}%`;
+    const row = (r, i, mine) => `<div class="lb-row${mine ? ' me' : ''}"><span class="lb-n">${i}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
+    const inTop = rows.some(r => r.uid === ME.uid);
+    $('#lb').innerHTML = rows.length ? rows.map((r, i) => row(r, i + 1, r.uid === ME.uid)).join('') + (!inTop && me ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank, true)}` : '')
+      : `<p class="hint">No one has scored yet this week. Answer a few questions and you'll be first.</p>`;
+  }, () => { if ($('#lb')) $('#lb').innerHTML = '<p class="hint">Couldn\'t load the leaderboard. Check your connection.</p>'; });
+}
+
+// Races: a four-letter code, the same ten places for everyone, four choices each, 15 seconds a question.
+// A right answer earns 500 points plus up to 500 for speed, and the first right answer gets 250 more.
+const RACE_N = 10, RACE_T = 15000, RACE_COLORS = ['red', 'blue', 'gold', 'green'];
+let race = null;
+function raceQuestions() {
+  const pool = shuffle(state.scope.items.filter(f => f.n)).slice(0, RACE_N);
+  return pool.map(f => {
+    const near = state.scope.items.filter(x => x !== f && x.n).sort((a, b) => dist(a, f) - dist(b, f));
+    const opts = shuffle([f, ...shuffle(near.slice(0, 6)).slice(0, 3)]);
+    return { id: f.id, opts: opts.map(o => o.id), a: opts.indexOf(f) };
+  });
+}
+function raceHost() {
+  if (state.scope.items.length < 8) return toast('Pick a bigger set to race on');
+  CLOUD.createRace({ scope: state.scope.id, title: state.scope.name, qs: raceQuestions() }).then(raceOpen, () => toast('Couldn\'t start a race. Check your connection.'));
+}
+function raceJoin(code) {
+  if (!/^[A-Z0-9]{4}$/.test(code)) { const e = $('#raceErr'); if (e) e.textContent = 'Codes are four letters or numbers.'; return; }
+  CLOUD.joinRace(code).then(() => raceOpen(code), e => { const el = $('#raceErr'); if (el) el.textContent = e.message; else toast(e.message); });
+}
+function joinFromLink() {
+  const code = new URLSearchParams(location.search).get('race');
+  if (!code || state.race) return;
+  if (!ME) return signInSheet({ then: () => joinFromLink(), noBack: false });
+  history.replaceState(null, '', location.pathname);
+  showTab('compete'); raceJoin(code.toUpperCase());
+}
+function raceOpen(code) {
+  race = { code, room: null, answered: -1, revealed: -1, timer: null };
+  state.race = code;
+  setRound(true); setTab('compete');
+  race.unsub = CLOUD.watchRace(code, room => { race.room = room; raceRender(); });
+}
+function raceLeave() {
+  if (!race) return;
+  clearInterval(race.timer); clearTimeout(race.next); race.unsub && race.unsub(); CLOUD.leave(race.code);
+  race = null; state.race = null; state.target = null; keyHandler = null;
+  competeSheet();
+}
+const racePlayers = room => Object.entries(room.players || {}).filter(([, p]) => !p.gone).map(([uid, p]) => ({ uid, ...p }));
+function raceRender() {
+  const room = race && race.room; if (!room) { if (race) { toast('The race has ended'); raceLeave(); } return; }
+  const isHost = room.host === CLOUD.myId(), players = racePlayers(room).sort((a, b) => b.score - a.score);
+  if (room.scope && state.scope.id !== room.scope) setScope(SCOPES.find(x => x.id === room.scope) || state.scope);
+  clearInterval(race.timer);
+  if (room.state === 'lobby') {
+    const link = `${location.origin}${location.pathname}?race=${race.code}`;
+    setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><span class="pill">Race · ${esc(room.title || '')}</span></div>
+      <div class="rc-code"><small>Race code</small><b>${race.code}</b><button class="btn" id="rcShare">Invite a friend</button></div>
+      <h4 class="home-h">${players.length} ${players.length === 1 ? 'player' : 'players'}</h4>
+      <div class="lb">${players.map(p => `<div class="lb-row${p.uid === CLOUD.myId() ? ' me' : ''}">${avatar(p.name, p.uid)}<span class="lb-name">${who(p)}${p.uid === room.host ? ' · host' : ''}</span></div>`).join('')}</div>
+      ${isHost ? `<button class="btn primary" id="rcGo" ${players.length < 2 ? 'disabled' : ''}>${players.length < 2 ? 'Waiting for a friend to join…' : 'Start the race'}</button>` : '<p class="hint" style="text-align:center">Waiting for the host to start…</p>'}`);
+    $('#rcShare').onclick = () => { const t = `Race me on Meridian! Code ${race.code}`; if (navigator.share) navigator.share({ title: 'Meridian race', text: t, url: link }).catch(() => {}); else navigator.clipboard?.writeText(`${t}: ${link}`).then(() => toast('Invite link copied')); };
+    if ($('#rcGo')) $('#rcGo').onclick = () => { buzz(8); CLOUD.startQuestion(race.code, 0); };
+  } else if (room.state === 'q') {
+    const qi = room.qi, q = room.qs[qi], f = byId[q.id], mine = room.answers && room.answers[qi] && room.answers[qi][CLOUD.myId()];
+    if (race.shownQ !== qi) { race.shownQ = qi; state.target = f; state.flash = null; fitBox(contextBox(f)); draw(); buzz(5); }
+    setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><div class="qbar rc-time"><i id="rcBar"></i></div></div>
+      <span class="pill">Question ${qi + 1} of ${room.qs.length}</span>
+      <p class="prompt">${mine ? 'Locked in! Waiting for the others…' : 'Which place is highlighted?'}</p>
+      <div class="rc-opts">${q.opts.map((id, k) => `<button class="rc-opt c-${RACE_COLORS[k]}${mine && mine.c === k ? ' picked' : ''}" data-k="${k}" ${mine ? 'disabled' : ''}>${esc(byId[id].n)}</button>`).join('')}</div>`);
+    const btns = [...sheet.querySelectorAll('.rc-opt')];
+    btns.forEach(b => b.onclick = () => { if (b.disabled) return; buzz(8); btns.forEach(x => x.disabled = true); b.classList.add('picked'); CLOUD.answer(race.code, qi, +b.dataset.k); });
+    keyHandler = mine ? null : e => { const n = +e.key; if (n >= 1 && n <= 4) btns[n - 1].click(); };
+    const tick = () => {
+      const left = Math.max(0, RACE_T - (CLOUD.serverNow() - room.qStart)), bar = $('#rcBar');
+      if (bar) bar.style.width = (left / RACE_T * 100) + '%';
+      const ans = room.answers && room.answers[qi] || {};
+      if (isHost && race.revealed < qi && (left <= 0 || players.every(p => ans[p.uid]))) raceScore(room, qi);
+    };
+    tick(); race.timer = setInterval(tick, 200);
+  } else if (room.state === 'reveal') {
+    const qi = room.qi, q = room.qs[qi], ans = room.answers && room.answers[qi] || {}, mine = ans[CLOUD.myId()];
+    const right = Object.entries(ans).filter(([, a]) => a.c === q.a).sort((x, y) => x[1].t - y[1].t);
+    const first = right[0] && (room.players[right[0][0]] || {}).name;
+    const ok = mine && mine.c === q.a;
+    if (race.answered !== qi) { race.answered = qi; practisedToday(ok ? 10 : 0); buzz(ok ? 12 : [20, 40, 20]); }
+    state.solved.add(q.id); draw();
+    setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><span class="pill">Question ${qi + 1} of ${room.qs.length}</span></div>
+      <div class="verdict ${ok ? 'good' : 'bad'} inline rc-verdict"><div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${ok ? (right[0] && right[0][0] === CLOUD.myId() ? 'First!' : 'Right!') : `It was ${esc(byId[q.id].n)}`}</b><span>${first ? `${esc(first)} got it first` : 'No one got this one'}</span></div></div></div>
+      <div class="lb">${players.map((p, i) => `<div class="lb-row${p.uid === CLOUD.myId() ? ' me' : ''}"><span class="lb-n">${i + 1}</span>${avatar(p.name, p.uid)}<span class="lb-name">${who(p)}</span><b>${p.score}</b></div>`).join('')}</div>`);
+    if (isHost) { clearTimeout(race.next); race.next = setTimeout(() => qi + 1 < room.qs.length ? CLOUD.startQuestion(race.code, qi + 1) : CLOUD.finish(race.code), 3500); }
+  } else if (room.state === 'done') {
+    const top = players.slice(0, 3), meRank = players.findIndex(p => p.uid === CLOUD.myId()) + 1;
+    if (race.ended !== true) { race.ended = true; buzz(meRank === 1 ? [10, 60, 10] : 10); }
+    setSheet(`<div class="done"><span class="badge">${meRank === 1 ? ART.trophy : ART.medal}</span><div class="title">${meRank === 1 ? 'You won!' : `You came ${['', 'first', 'second', 'third'][meRank] || meRank + 'th'}`}</div><div class="sub">Race · ${esc(room.title || '')}</div></div>
+      <div class="podium">${top.map((p, i) => `<div class="pod-${i + 1}">${avatar(p.name, p.uid)}<b>${esc(p.name)}</b><span>${p.score}</span></div>`).join('')}</div>
+      ${isHost ? '<button class="btn primary" id="rcAgain">Race again</button>' : ''}<button class="btn" id="rcDone">Done</button>`);
+    if ($('#rcAgain')) $('#rcAgain').onclick = () => { const code = race.code; raceLeave(); raceHost(); };
+    $('#rcDone').onclick = raceLeave;
+  }
+  if ($('#rcX')) $('#rcX').onclick = raceLeave;
+}
+// The host scores each question from the server timestamps, then shows the answer to everyone.
+function raceScore(room, qi) {
+  race.revealed = qi;
+  const q = room.qs[qi], ans = room.answers && room.answers[qi] || {};
+  const right = Object.entries(ans).filter(([, a]) => a.c === q.a).sort((x, y) => x[1].t - y[1].t);
+  const scores = {};
+  right.forEach(([uid, a], i) => {
+    const speed = Math.max(0, 1 - (a.t - room.qStart) / RACE_T);
+    scores[uid] = ((room.players[uid] || {}).score || 0) + 500 + Math.round(500 * speed) + (i === 0 ? 250 : 0);
+  });
+  CLOUD.reveal(race.code, scores);
 }
 
 // ---------- boot ----------
