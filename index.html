@@ -368,6 +368,8 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .si-art svg { width: 100%; height: 100%; }
 .si-btns, .si-form { width: 100%; display: grid; gap: 10px; }
 /* color-scheme: light lets Google's button frame stay transparent on the dark theme instead of a white box. */
+.si-spin { width: 40px; height: 40px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--blue); animation: spin .8s linear infinite; margin: 8px 0 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .gsi { width: 100%; min-height: 44px; display: flex; justify-content: center; color-scheme: light; }
 .si-form input { font: inherit; font-size: 17px; font-weight: 700; padding: 13px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
 .si-form input:focus { outline: none; border-color: var(--blue); }
@@ -2625,6 +2627,8 @@ function cloudReady() {
     // The first-name card closes once the name is saved.
     if (ME && ME.name && !wasNamed && $('#nmForm') && state.tab !== 'compete') homeSheet();
     if (state.tab === 'compete' && !state.race) competeSheet();
+    // Signed in from somewhere with nothing queued: don't leave the "Signing you in…" card up.
+    if (ME && ME.name && $('.si-busy')) homeSheet();
     joinFromLink();
     if (!ME && !store.offeredOnce && store.onb && !store.firstRound && state.mode === 'explore' && !state.race && !new URLSearchParams(location.search).get('race')) { store.offeredOnce = 1; save(); signInSheet({ then: homeSheet }); }
   });
@@ -2661,12 +2665,14 @@ let gsiBroken = false;
 const AUTH_ERR = { 'auth/invalid-email': 'That email doesn\'t look right.', 'auth/email-already-in-use': 'There\'s already a profile with that email. Sign in instead.', 'auth/weak-password': 'Use at least 6 characters.', 'auth/invalid-credential': 'Email or password is wrong.', 'auth/wrong-password': 'Email or password is wrong.', 'auth/user-not-found': 'No profile with that email.', 'auth/too-many-requests': 'Too many tries. Wait a minute and try again.', 'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups and try again.', 'auth/network-request-failed': 'No connection. Check your internet and try again.' };
 // One screen, three ways in: Google, Apple, or email. Most people tap one button and are done.
 function signInSheet(opts = {}) {
-  const hard = !!opts.hard; let mode = opts.mode || 'new', email = false, typed = '';
+  const hard = !!opts.hard; let mode = opts.mode || 'new', email = false, typed = '', busy = false, busyT = null;
   if (opts.then) pendingAfterSignIn = opts.then;
   clearTimeout(advanceT); keyHandler = null;
   state.target = null; state.flash = null; draw();
   const render = () => {
     setRound(true);
+    // After Google hands back the account there are a couple of seconds of work; show that it's happening.
+    if (busy) return setSheet(`<div class="si si-busy"><span class="si-art">${ART.trophy}</span><h3>Signing you in…</h3><span class="si-spin" role="status" aria-label="Signing you in"></span></div>`);
     setSheet(`<div class="si">
       ${hard || opts.noBack ? '' : `<button class="qx si-x" id="siX" aria-label="Close">${IC.x}</button>`}
       <span class="si-art">${ART.trophy}</span>
@@ -2692,7 +2698,9 @@ function signInSheet(opts = {}) {
     const err = m => { const e = $('#siErr'); if (e) e.textContent = m; };
     const fail = e => err(AUTH_ERR[e && e.code] || (e && e.code === 'auth/popup-closed-by-user' ? '' : `Something went wrong. Try again.${e && e.code ? ` (${String(e.code).replace('auth/', '')})` : ''}`));
     // Google's own button where it loads; if it can't (blocked script, offline), our button with the popup.
-    if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), fail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches), () => toast('Signing you in…'))
+    const gFail = e => { clearTimeout(busyT); if (busy) { busy = false; render(); } fail(e); };
+    if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), gFail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches),
+      () => { busy = true; render(); clearTimeout(busyT); busyT = setTimeout(() => { if (busy && $('.si-busy')) { busy = false; render(); err('That took too long. Try again.'); } }, 20000); })
       .catch(() => { gsiBroken = true; if ($('#gsiBtn')) render(); });
     sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => { buzz(5); err(''); CLOUD.signIn(b.dataset.sso).catch(fail); });
     if ($('#siEmailBtn')) $('#siEmailBtn').onclick = () => { email = true; render(); setTimeout(() => ($('#siName') || $('#siEmail')).focus(), 50); };
