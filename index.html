@@ -367,6 +367,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .si-art { width: 76px; height: 76px; display: block; }
 .si-art svg { width: 100%; height: 100%; }
 .si-btns, .si-form { width: 100%; display: grid; gap: 10px; }
+.gsi { width: 100%; min-height: 44px; display: flex; justify-content: center; }
 .si-form input { font: inherit; font-size: 17px; font-weight: 700; padding: 13px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
 .si-form input:focus { outline: none; border-color: var(--blue); }
 .si .err { color: var(--red); font-weight: 800; font-size: 14px; margin: 0; min-height: 0; }
@@ -907,7 +908,8 @@ new MutationObserver(readColors).observe(document.documentElement, { attributes:
 function setBase() {
   if (!TILES_ON) return;
   const sat = store.base === 'sat';
-  const explore = state.mode === 'explore' || state.mode === 'summary' || state.mode === 'era';
+  // A race is a quiz too: no names while it runs.
+  const explore = (state.mode === 'explore' || state.mode === 'summary' || state.mode === 'era') && !state.race;
   const vis = (id, on) => map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
   vis('base-map', !sat); vis('base-sat', sat);
   // Official place names only while exploring; in a quiz they would give the answers away.
@@ -933,8 +935,8 @@ function seaStyle(f) {
 // Sea and ocean names, written on the water where no basemap labels are showing.
 const seaTags = new Map();
 function drawSeaLabels() {
-  const quiz = (state.mode === 'learn' || state.mode === 'locate') && state.scope.id === 'oceans';
-  const refOn = TILES_ON && store.base !== 'sat' && ['explore', 'summary', 'era'].includes(state.mode);
+  const quiz = (state.mode === 'learn' || state.mode === 'locate') && state.scope.id === 'oceans' || !!state.race;
+  const refOn = TILES_ON && store.base !== 'sat' && ['explore', 'summary', 'era'].includes(state.mode) && !state.race;
   const z = map.getZoom(), c = map.getCenter(), rad = Math.PI / 180;
   // Only label water facing the viewer, away from the globe's rim.
   const facing = ll => Math.acos(Math.min(1, Math.sin(c.lat * rad) * Math.sin(ll[1] * rad) + Math.cos(c.lat * rad) * Math.cos(ll[1] * rad) * Math.cos((ll[0] - c.lng) * rad))) < 62 * rad;
@@ -1659,7 +1661,7 @@ function settingsSheet() {
       <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
-      ${ME ? `<button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
+      ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
     <div class="setrow"><b>Meridian Plus</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Unlock the deep dives: longer stories with their own maps and quizzes.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.lock}Unlock deep dives`}</button></div>
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
@@ -1667,6 +1669,7 @@ function settingsSheet() {
   $('#setBack').onclick = homeSheet;
   sheet.querySelectorAll('[data-goal-set]').forEach(b => b.onclick = () => { buzz(5); store.goal = +b.dataset.goalSet; save(); settingsSheet(); });
   if ($('#accIn')) $('#accIn').onclick = () => signInSheet({ then: settingsSheet });
+  if ($('#accName')) $('#accName').onclick = () => { nameSheet(); $('#nmName').value = ME.name || ''; };
   if ($('#accOut')) $('#accOut').onclick = () => CLOUD.signOut().then(() => { toast('Signed out'); settingsSheet(); });
   if ($('#accDelAsk')) $('#accDelAsk').onclick = () => {
     $('#accDel').innerHTML = `<p class="hint">This permanently deletes your profile and leaderboard scores. Progress on this device stays.</p><div class="rbtns"><button class="btn" id="accKeep">Keep</button><button class="btn" id="accDelGo" style="background:var(--red);border-color:var(--red);color:#fff">Delete</button></div>`;
@@ -2154,6 +2157,8 @@ function showOnGlobe(f) {
 }
 
 function onPick(f) {
+  // In a race, tapping the map would name places and replace the race card.
+  if (state.race) return;
   if (state.mode === 'locate') return locateTap(f);
   if (state.mode === 'learn') {
     // During a question, tapping only names places outside the quiz or already solved.
@@ -2614,6 +2619,8 @@ function cloudReady() {
     if (ME && !ME.name) { if (!$('#nmForm') && !$('#siForm')) nameSheet(); return; }
     // Fully signed in (with a name) for the first time this visit: lift the gate and carry on.
     if (ME && !wasNamed) { store.skippedSignIn = 0; store.gateN = 0; save(); pushStatsSoon(); if (pendingAfterSignIn) { const f = pendingAfterSignIn; pendingAfterSignIn = null; f(); } }
+    // The first-name card closes once the name is saved.
+    if (ME && ME.name && !wasNamed && $('#nmForm') && state.tab !== 'compete') homeSheet();
     if (state.tab === 'compete' && !state.race) competeSheet();
     joinFromLink();
     if (!ME && !store.offeredOnce && store.onb && !store.firstRound && state.mode === 'explore' && !state.race && !new URLSearchParams(location.search).get('race')) { store.offeredOnce = 1; save(); signInSheet({ then: homeSheet }); }
@@ -2647,6 +2654,7 @@ const offerSignIn = () => CLOUD && authKnown && !ME && !store.skippedSignIn;
 
 const G_LOGO = '<svg viewBox="0 0 48 48" class="sso-ic"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 const A_LOGO = '<svg viewBox="0 0 24 24" class="sso-ic"><path fill="currentColor" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.6 1.3-.1 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.4 1-1.4 1.4-2.7 1.4-2.8 0 0-2.6-1-2.5-4.2zM13.9 4.9c.7-.8 1.2-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></svg>';
+let gsiBroken = false;
 const AUTH_ERR = { 'auth/invalid-email': 'That email doesn\'t look right.', 'auth/email-already-in-use': 'There\'s already a profile with that email. Sign in instead.', 'auth/weak-password': 'Use at least 6 characters.', 'auth/invalid-credential': 'Email or password is wrong.', 'auth/wrong-password': 'Email or password is wrong.', 'auth/user-not-found': 'No profile with that email.', 'auth/too-many-requests': 'Too many tries. Wait a minute and try again.', 'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups and try again.', 'auth/network-request-failed': 'No connection. Check your internet and try again.' };
 // One screen, three ways in: Google, Apple, or email. Most people tap one button and are done.
 function signInSheet(opts = {}) {
@@ -2670,7 +2678,7 @@ function signInSheet(opts = {}) {
           ${mode === 'in' ? '<button class="link quiet" type="button" id="siForgot">Forgot password?</button>' : ''}
           <button class="link quiet" type="button" id="siBackBtns">Other ways to sign in</button>
         </form>` : `<div class="si-btns">
-          <button class="btn sso sso-google" data-sso="google">${G_LOGO}Continue with Google</button>
+          ${CLOUD.googleButton && window.MERIDIAN_FIREBASE.gsi && !gsiBroken ? '<div class="gsi" id="gsiBtn"></div>' : `<button class="btn sso sso-google" data-sso="google">${G_LOGO}Continue with Google</button>`}
           ${APPLE ? `<button class="btn sso sso-apple" data-sso="apple">${A_LOGO}Continue with Apple</button>` : ''}
           <button class="btn sso" id="siEmailBtn">${IC.target}Continue with email</button>
           <p class="err" id="siErr" role="alert"></p></div>`}
@@ -2680,6 +2688,9 @@ function signInSheet(opts = {}) {
     sheet.scrollTop = 0;
     const err = m => { const e = $('#siErr'); if (e) e.textContent = m; };
     const fail = e => err(AUTH_ERR[e && e.code] || (e && e.code === 'auth/popup-closed-by-user' ? '' : 'Something went wrong. Try again.'));
+    // Google's own button where it loads; if it can't (blocked script, offline), our button with the popup.
+    if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), fail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))
+      .catch(() => { gsiBroken = true; if ($('#gsiBtn')) render(); });
     sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => { buzz(5); err(''); CLOUD.signIn(b.dataset.sso).catch(fail); });
     if ($('#siEmailBtn')) $('#siEmailBtn').onclick = () => { email = true; render(); setTimeout(() => ($('#siName') || $('#siEmail')).focus(), 50); };
     if ($('#siBackBtns')) $('#siBackBtns').onclick = () => { email = false; render(); };
@@ -2705,7 +2716,7 @@ function nameSheet() {
     <form class="si-form" id="nmForm"><input id="nmName" name="given-name" autocomplete="given-name" placeholder="First name" maxlength="20" required aria-label="First name">
     <p class="err" id="nmErr" role="alert"></p><button class="btn primary" type="submit">Continue</button></form></div>`);
   setTimeout(() => $('#nmName').focus(), 50);
-  $('#nmForm').onsubmit = e => { e.preventDefault(); CLOUD.setName($('#nmName').value).catch(() => { $('#nmErr').textContent = 'Please type your first name.'; }); };
+  $('#nmForm').onsubmit = e => { e.preventDefault(); const renaming = !!(ME && ME.name); CLOUD.setName($('#nmName').value).then(() => { if (renaming) { toast('Name updated'); settingsSheet(); } }, () => { $('#nmErr').textContent = 'Please type your first name.'; }); };
 }
 
 // ---------- compete: leaderboard and races ----------
@@ -2773,18 +2784,20 @@ function joinFromLink() {
 function raceOpen(code) {
   race = { code, room: null, answered: -1, revealed: -1, timer: null };
   state.race = code;
-  setRound(true); setTab('compete');
+  setRound(true); setTab('compete'); draw();
   race.unsub = CLOUD.watchRace(code, room => { race.room = room; raceRender(); });
 }
 function raceLeave() {
   if (!race) return;
-  clearInterval(race.timer); clearTimeout(race.next); race.unsub && race.unsub(); CLOUD.leave(race.code);
+  clearInterval(race.timer); clearTimeout(race.next); race.unsub && race.unsub();
+  if (race.room && race.room.host === CLOUD.myId()) CLOUD.endRace(race.code); else CLOUD.leave(race.code);
   race = null; state.race = null; state.target = null; keyHandler = null;
   competeSheet();
 }
 const racePlayers = room => Object.entries(room.players || {}).filter(([, p]) => !p.gone).map(([uid, p]) => ({ uid, ...p }));
 function raceRender() {
-  const room = race && race.room; if (!room) { if (race) { toast('The race has ended'); raceLeave(); } return; }
+  // A deleted room means the host left; after the podium there's nothing to interrupt.
+  const room = race && race.room; if (!room) { if (race && !race.ended) { toast('The race has ended'); raceLeave(); } return; }
   const isHost = room.host === CLOUD.myId(), players = racePlayers(room).sort((a, b) => b.score - a.score);
   if (room.scope && state.scope.id !== room.scope) setScope(SCOPES.find(x => x.id === room.scope) || state.scope);
   clearInterval(race.timer);
@@ -2792,9 +2805,10 @@ function raceRender() {
     const link = `${location.origin}${location.pathname}?race=${race.code}`;
     setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><span class="pill">Race · ${esc(room.title || '')}</span></div>
       <div class="rc-code"><small>Race code</small><b>${race.code}</b><button class="btn" id="rcShare">Invite a friend</button></div>
+      ${isHost ? `<button class="btn primary" id="rcGo" ${players.length < 2 ? 'disabled' : ''}>${players.length < 2 ? 'Waiting for a friend to join…' : 'Start the race'}</button>` : '<p class="hint" style="text-align:center">Waiting for the host to start…</p>'}
       <h4 class="home-h">${players.length} ${players.length === 1 ? 'player' : 'players'}</h4>
       <div class="lb">${players.map(p => `<div class="lb-row${p.uid === CLOUD.myId() ? ' me' : ''}">${avatar(p.name, p.uid)}<span class="lb-name">${who(p)}${p.uid === room.host ? ' · host' : ''}</span></div>`).join('')}</div>
-      ${isHost ? `<button class="btn primary" id="rcGo" ${players.length < 2 ? 'disabled' : ''}>${players.length < 2 ? 'Waiting for a friend to join…' : 'Start the race'}</button>` : '<p class="hint" style="text-align:center">Waiting for the host to start…</p>'}`);
+`);
     $('#rcShare').onclick = () => { const t = `Race me on Meridian! Code ${race.code}`; if (navigator.share) navigator.share({ title: 'Meridian race', text: t, url: link }).catch(() => {}); else navigator.clipboard?.writeText(`${t}: ${link}`).then(() => toast('Invite link copied')); };
     if ($('#rcGo')) $('#rcGo').onclick = () => { buzz(8); CLOUD.startQuestion(race.code, 0); };
   } else if (room.state === 'q') {
@@ -2871,7 +2885,7 @@ else { map.once('idle', hideSplash); setTimeout(hideSplash, 4000); }
 };
 </script>
 
-<script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a"}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
+<script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com"}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script type="module" src="cloud.js"></script>
 <script>
 fetch('geo-live.json').then(r => r.json()).then(g => { window.GEO = g; setTimeout(window.__start); },
