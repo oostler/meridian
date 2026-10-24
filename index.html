@@ -2604,6 +2604,8 @@ function onboarding(step = 0) {
 // the app is the same offline app as before.
 let CLOUD = null, ME = null, authKnown = false;
 const FORCE_SIGNIN = window.MERIDIAN_FORCE_SIGNIN !== false;
+// Sign in with Apple needs an Apple Developer account; the button shows once the config says "apple": true.
+const APPLE = !!(window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.apple);
 function cloudReady() {
   CLOUD = window.MeridianCloud;
   document.body.classList.add('cloud');
@@ -2669,7 +2671,7 @@ function signInSheet(opts = {}) {
           <button class="link quiet" type="button" id="siBackBtns">Other ways to sign in</button>
         </form>` : `<div class="si-btns">
           <button class="btn sso sso-google" data-sso="google">${G_LOGO}Continue with Google</button>
-          <button class="btn sso sso-apple" data-sso="apple">${A_LOGO}Continue with Apple</button>
+          ${APPLE ? `<button class="btn sso sso-apple" data-sso="apple">${A_LOGO}Continue with Apple</button>` : ''}
           <button class="btn sso" id="siEmailBtn">${IC.target}Continue with email</button>
           <p class="err" id="siErr" role="alert"></p></div>`}
       <button class="link" id="siMode">${mode === 'in' ? 'New here? Create a profile' : 'I already have a profile'}</button>
@@ -2736,7 +2738,7 @@ function competeSheet(kind = state.board || 'week') {
     const fmt = v => kind === 'week' ? `${v} pts` : `${(v / 10).toFixed(1)}%`;
     const row = (r, i, mine) => `<div class="lb-row${mine ? ' me' : ''}"><span class="lb-n">${i}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
     const inTop = rows.some(r => r.uid === ME.uid);
-    $('#lb').innerHTML = rows.length ? rows.map((r, i) => row(r, i + 1, r.uid === ME.uid)).join('') + (!inTop && me ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank, true)}` : '')
+    $('#lb').innerHTML = rows.length ? rows.map((r, i) => row(r, i + 1, r.uid === ME.uid)).join('') + (!inTop && me ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank || "–", true)}` : '')
       : `<p class="hint">No one has scored yet this week. Answer a few questions and you'll be first.</p>`;
   }, () => { if ($('#lb')) $('#lb').innerHTML = '<p class="hint">Couldn\'t load the leaderboard. Check your connection.</p>'; });
 }
@@ -2869,6 +2871,8 @@ else { map.once('idle', hideSplash); setTimeout(hideSplash, 4000); }
 };
 </script>
 
+<script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a"}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
+<script type="module" src="cloud.js"></script>
 <script>
 fetch('geo-live.json').then(r => r.json()).then(g => { window.GEO = g; setTimeout(window.__start); },
   () => { document.getElementById('sheet').textContent = 'Could not load the map data. Check your connection and reload.'; });
