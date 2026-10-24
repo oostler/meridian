@@ -749,7 +749,7 @@ const KEY = 'meridian:v1', OLD_KEY = 'atlas-drill:v1';
 let store = { prog: {}, scope: 'world', subj: 'name' };
 // Progress saved under the app's earlier name carries over.
 try { const raw = localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} try { syncSoon(); } catch (e) { /* during start-up, before the sync code has run */ } }
 // Appearance: follow the device, or a fixed light or dark theme.
 function applyTheme() { if (store.theme === 'light' || store.theme === 'dark') document.documentElement.dataset.theme = store.theme; else delete document.documentElement.dataset.theme; }
 applyTheme();
@@ -1749,7 +1749,7 @@ function settingsSheet() {
   $('#resetAsk').onclick = () => {
     $('#resetAll').innerHTML = `<p class="hint">This clears everything you've learned, your streak and map quiz scores. It can't be undone.</p><div class="rbtns"><button class="btn" id="resetKeep">Keep</button><button class="btn" id="resetGo" style="background:var(--red);border-color:var(--red);color:#fff">Reset</button></div>`;
     $('#resetKeep').onclick = settingsSheet;
-    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; store.cq = {}; store.cqBest = {}; save(); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
+    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; store.cq = {}; store.cqBest = {}; save(); if (CLOUD && ME && !ME.pending) CLOUD.setProgress(syncable()).catch(() => {}); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
   };
 }
 function aboutSheet() {
@@ -2691,6 +2691,9 @@ function cloudReady() {
     // Fully signed in (with a name) for the first time this visit: lift the gate and carry on.
     // Signing in on another device: carry this week's points over from the profile.
     if (ME && ME.name && ME.weekId === weekId() && (ME.weekPts || 0) > weekPts()) { store.wk = { id: weekId(), pts: ME.weekPts }; save(); }
+    // Pull this profile's progress once per sign-in (and push anything this device has that it lacks).
+    if (!ME) syncedFor = null;
+    else if (ME.name && !ME.pending && syncedFor !== ME.uid) { syncedFor = ME.uid; syncSoon(300); }
     if (ME && !wasNamed) { store.skippedSignIn = 0; store.gateN = 0; save(); pushStatsSoon(); if (pendingAfterSignIn) { const f = pendingAfterSignIn; pendingAfterSignIn = null; f(); } }
     // The first-name card closes once the name is saved.
     if (ME && ME.name && !wasNamed && $('#nmForm') && state.tab !== 'compete') homeSheet();
@@ -2720,6 +2723,66 @@ function pushStatsSoon() {
   clearTimeout(pushT);
   pushT = setTimeout(() => CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}), 4000);
 }
+
+// ---------- progress sync ----------
+// With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
+// with this device's (the most recent answer per place wins, streak days and best scores combine), and
+// writes the result back. Settings like theme and the current map stay per device.
+const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus'];
+function mergeProgress(a, b) {
+  const out = {};
+  const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
+  const maxMap = (x = {}, y = {}) => { const m = { ...x }; for (const k in y) m[k] = Math.max(+m[k] || 0, +y[k] || 0); return m; };
+  // Places: whichever device answered more recently. A found-it flag (1) is kept if either has it.
+  const prog = { ...(a.prog || {}) };
+  for (const k in b.prog || {}) { const x = prog[k], y = b.prog[k]; prog[k] = x == null ? y : typeof x !== 'object' || typeof y !== 'object' ? (x || y) : later(x, y); }
+  out.prog = prog;
+  out.days = [...new Set([...(a.days || []), ...(b.days || [])])].sort().slice(-400);
+  const cq = { ...(a.cq || {}) };
+  for (const k in b.cq || {}) { const x = cq[k], y = b.cq[k]; cq[k] = !x ? y : (y.due || 0) > (x.due || 0) ? y : x; }
+  out.cq = cq;
+  out.cqBest = maxMap(a.cqBest, b.cqBest); out.hqBest = maxMap(a.hqBest, b.hqBest);
+  // Today's count and this week's XP: the later day or week wins; the same one keeps the higher number.
+  const newer = (x, y, key, num) => !x || !y ? x || y : x[key] !== y[key] ? (x[key] > y[key] ? x : y) : { [key]: x[key], [num]: Math.max(x[num] || 0, y[num] || 0) };
+  out.today = newer(a.today, b.today, 'd', 'n'); out.wk = newer(a.wk, b.wk, 'id', 'pts');
+  for (const k of ['goal', 'commit', 'onb', 'why', 'level']) out[k] = a[k] != null ? a[k] : b[k];
+  out.plus = !!(a.plus || b.plus);
+  for (const k in out) if (out[k] == null) delete out[k];
+  return out;
+}
+const syncable = () => Object.fromEntries(SYNC_KEYS.filter(k => store[k] != null).map(k => [k, store[k]]));
+let syncT = null, syncDue = 0, syncing = false, lastSynced = '', syncedFor = null;
+function syncSoon(ms = 8000) {
+  if (!CLOUD || !ME || ME.pending || !CLOUD.setProgress) return;
+  // A sync already due sooner stands; saves during play never push it back.
+  const due = Date.now() + ms;
+  if (syncT && syncDue <= due) return;
+  clearTimeout(syncT); syncDue = due; syncT = setTimeout(() => { syncT = null; syncNow(); }, ms);
+}
+async function syncNow() {
+  if (!CLOUD || !ME || ME.pending || syncing) return;
+  clearTimeout(syncT); syncT = null; syncing = true;
+  try {
+    const remote = await CLOUD.getProgress();
+    const merged = mergeProgress(syncable(), remote || {});
+    const before = JSON.stringify(syncable());
+    Object.assign(store, merged);
+    const after = JSON.stringify(syncable());
+    if (after !== before) {
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
+      updateTop(); draw();
+      // Redraw a tab's main screen so new numbers show (not mid-round or on a detail screen).
+      if (!document.body.classList.contains('in-round') && state.mode === 'explore' && !state.sel && ['explore', 'learn', 'find'].includes(state.tab)) showTab(state.tab);
+    }
+    // Write back only when the saved copy is missing something this device has.
+    if (after !== lastSynced && JSON.stringify(mergeProgress(remote || {}, {})) !== JSON.stringify(mergeProgress(merged, {}))) await CLOUD.setProgress(merged);
+    lastSynced = after;
+  } catch (e) { console.warn('Progress sync will retry:', e && (e.code || e.message)); syncing = false; return syncSoon(/permission/.test(e && e.code || '') ? 600000 : 60000); }
+  syncing = false;
+}
+// Leaving the app saves now; coming back picks up anything done on another device.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { if (syncT) syncNow(); } else syncSoon(1500); });
+if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__sync = { now: syncNow, soon: syncSoon, state: () => ({ CLOUD: !!CLOUD, ME: !!ME, pending: ME && ME.pending, syncedFor, syncing, timer: !!syncT }) };
 
 // The sign-in gate: offered after the first round, then required after a few more answers (web only; the
 // App Store build can turn the requirement off with MERIDIAN_FORCE_SIGNIN=0).
