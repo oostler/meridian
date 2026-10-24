@@ -1,5 +1,5 @@
 // Cache-first service worker: the app works offline, and so do map areas you've already seen.
-const CACHE = 'meridian-e9f7eec368ce';
+const CACHE = 'meridian-7113ba23709e';
 const TILES = 'meridian-tiles';
 const CORE = ["./","index.html","geo-live.json","maplibre-gl.js","manifest.webmanifest","icon.svg","icon-180.png","icon-192.png","icon-512.png"];
 const isTile = url => /arcgis(online)?\.com/.test(url);
@@ -15,9 +15,13 @@ function trim(c) {
   if (trimming) return; trimming = true;
   c.keys().then(keys => Promise.all(keys.slice(0, Math.max(0, keys.length - 4000)).map(k => c.delete(k)))).finally(() => { trimming = false; });
 }
+// Only this site's files, map tiles and fonts. Everything else (sign-in, Firebase, Google's button) goes
+// straight to the network, so it is never served stale.
+const isFont = url => url.startsWith('https://fonts.googleapis.com/') || url.startsWith('https://fonts.gstatic.com/');
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  const tile = isTile(e.request.url);
+  const url = e.request.url, tile = isTile(url);
+  if (!tile && !isFont(url) && new URL(url).origin !== self.location.origin) return;
   e.respondWith(caches.match(e.request, { ignoreSearch: !tile }).then(hit => {
     if (hit) return hit;
     return fetch(e.request).then(res => {
