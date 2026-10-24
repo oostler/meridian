@@ -2890,7 +2890,12 @@ else { map.once('idle', hideSplash); setTimeout(hideSplash, 4000); }
 <script>
 fetch('geo-live.json').then(r => r.json()).then(g => { window.GEO = g; setTimeout(window.__start); },
   () => { document.getElementById('sheet').textContent = 'Could not load the map data. Check your connection and reload.'; });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator) {
+  // When a new version installs over an old one, reload once so the update shows now, not on the next visit.
+  const had = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (had && !reloaded) { reloaded = true; location.reload(); } });
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>
