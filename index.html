@@ -2833,6 +2833,8 @@ function raceRender() {
   // A deleted room means the host left; after the podium there's nothing to interrupt.
   const room = race && race.room; if (!room) { if (race && !race.ended) { toast('The race has ended'); raceLeave(); } return; }
   const isHost = room.host === CLOUD.myId(), players = racePlayers(room).sort((a, b) => b.score - a.score);
+  // The host's device runs the race; if it drops out mid-race, nobody can move on, so end it kindly.
+  if (!isHost && room.state !== 'done' && room.state !== 'lobby' && (room.players || {})[room.host] && room.players[room.host].gone) { toast('The host left, so the race has ended'); return raceLeave(); }
   if (room.scope && state.scope.id !== room.scope) setScope(SCOPES.find(x => x.id === room.scope) || state.scope);
   clearInterval(race.timer);
   if (room.state === 'lobby') {
