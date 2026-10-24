@@ -2687,7 +2687,7 @@ function signInSheet(opts = {}) {
       <p class="fine">By continuing you agree to our <a class="link" href="terms.html" target="_blank" rel="noopener">Terms</a> and <a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</p></div>`);
     sheet.scrollTop = 0;
     const err = m => { const e = $('#siErr'); if (e) e.textContent = m; };
-    const fail = e => err(AUTH_ERR[e && e.code] || (e && e.code === 'auth/popup-closed-by-user' ? '' : 'Something went wrong. Try again.'));
+    const fail = e => err(AUTH_ERR[e && e.code] || (e && e.code === 'auth/popup-closed-by-user' ? '' : `Something went wrong. Try again.${e && e.code ? ` (${String(e.code).replace('auth/', '')})` : ''}`));
     // Google's own button where it loads; if it can't (blocked script, offline), our button with the popup.
     if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), fail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))
       .catch(() => { gsiBroken = true; if ($('#gsiBtn')) render(); });
