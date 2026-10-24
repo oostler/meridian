@@ -2700,7 +2700,12 @@ function signInSheet(opts = {}) {
     // Google's own button where it loads; if it can't (blocked script, offline), our button with the popup.
     const gFail = e => { clearTimeout(busyT); if (busy) { busy = false; render(); } fail(e); };
     if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), gFail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches),
-      () => { busy = true; render(); clearTimeout(busyT); busyT = setTimeout(() => { if (busy && $('.si-busy')) { busy = false; render(); err('That took too long. Try again.'); } }, 20000); })
+      () => { busy = true; render(); clearTimeout(busyT); busyT = setTimeout(() => {
+        if (!busy || !$('.si-busy')) return;
+        // Signed in after all: carry on rather than report a problem.
+        if (ME && ME.name) { busy = false; const f = pendingAfterSignIn; pendingAfterSignIn = null; return f ? f() : state.tab === 'compete' ? competeSheet() : homeSheet(); }
+        busy = false; render(); err(`That took too long. Try again. (step: ${CLOUD.phase ? CLOUD.phase() : '?'})`);
+      }, 20000); })
       .catch(() => { gsiBroken = true; if ($('#gsiBtn')) render(); });
     sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => { buzz(5); err(''); CLOUD.signIn(b.dataset.sso).catch(fail); });
     if ($('#siEmailBtn')) $('#siEmailBtn').onclick = () => { email = true; render(); setTimeout(() => ($('#siName') || $('#siEmail')).focus(), 50); };
