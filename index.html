@@ -367,7 +367,8 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .si-art { width: 76px; height: 76px; display: block; }
 .si-art svg { width: 100%; height: 100%; }
 .si-btns, .si-form { width: 100%; display: grid; gap: 10px; }
-.gsi { width: 100%; min-height: 44px; display: flex; justify-content: center; }
+/* color-scheme: light lets Google's button frame stay transparent on the dark theme instead of a white box. */
+.gsi { width: 100%; min-height: 44px; display: flex; justify-content: center; color-scheme: light; }
 .si-form input { font: inherit; font-size: 17px; font-weight: 700; padding: 13px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
 .si-form input:focus { outline: none; border-color: var(--blue); }
 .si .err { color: var(--red); font-weight: 800; font-size: 14px; margin: 0; min-height: 0; }
@@ -2658,7 +2659,7 @@ let gsiBroken = false;
 const AUTH_ERR = { 'auth/invalid-email': 'That email doesn\'t look right.', 'auth/email-already-in-use': 'There\'s already a profile with that email. Sign in instead.', 'auth/weak-password': 'Use at least 6 characters.', 'auth/invalid-credential': 'Email or password is wrong.', 'auth/wrong-password': 'Email or password is wrong.', 'auth/user-not-found': 'No profile with that email.', 'auth/too-many-requests': 'Too many tries. Wait a minute and try again.', 'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups and try again.', 'auth/network-request-failed': 'No connection. Check your internet and try again.' };
 // One screen, three ways in: Google, Apple, or email. Most people tap one button and are done.
 function signInSheet(opts = {}) {
-  const hard = !!opts.hard; let mode = opts.mode || 'new', email = false;
+  const hard = !!opts.hard; let mode = opts.mode || 'new', email = false, typed = '';
   if (opts.then) pendingAfterSignIn = opts.then;
   clearTimeout(advanceT); keyHandler = null;
   state.target = null; state.flash = null; draw();
@@ -2671,7 +2672,7 @@ function signInSheet(opts = {}) {
       <p class="hint">${mode === 'in' ? 'Sign in to pick up where you left off.' : 'Join the world leaderboard, race your friends and keep your streak on every device. It\'s free.'}</p>
       ${email ? `<form class="si-form" id="siForm" autocomplete="on">
           ${mode === 'new' ? `<input id="siName" name="given-name" autocomplete="given-name" placeholder="First name" aria-label="First name" maxlength="20" required>` : ''}
-          <input id="siEmail" type="email" name="email" autocomplete="email" placeholder="Email" aria-label="Email" required>
+          <input id="siEmail" type="email" name="email" autocomplete="email" placeholder="Email" aria-label="Email" value="${esc(typed)}" required>
           <input id="siPass" type="password" name="password" autocomplete="${mode === 'new' ? 'new-password' : 'current-password'}" placeholder="Password${mode === 'new' ? ' (6+ characters)' : ''}" aria-label="Password" minlength="6" required>
           <p class="err" id="siErr" role="alert"></p>
           <button class="btn primary" type="submit">${mode === 'new' ? 'Create profile' : 'Sign in'}</button>
@@ -2689,7 +2690,7 @@ function signInSheet(opts = {}) {
     const err = m => { const e = $('#siErr'); if (e) e.textContent = m; };
     const fail = e => err(AUTH_ERR[e && e.code] || (e && e.code === 'auth/popup-closed-by-user' ? '' : `Something went wrong. Try again.${e && e.code ? ` (${String(e.code).replace('auth/', '')})` : ''}`));
     // Google's own button where it loads; if it can't (blocked script, offline), our button with the popup.
-    if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), fail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))
+    if ($('#gsiBtn')) CLOUD.googleButton($('#gsiBtn'), fail, document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches), () => toast('Signing you in…'))
       .catch(() => { gsiBroken = true; if ($('#gsiBtn')) render(); });
     sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => { buzz(5); err(''); CLOUD.signIn(b.dataset.sso).catch(fail); });
     if ($('#siEmailBtn')) $('#siEmailBtn').onclick = () => { email = true; render(); setTimeout(() => ($('#siName') || $('#siEmail')).focus(), 50); };
@@ -2700,7 +2701,12 @@ function signInSheet(opts = {}) {
       e.preventDefault(); err('');
       const b = $('#siForm button[type=submit]'); b.disabled = true;
       const p = mode === 'new' ? CLOUD.emailSignUp($('#siName').value, $('#siEmail').value.trim(), $('#siPass').value) : CLOUD.emailSignIn($('#siEmail').value.trim(), $('#siPass').value);
-      p.then(() => {}, e2 => { b.disabled = false; fail(e2); });
+      p.then(() => {}, e2 => {
+        b.disabled = false;
+        // That email already has a profile and the password didn't match: switch to signing in, email kept.
+        if (e2 && e2.code === 'meridian/exists') { typed = $('#siEmail').value.trim(); mode = 'in'; render(); setTimeout(() => $('#siPass') && $('#siPass').focus(), 50); return err('You already have a profile with this email. Enter its password to sign in, or use Google if you signed up with Google.'); }
+        fail(e2);
+      });
     };
     const later = () => { store.skippedSignIn = 1; store.gateN = 0; save(); const f = pendingAfterSignIn; pendingAfterSignIn = null; setRound(false); if (f) f(); else homeSheet(); };
     if ($('#siLater')) $('#siLater').onclick = later;
