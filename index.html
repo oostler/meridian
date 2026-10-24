@@ -353,6 +353,48 @@ h1, h2, h3 { margin: 0; }
 .unlock input:focus { outline: none; border-color: var(--gold); }
 .unlock .err { color: var(--red); font-weight: 900; font-size: 14px; margin: 0; min-height: 1.2em; }
 .chs .dd { display: grid; gap: 6px; margin: 6px 0 2px; padding: 4px 0 10px 14px; border-left: 3px solid color-mix(in srgb, var(--sc) 55%, var(--line)); }
+.opts.col { grid-template-columns: 1fr; }
+.opts.col .opt { min-height: 0; padding: 12px 14px; text-align: left; justify-content: flex-start; }
+.verdict.inline, #fb.inline { position: static; }
+.goalbar { border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px 12px; display: grid; gap: 6px; }
+.goalbar .gb-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; }
+.goalbar .gb-top b { display: flex; align-items: center; gap: 4px; font-weight: 900; }
+.goalbar .gb-top b .ic { width: 16px; height: 16px; color: var(--green); }
+.goalbar .gb-top span { font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.goalbar .gb-bar { height: 10px; border-radius: 6px; background: var(--surface); overflow: hidden; }
+.goalbar .gb-bar i { display: block; height: 100%; border-radius: 6px; background: var(--orange); min-width: 6px; transition: width .4s var(--ease); }
+.goalbar.done .gb-bar i { background: var(--green); }
+.goalbar .gb-c { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.ob { display: grid; gap: 14px; }
+.ob h2 { margin: 0; font-size: 30px; font-weight: 900; text-align: center; }
+.ob h3 { margin: 4px 0 0; font-size: 22px; font-weight: 900; line-height: 1.2; }
+.ob p { margin: 0; }
+.ob-hello { justify-items: center; text-align: center; padding-top: 8px; }
+.ob-hello p { font-size: 17px; color: var(--ink-2); font-weight: 700; max-width: 300px; }
+.ob-hello .btn { width: 100%; }
+.ob-logo { width: 84px; height: 84px; display: block; }
+.ob-logo svg { width: 100%; height: 100%; }
+.ob-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ob-dots { display: flex; gap: 6px; }
+.ob-dots i { width: 28px; height: 8px; border-radius: 4px; background: var(--line); }
+.ob-dots i.on { background: var(--green); }
+.ob-opts { display: grid; gap: 10px; }
+.ob-opt { display: flex; align-items: center; gap: 12px; text-align: left; padding: 14px 16px; min-height: 0; }
+.ob-opt .ob-ic { font-size: 24px; line-height: 1; }
+.ob-opt.goal { justify-content: space-between; }
+.ob-opt.goal b { display: block; font-size: 17px; font-weight: 900; }
+.ob-opt.goal small { display: block; font-size: 13px; color: var(--ink-2); font-weight: 800; }
+.ob-opt.goal em { font-style: normal; font-size: 13px; font-weight: 900; color: var(--blue); }
+.ob-commit { justify-items: center; text-align: center; }
+.ob-commit .btn { width: 100%; }
+.ob-flame { width: 72px; height: 72px; color: var(--orange); display: block; }
+.ob-flame .ic { width: 100%; height: 100%; }
+.btn.sso { width: 100%; }
+.btn.sso-apple { background: #000; border-color: #000; color: #fff; }
+.cq-go { display: grid; gap: 6px; justify-items: center; }
+.cq-go .btn { width: 100%; }
+.cq-go small { color: var(--ink-2); font-weight: 700; font-size: 13px; text-align: center; }
+.hq-ch { margin: 0; font-size: 13px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--purple-d); }
 .chs-go { display: flex; align-items: center; gap: 6px; margin-top: 6px !important; font-size: 14px; font-weight: 900; color: var(--ink-3); }
 .chs-go .ic { width: 18px; height: 18px; }
 .mtabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px 2px 4px; }
@@ -621,6 +663,16 @@ applyTheme();
 const pkey = (id, subj = state.subj) => subj + ':' + id;
 const prog = (id, subj) => store.prog[pkey(id, subj)] || { s: 0, c: 0, w: 0, t: 0 };
 function setProg(id, p) { store.prog[pkey(id)] = p; save(); }
+// Spaced review: each right answer pushes the next review further out; a miss brings it back the next day.
+const DAY = 864e5, GAPS = [1, 3, 7, 16, 35, 90, 180];
+function schedule(p, ok) {
+  if (ok) { p.n = Math.min((p.n || 0) + 1, GAPS.length); p.due = Date.now() + GAPS[p.n - 1] * DAY; } else { p.n = 0; p.due = Date.now() + DAY / 2; }
+  return p;
+}
+// Places learned before scheduling existed fall due a few days after they were last seen.
+const dueAt = p => p.due || (p.t || 0) + (p.s >= 2 ? 3 : 1) * DAY;
+// Chapter questions, keyed "chapter#question", join the review once answered.
+function rememberCQ(id, i, ok) { const cq = store.cq || (store.cq = {}), k = id + '#' + i; cq[k] = schedule({ ...(cq[k] || {}) }, ok); save(); }
 
 // ---------- state ----------
 const state = {
@@ -1107,8 +1159,22 @@ const subjLabel = () => state.subj === 'cap' ? 'Capitals' : state.scope.unit;
 const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 function practisedToday() {
   const days = store.days || (store.days = []), today = dayKey();
-  if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); save(); }
+  if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); }
+  // The daily goal counts answers; reaching it is celebrated once a day.
+  const t = store.today && store.today.d === today ? store.today : (store.today = { d: today, n: 0 });
+  t.n++;
+  if (store.goal && t.n === store.goal) setTimeout(() => toast(streak() > 1 ? `Daily goal reached. ${streak()} days in a row!` : 'Daily goal reached. See you tomorrow!', 2600), 600);
+  save();
 }
+const answeredToday = () => store.today && store.today.d === dayKey() ? store.today.n : 0;
+// Today's goal and the streak you committed to, shown at the top of Explore and Learn.
+function goalBar() {
+  if (!store.goal) return '';
+  const n = answeredToday(), g = store.goal, done = n >= g, c = store.commit, st = streak();
+  const commit = !c ? '' : st >= c ? `<div class="gb-c">You kept your ${c}-day promise.${c < 30 ? ` <button class="link" id="goal30">Go for 30 days</button>` : ''}</div>` : `<div class="gb-c">Day ${st || 0} of your ${c}-day streak</div>`;
+  return `<div class="goalbar${done ? ' done' : ''}"><div class="gb-top"><b>${done ? `${IC.check}Goal reached` : "Today's goal"}</b><span>${Math.min(n, g)} / ${g} answers</span></div><div class="gb-bar"><i style="width:${Math.min(100, n / g * 100)}%"></i></div>${commit}</div>`;
+}
+function bindGoal(redraw) { if ($('#goal30')) $('#goal30').onclick = () => { store.commit = 30; save(); toast('30 days it is'); redraw(); }; }
 function streak() {
   const days = new Set(store.days || []), d = new Date();
   if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
@@ -1491,7 +1557,7 @@ function placeOfDay() {
 function startHtml() {
   const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
   const go = (tab, ic, c, t, sub) => `<button class="go tile" data-go="${tab}" style="--c:${c}"><span class="go-ic">${ic}</span><span><b>${t}</b><small>${sub}</small></span>${IC.next}</button>`;
-  return `${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
+  return `${goalBar()}${reviewCard()}${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
     <h4 class="home-h">Ways to learn</h4>
     ${go('learn', IC.cap, 'var(--green)', 'Learn the map', 'Name every country, capital, state and province')}
     ${go('find', IC.pin, 'var(--orange)', 'Find it on the globe', 'We name a place, you tap it')}
@@ -1506,17 +1572,21 @@ function settingsSheet() {
     <div class="setrow"><b>Appearance</b><div class="seg">${[['auto', 'Automatic'], ['light', 'Light'], ['dark', 'Dark']].map(([k, n]) => `<button data-theme-set="${k}" aria-pressed="${th === k}">${n}</button>`).join('')}</div></div>
     <div class="setrow"><b>Progress</b><p class="hint">Your progress, streak and quiz scores are saved on this device only.</p>
       <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
+    <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
+    ${AUTH ? `<div class="setrow"><b>Account</b><p class="hint">${AUTH.user() ? 'Signed in. Progress is kept on all your devices.' : 'Optional. Sign in to keep progress on all your devices.'}</p><button class="btn" id="accOpen">${AUTH.user() ? 'Manage account' : 'Sign in'}</button></div>` : ''}
     <div class="setrow"><b>Meridian Plus</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Unlock the deep dives: longer stories with their own maps and quizzes.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.lock}Unlock deep dives`}</button></div>
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
       <button class="btn" data-report="General feedback">Send feedback</button></div>`);
   $('#setBack').onclick = homeSheet;
+  sheet.querySelectorAll('[data-goal-set]').forEach(b => b.onclick = () => { buzz(5); store.goal = +b.dataset.goalSet; save(); settingsSheet(); });
+  if ($('#accOpen')) $('#accOpen').onclick = () => accountSheet();
   $('#plusSet').onclick = () => { buzz(5); if (store.plus) { store.plus = false; save(); histIdx = null; toast('Deep dives locked'); settingsSheet(); } else { showTab('history'); unlockSheet(); } };
   sheet.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { buzz(5); store.theme = b.dataset.themeSet; save(); applyTheme(); settingsSheet(); });
   $('#resetAsk').onclick = () => {
     $('#resetAll').innerHTML = `<p class="hint">This clears everything you've learned, your streak and map quiz scores. It can't be undone.</p><div class="rbtns"><button class="btn" id="resetKeep">Keep</button><button class="btn" id="resetGo" style="background:var(--red);border-color:var(--red);color:#fff">Reset</button></div>`;
     $('#resetKeep').onclick = settingsSheet;
-    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; save(); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
+    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; store.cq = {}; store.cqBest = {}; save(); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
   };
 }
 function aboutSheet() {
@@ -1554,6 +1624,8 @@ function homeSheet() {
   if ($('#unsel')) $('#unsel').onclick = () => { state.sel = null; homeSheet(); draw(); };
   sheet.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { buzz(5); showTab(b.dataset.go); });
   if ($('#openSettings')) $('#openSettings').onclick = () => settingsSheet();
+  if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
+  bindGoal(homeSheet);
   if ($('#openAbout')) $('#openAbout').onclick = () => aboutSheet();
   sheet.querySelectorAll('[data-pod]').forEach(b => b.onclick = () => { buzz(5); selectPlace(byId[b.dataset.pod], true); });
   bindEras();
@@ -1585,13 +1657,15 @@ function learnSheet() {
   setRound(false); setTab('learn');
   const c = counts();
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
-  setSheet(`${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
+  setSheet(`${goalBar()}${reviewCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
     ${subjSeg()}
     ${progressCard()}
     <p class="hint" style="text-align:center">Pick from four, then type it from memory. Type it right and it's mastered.</p>
     <div class="confirm" id="resetRow"><button class="link quiet" id="reset">Reset progress</button></div>`);
   bindSubj(learnSheet);
   $('#goLearn').onclick = () => { buzz(8); startLearn(); };
+  if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
+  bindGoal(learnSheet);
   $('#pickScope').onclick = openPicker;
   $('#reset').onclick = () => {
     $('#resetRow').innerHTML = `<span>Clear ${esc(subjLabel().toLowerCase())} progress for ${esc(state.scope.name)}?</span><button class="link" id="resetYes" style="color:var(--red)">Clear</button><button class="link" id="resetNo">Keep</button>`;
@@ -1633,8 +1707,8 @@ function historySheet() {
       const n = plus && a.cat ? list.filter(x => x.cat === a.cat).length : 0;
       const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}<span class="sec-n">${n}</span></h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
       const lk = plusLocked(a.id), free = plus && !store.plus && a.id === PLUS_FREE;
-      const qm = quizMaps(a), done = lk ? 0 : qm.filter(m => mapDone(a.id, m)).length;
-      const prog = done ? `<em class="mst${done === qm.length ? ' all' : ''}">${IC.check}${done}/${qm.length}</em>` : '';
+      const qm = quizMaps(a), all = qm.length + (a.quiz ? 1 : 0), done = lk ? 0 : qm.filter(m => mapDone(a.id, m)).length + (understood(a.id) ? 1 : 0);
+      const prog = done ? `<em class="mst${done === all ? ' all' : ''}">${IC.check}${done}/${all}</em>` : '';
       return `${hd}<button class="chapter tile${lk ? ' locked' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
@@ -1736,6 +1810,7 @@ function eraSheet(id, keepView, mapI) {
       <button class="flag" data-report="${esc(a.title + ' · ' + M.tab + (sel ? ' · ' + sel.n : ''))}">Report an error</button>
       ${hquizPool(M).length >= 3 ? `<button class="btn primary" id="hqGo">${IC.target}Quiz me on this map</button>` : ''}</div>` : ''}
     ${hq ? '' : card}
+    ${a.quiz && !hq ? `<div class="cq-go"><button class="btn primary" id="cqGo">${understood(a.id) ? IC.check : IC.target}Check your understanding</button><small>${understood(a.id) ? `Best ${store.cqBest[a.id]} of ${a.quiz.length}. Questions come back in your daily review.` : `${a.quiz.length} questions on what happened, why, and what it changed`}</small></div>` : ''}
     ${M && !a.story ? `<div class="era-sum"><h4>The chapter in brief</h4><p class="era-intro">${esc(a.text)}</p></div>` : ''}
     <div class="era-nav"><button class="btn" id="eraPrev" aria-label="Previous chapter" ${i ? '' : 'disabled'}>${IC.back}</button>
       <span class="era-count">${M ? 'Tap a lit country for its part in the story.' : members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
@@ -1746,6 +1821,7 @@ function eraSheet(id, keepView, mapI) {
   $('#eraDone').onclick = () => { state.era = null; state.sel = null; historySheet(); fitBox(G.views[state.scope.id]); };
   if ($('#unsel')) $('#unsel').onclick = () => { state.sel = null; eraSheet(id, true); };
   if ($('#hqGo')) $('#hqGo').onclick = () => { buzz(8); startHQ(M); eraSheet(id, true); };
+  if ($('#cqGo')) $('#cqGo').onclick = () => { buzz(8); chapterQuiz(id); };
   if (hq) bindHQ(id);
   sheet.querySelectorAll('.mtabs [data-m]').forEach(b => b.onclick = () => { buzz(5); eraSheet(id, false, +b.dataset.m); });
   sheet.querySelectorAll('.grp').forEach(b => b.onclick = () => { buzz(5); state.focusG = state.focusG === +b.dataset.g ? null : +b.dataset.g; eraSheet(id, true); });
@@ -1763,6 +1839,61 @@ function eraSheet(id, keepView, mapI) {
     }
   }
   draw();
+}
+// Check your understanding: the chapter's five questions on what happened, why and what it changed.
+// Each answer is remembered so the question comes back in the daily review at the right time.
+const understood = id => (store.cqBest && store.cqBest[id] || 0) >= 4;
+function chapterQuiz(id) {
+  const a = anchorById[id]; if (!a || !a.quiz) return;
+  clearTimeout(advanceT);
+  const cq = { i: 0, right: 0, orders: a.quiz.map(() => shuffle([0, 1, 2, 3])) };
+  const back = () => { keyHandler = null; setRound(false); eraSheet(id, true); };
+  setRound(true);
+  const show = () => {
+    const n = a.quiz.length;
+    if (cq.i >= n) {
+      const best = store.cqBest || (store.cqBest = {});
+      best[id] = Math.max(best[id] || 0, cq.right); save();
+      const TL = trackList(trackOf(a)), next = TL[TL.indexOf(a) + 1];
+      setSheet(`<div class="done"><span class="badge">${cq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${cq.right} of ${n} right</div><div class="sub">${esc(a.title)}</div></div>
+        <p class="hint" style="text-align:center">${cq.right >= 4 ? 'You understand this chapter. ' : 'Reread the story and try again. '}These questions will come back in your daily review.</p>
+        ${next && !plusLocked(next.id) ? `<button class="btn primary" id="cqNext">Next chapter: ${esc(next.title)}</button>` : ''}
+        <button class="btn" id="cqAgain">Try again</button><button class="btn" id="cqBack">Back to the chapter</button>`);
+      buzz(cq.right >= 4 ? [10, 60, 10] : 10);
+      if ($('#cqNext')) $('#cqNext').onclick = () => { setRound(false); eraSheet(next.id); };
+      $('#cqAgain').onclick = () => chapterQuiz(id);
+      $('#cqBack').onclick = back;
+      return;
+    }
+    const Q = a.quiz[cq.i], order = cq.orders[cq.i];
+    setSheet(`<div class="qhead"><button class="qx" id="cqX" aria-label="End quiz">${IC.x}</button><div class="qbar"><i style="width:${cq.i / n * 100}%"></i></div></div>
+      <span class="pill">Check your understanding · ${cq.i + 1} of ${n}</span>
+      <p class="prompt">${esc(Q.q)}</p>
+      <div class="opts col">${order.map((k, j) => `<button class="opt" data-k="${k}"><kbd>${j + 1}</kbd><span>${esc(Q.a[k])}</span></button>`).join('')}</div>
+      <div class="fb inline" id="fb"></div>`);
+    sheet.scrollTop = 0;
+    $('#cqX').onclick = back;
+    const btns = [...sheet.querySelectorAll('.opt')];
+    const pick = b => {
+      if (b.disabled) return;
+      btns.forEach(x => x.disabled = true);
+      const ok = +b.dataset.k === Q.c;
+      btns.find(x => +x.dataset.k === Q.c).classList.add('good');
+      if (!ok) b.classList.add('bad');
+      if (ok) cq.right++;
+      rememberCQ(id, cq.i, ok); practisedToday(); updateTop();
+      const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : 'Not quite', esc(Q.why));
+      buzz(ok ? 12 : [20, 40, 20]);
+      requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+      const nb = document.createElement('button'); nb.className = 'btn primary'; nb.textContent = cq.i + 1 < n ? 'Next' : 'See score';
+      const go = () => { cq.i++; show(); };
+      nb.onclick = go; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
+      keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    };
+    btns.forEach(b => b.onclick = () => pick(b));
+    keyHandler = e => { const k = +e.key; if (k >= 1 && k <= 4) pick(btns[k - 1]); };
+  };
+  show();
 }
 // A chapter's story: what happened, why, what it changed, and the key dates.
 function storyBlock(a) {
@@ -1898,12 +2029,67 @@ function startLearn() {
   setRound(true);
   nextQ();
 }
+// Today's review: places in this set that are due, plus chapter questions answered before. Short by design.
+function reviewDue() {
+  const now = Date.now();
+  const places = quizItems().filter(f => { const p = prog(f.id); return p.s >= 1 && dueAt(p) <= now; }).sort((x, y) => dueAt(prog(x.id)) - dueAt(prog(y.id)));
+  const hist = Object.entries(store.cq || {}).filter(([, v]) => v.due <= now).sort((x, y) => x[1].due - y[1].due)
+    .map(([k]) => { const [id, i] = k.split('#'); return { a: anchorById[id], i: +i }; })
+    .filter(h => h.a && h.a.quiz && h.a.quiz[h.i] && !plusLocked(h.a.id));
+  return { places: places.slice(0, 8), hist: hist.slice(0, 5) };
+}
+function reviewCard() {
+  const { places, hist } = reviewDue(), n = places.length + hist.length;
+  if (!n) return '';
+  return `<button class="go tile review" id="goReview" style="--c:var(--orange)"><span class="go-ic">${IC.flame}</span><span><b>Today's review</b><small>${n} to review · about ${Math.max(1, Math.round(n / 3))} min. Keeps what you've learned from fading.</small></span>${IC.next}</button>`;
+}
+function startReview() {
+  const { places, hist } = reviewDue();
+  const ps = places.map(f => ({ f, kind: 'type' })), hs = hist.map(h => ({ h, kind: 'hist' })), queue = [];
+  while (ps.length || hs.length) { if (ps.length) queue.push(ps.shift()); if (ps.length) queue.push(ps.shift()); if (hs.length) queue.push(hs.shift()); }
+  session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length, review: true };
+  roundFrom = state.tab === 'learn' ? 'learn' : 'explore';
+  state.mode = 'learn'; state.locate = false; state.sel = null; state.solved.clear();
+  setRound(true);
+  nextQ();
+}
+function askHist(item) {
+  const { a, i } = item.h, Q = a.quiz[i], order = shuffle([0, 1, 2, 3]);
+  setSheet(`${qhead('hist')}<p class="hq-ch">${esc(a.title)} · ${esc(a.years)}</p><p class="prompt">${esc(Q.q)}</p>
+    <div class="opts col">${order.map((k, n) => `<button class="opt" data-k="${k}"><kbd>${n + 1}</kbd><span>${esc(Q.a[k])}</span></button>`).join('')}</div>
+    <div class="fb inline" id="fb"></div>`);
+  bindQuit();
+  const btns = [...sheet.querySelectorAll('.opt')];
+  const pick = b => {
+    if (b.disabled) return;
+    btns.forEach(x => x.disabled = true);
+    const ok = +b.dataset.k === Q.c;
+    btns.find(x => +x.dataset.k === Q.c).classList.add('good');
+    if (!ok) b.classList.add('bad');
+    const key = a.id + '#' + i;
+    if (!session.first.has(key)) session.first.set(key, ok);
+    rememberCQ(a.id, i, ok);
+    if (!ok) requeue(item, 3);
+    practisedToday(); updateTop();
+    session.done++;
+    const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
+    const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : 'Not quite', esc(Q.why));
+    buzz(ok ? 12 : [20, 40, 20]);
+    requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+    const nb = document.createElement('button'); nb.className = 'btn primary'; nb.id = 'nextBtn'; nb.textContent = 'Continue';
+    nb.onclick = nextQ; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
+    keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); nextQ(); } };
+  };
+  btns.forEach(b => b.onclick = () => pick(b));
+  keyHandler = e => { const n = +e.key; if (n >= 1 && n <= 4) pick(btns[n - 1]); };
+}
 function requeue(item, gap) { session.queue.splice(Math.min(gap, session.queue.length), 0, item); session.total++; }
 function nextQ() {
   clearTimeout(advanceT);
   if (!session.queue.length) return summary();
   const item = session.queue.shift();
   session.cur = item;
+  if (item.kind === 'hist') { state.target = null; state.flash = null; draw(); return askHist(item); }
   state.target = item.f; state.flash = null;
   fitBox(contextBox(item.f));
   if (item.kind === 'mc') askMC(item); else askType(item);
@@ -1912,7 +2098,7 @@ function qhead(kind) {
   const label = kind === 'mc' ? 'Pick one' : kind === 'type' ? 'Type it' : 'Find it';
   const total = session.done + session.queue.length + 1;
   return `<div class="qhead"><button class="qx" id="quit" aria-label="End round">${IC.x}</button><div class="qbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${session.done}"><i style="width:${session.done / total * 100}%"></i></div></div>
-    <span class="pill ${kind}">${label === 'Pick one' ? 'New place' : label === 'Type it' ? 'Type the answer' : `Find it · ${session.done + 1} of ${total}`}</span>`;
+    <span class="pill ${kind}">${kind === 'hist' ? 'From the timeline' : label === 'Pick one' ? 'New place' : label === 'Type it' ? 'Type the answer' : `Find it · ${session.done + 1} of ${total}`}</span>`;
 }
 function promptFor(f) {
   if (state.subj === 'cap') return `What is the capital of <em>${esc(f.n)}</em>?`;
@@ -1978,7 +2164,7 @@ const PRAISE = ['Nicely done!', 'Great job!', 'Correct!', 'You got it!', 'Excell
 // The verdict banner at the foot of the panel: what happened, and the button to move on.
 function verdict(ok, title, detail) {
   const fb = $('#fb');
-  fb.className = 'verdict ' + (ok ? 'good' : 'bad');
+  fb.className = 'verdict ' + (ok ? 'good' : 'bad') + (fb.classList.contains('inline') ? ' inline' : '');
   fb.innerHTML = `<div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${title}</b>${detail ? `<span>${detail}</span>` : ''}</div></div>`;
   return fb;
 }
@@ -1987,6 +2173,7 @@ function answered(item, ok, hinted, note, typed) {
   const firstTry = !session.first.has(f.id);
   if (firstTry) session.first.set(f.id, ok && !hinted);
   p.t = Date.now();
+  if (item.kind === 'type') schedule(p, ok && !hinted);
   let fb;
   if (ok) {
     p.c++;
@@ -2041,9 +2228,9 @@ function summary() {
   state.mode = 'summary'; state.target = null; state.flash = null;
   const firstRight = [...session.first.values()].filter(Boolean).length, n = session.first.size;
   const great = n && firstRight / n >= 0.8;
-  setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}</div></div>
-    <div class="sum"><div style="--c:var(--green)"><span>First try</span><b>${IC.target}${n ? Math.round(firstRight / n * 100) : 0}%</b></div><div style="--c:var(--blue)"><span>${state.locate ? 'Found' : 'Mastered'}</span><b>${IC.crown}${session.mastered}</b></div><div style="--c:var(--orange)"><span>Streak</span><b>${IC.flame}${streak()}</b></div></div>
-    <button class="btn primary" id="again">Keep going</button>
+  setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : session.review ? 'Review done!' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}</div></div>
+    <div class="sum"><div style="--c:var(--green)"><span>First try</span><b>${IC.target}${n ? Math.round(firstRight / n * 100) : 0}%</b></div><div style="--c:var(--blue)"><span>${state.locate ? 'Found' : session.review ? 'Reviewed' : 'Mastered'}</span><b>${IC.crown}${session.review ? n : session.mastered}</b></div><div style="--c:var(--orange)"><span>Streak</span><b>${IC.flame}${streak()}</b></div></div>
+    <button class="btn primary" id="again">${session.review ? 'Learn something new' : 'Keep going'}</button>
     <button class="btn" id="home">Done</button>`);
   buzz(great ? [10, 60, 10] : 10);
   $('#again').onclick = () => state.locate ? startLocate() : startLearn();
@@ -2107,6 +2294,90 @@ function locateReveal(ok) {
   draw();
 }
 
+// ---------- onboarding ----------
+// A few one-tap questions, then straight into a first round: people see the app work within a minute.
+// No account is needed to play; progress stays on the device until someone chooses to sign in.
+const GOALS = [[10, 'Light', '3 min a day'], [20, 'Steady', '5 min a day'], [40, 'Committed', '10 min a day'], [80, 'Ambitious', '20 min a day']];
+const WHY = [['travel', '✈️', 'Travel and adventure'], ['news', '📰', 'Making sense of the news'], ['school', '🎓', 'School or exams'], ['curious', '🧭', 'Curiosity about the world'], ['trivia', '🏆', 'Quizzes and trivia']];
+const needsOnboarding = () => !store.onb && !Object.keys(store.prog || {}).length;
+// The continent someone is probably in, from their time zone, so beginners start with familiar ground.
+function homeScope() {
+  const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').split('/')[0];
+  const id = { Europe: 'Europe', Africa: 'Africa', Asia: 'Asia', Australia: 'Oceania', Pacific: 'Oceania' }[tz]
+    || (tz === 'America' ? (/Argentina|Sao_Paulo|Santiago|Lima|Bogota|Caracas|Montevideo|La_Paz|Asuncion|Guayaquil/.test(Intl.DateTimeFormat().resolvedOptions().timeZone) ? 'South America' : 'North America') : 'world');
+  return SCOPES.find(x => x.id === id) || SCOPES[0];
+}
+function onboarding(step = 0) {
+  setRound(true); setTab('explore');
+  state.mode = 'explore'; state.sel = null;
+  const dots = n => `<div class="ob-dots">${[0, 1, 2, 3].map(k => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</div>`;
+  const top = n => `<div class="ob-top">${n ? `<button class="qx" id="obBack" aria-label="Back">${IC.back}</button>` : '<span></span>'}${dots(n)}<button class="link quiet" id="obSkip">Skip</button></div>`;
+  const choice = (rows, attr) => `<div class="ob-opts">${rows.map(r => `<button class="opt ob-opt" ${attr}="${r[0]}"><span class="ob-ic">${r[1]}</span><span>${r[2]}</span></button>`).join('')}</div>`;
+  const finish = (play) => {
+    store.onb = 1; save();
+    setRound(false);
+    if (play) { buzz(8); toast('Your first round: places near you', 2200); startLearn(); } else homeSheet();
+  };
+  if (step === 0) {
+    setSheet(`<div class="ob ob-hello"><span class="ob-logo">${ART.globe}</span>
+      <h2>Know the world</h2><p>Every country, and the history that shaped it. A few minutes a day.</p>
+      <button class="btn primary" id="obGo">Get started</button>
+      <button class="link quiet" id="obSkip">I'll look around first</button></div>`);
+    $('#obGo').onclick = () => { buzz(5); onboarding(1); };
+    $('#obSkip').onclick = () => finish(false);
+    return;
+  }
+  if (step === 1) {
+    setSheet(`${top(1)}<div class="ob"><h3>What brings you to Meridian?</h3>${choice(WHY, 'data-why')}</div>`);
+    sheet.querySelectorAll('[data-why]').forEach(b => b.onclick = () => { buzz(5); store.why = b.dataset.why; save(); onboarding(2); });
+  } else if (step === 2) {
+    const home = homeScope();
+    const rows = [['new', '🌱', `Just starting${home.id !== 'world' ? `: begin with ${home.name}` : ''}`], ['some', '🗺️', 'I know the big countries'], ['most', '🌐', 'I know most of the map']];
+    setSheet(`${top(2)}<div class="ob"><h3>How well do you know the map?</h3>${choice(rows, 'data-lvl')}<p class="hint">We'll start you in the right place. Change it any time.</p></div>`);
+    sheet.querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { buzz(5); store.level = b.dataset.lvl; setScope(b.dataset.lvl === 'new' ? home : SCOPES[0]); onboarding(3); });
+  } else if (step === 3) {
+    setSheet(`${top(3)}<div class="ob"><h3>Pick a daily goal</h3>
+      <div class="ob-opts">${GOALS.map(([n, name, t]) => `<button class="opt ob-opt goal" data-goal="${n}"><span><b>${name}</b><small>${t}</small></span><em>${n} answers</em></button>`).join('')}</div>
+      <p class="hint">Small and steady beats long and rare. You can change it in Settings.</p></div>`);
+    sheet.querySelectorAll('[data-goal]').forEach(b => b.onclick = () => { buzz(5); store.goal = +b.dataset.goal; save(); onboarding(4); });
+  } else {
+    setSheet(`${top(3)}<div class="ob ob-commit"><span class="ob-flame">${IC.flame}</span><h3>Can you keep it going for a week?</h3>
+      <p>Come back each day, even for a few answers, and watch your streak grow.</p>
+      <button class="btn primary" id="obCommit">I'm in: 7 days</button>
+      <button class="link quiet" id="obLater">Not now</button></div>`);
+    $('#obCommit').onclick = () => { store.commit = 7; save(); finish(true); };
+    $('#obLater').onclick = () => finish(true);
+  }
+  if ($('#obBack')) $('#obBack').onclick = () => onboarding(step - 1);
+  if ($('#obSkip')) $('#obSkip').onclick = () => finish(false);
+}
+
+// ---------- account (optional) ----------
+// Playing never needs an account. Signing in only keeps progress and Meridian Plus across devices.
+// The native app (or a web build with an auth service) provides window.MeridianAuth:
+// { providers: ['apple', 'google', 'email'], user(), signIn(provider), signOut(), deleteAccount() } returning promises.
+const AUTH = window.MeridianAuth || null;
+function accountSheet(reason) {
+  const u = AUTH.user();
+  const btn = (p, label) => AUTH.providers.includes(p) ? `<button class="btn sso sso-${p}" data-sso="${p}">${label}</button>` : '';
+  setSheet(`<button class="back" id="accBack">${IC.back}Settings</button>
+    <div class="title">${u ? 'Your account' : 'Save your progress'}</div>
+    ${u ? `<p class="hint">Signed in as ${esc(u.name || u.email || 'you')}. Your progress and Meridian Plus are kept on all your devices.</p>
+      <button class="btn" id="accOut">Sign out</button>
+      <div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>`
+    : `<p class="hint">${esc(reason || 'Keep your progress and Meridian Plus on all your devices.')} It takes one tap.</p>
+      ${btn('apple', 'Continue with Apple')}${btn('google', 'Continue with Google')}${btn('email', 'Continue with email')}
+      <p class="fine">We only use your account to save your progress. See our <a class="link" href="privacy.html" target="_blank" rel="noopener">privacy policy</a>.</p>`}`);
+  $('#accBack').onclick = settingsSheet;
+  sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => AUTH.signIn(b.dataset.sso).then(() => { toast('Signed in'); accountSheet(); }, () => toast('Sign-in was cancelled')));
+  if ($('#accOut')) $('#accOut').onclick = () => AUTH.signOut().then(() => { toast('Signed out'); settingsSheet(); });
+  if ($('#accDelAsk')) $('#accDelAsk').onclick = () => {
+    $('#accDel').innerHTML = `<p class="hint">This permanently deletes your account and the progress saved with it. Progress on this device stays.</p><div class="rbtns"><button class="btn" id="accKeep">Keep</button><button class="btn" id="accDelGo" style="background:var(--red);border-color:var(--red);color:#fff">Delete</button></div>`;
+    $('#accKeep').onclick = () => accountSheet();
+    $('#accDelGo').onclick = () => AUTH.deleteAccount().then(() => { toast('Account deleted'); settingsSheet(); });
+  };
+}
+
 // ---------- boot ----------
 window.__atlas = { state, byId, map };
 readColors();
@@ -2116,7 +2387,7 @@ window.visualViewport?.addEventListener('resize', () => { resize(); window.scrol
 window.visualViewport?.addEventListener('scroll', fitViewport);
 // First layout without animation, so the globe starts centred in the space above the panel.
 $('#app').classList.add('dragging');
-homeSheet();
+if (needsOnboarding()) onboarding(); else homeSheet();
 resize();
 map.resize();
 fitBox(G.views[state.scope.id], 0);
