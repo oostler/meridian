@@ -2637,8 +2637,8 @@ function cloudReady() {
     // The first-name card closes once the name is saved.
     if (ME && ME.name && !wasNamed && $('#nmForm') && state.tab !== 'compete') homeSheet();
     if (state.tab === 'compete' && !state.race) competeSheet();
-    // Signed in from somewhere with nothing queued: don't leave the "Signing you in…" card up.
-    if (ME && ME.name && $('.si-busy')) homeSheet();
+    // Signed in from somewhere with nothing queued: don't leave a sign-in card (or "Signing you in…") up.
+    if (ME && ME.name && $('#siForm, #gsiBtn, [data-sso], .si-busy') && !state.race) homeSheet();
     joinFromLink();
     if (!ME && !store.offeredOnce && store.onb && !store.firstRound && state.mode === 'explore' && !state.race && !new URLSearchParams(location.search).get('race')) { store.offeredOnce = 1; save(); signInSheet({ then: homeSheet }); }
   });
