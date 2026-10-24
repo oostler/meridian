@@ -412,6 +412,17 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .podium b { font-weight: 900; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .verdict.rc-verdict { animation: none; margin: 0; border-radius: 16px; }
 .podium > div > span:not(.av) { font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.ts { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: color-mix(in srgb, var(--sc) 10%, var(--bg)); border: 2px solid color-mix(in srgb, var(--sc) 35%, var(--line)); }
+.ts-year { display: flex; align-items: center; justify-content: space-between; }
+.ts-year b { font-size: 34px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--sc) 70%, var(--ink)); }
+.ts-play { width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--sc); color: #fff; font-size: 16px; font-weight: 900; box-shadow: 0 3px 0 color-mix(in srgb, var(--sc) 70%, #000); }
+.ts input[type=range] { width: 100%; accent-color: var(--sc); height: 32px; margin: 0; }
+.ts-ends { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--ink-3); margin-top: -6px; }
+.ts-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ts-steps .btn { padding: 8px; }
+.ts-map .yrs { font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.ts-legend .lrow i { border: 0 !important; height: 14px !important; width: 14px !important; border-radius: 4px; background: var(--gc) !important; }
+.ts-else { display: flex; flex-wrap: wrap; gap: 8px; }
 .goalbar { border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px 12px; display: grid; gap: 6px; }
 .goalbar .gb-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; }
 .goalbar .gb-top b { display: flex; align-items: center; gap: 4px; font-weight: 900; }
@@ -1783,6 +1794,7 @@ function historySheet() {
   const list = trackList(state.track);
   const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : plus ? `${list.length} longer stories on religions, empires, wars and ideas, each with maps and a quiz.` : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
   setSheet(`<div><div class="title">Timeline</div>${plus && !store.plus ? '' : `<p class="hint">${hint}</p>`}</div>
+    <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
     ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !store.plus ? ' class="faint"' : ''}>${t.id === 'plus' && !store.plus ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
     ${locked ? plusHero(list) : ''}
     <div class="chapters">${list.map((a, k) => {
@@ -1795,12 +1807,88 @@ function historySheet() {
       return `${hd}<button class="chapter tile${lk ? ' locked' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
+  $('#goTime').onclick = () => { buzz(8); timeSheet(); fitTime(); };
   if ($('#plusUnlock')) $('#plusUnlock').onclick = () => { buzz(5); unlockSheet(); };
   if ($('#plusFree')) $('#plusFree').onclick = () => { buzz(5); eraSheet(PLUS_FREE); };
   sheet.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { buzz(5); state.track = store.track = b.dataset.track; save(); historySheet(); sheet.scrollTop = 0; fitBox(G.views[{ us: 'us', cn: 'cn', ca: 'ca' }[state.track] || 'world']); });
   // The list reads as one journey from the first cities to today, so it opens at the top.
   updateTop(); draw();
 }
+// ---------- time slider ----------
+// Every chapter map is dated from its title (built into M.yr). The slider steps through the years that have a
+// map, shows the clearest one for that moment and lists what else was going on elsewhere.
+const fmtYear = y => y < -10000 ? `${(2000 - y).toLocaleString('en')} years ago` : y < 0 ? `${-y} BC` : y < 1000 ? `AD ${y}` : String(y);
+let timeline = null;
+function timeStops() {
+  if (timeline && timeline.plus === !!store.plus) return timeline;
+  const maps = [];
+  for (const a of ANCHORS) {
+    if (plusLocked(a.id)) continue;
+    const ys = (a.maps || []).filter(M => M.yr), span = a.yr ? a.yr[1] - a.yr[0] : ys.length ? Math.max(...ys.map(M => M.yr[1])) - Math.min(...ys.map(M => M.yr[0])) : 1e9;
+    ys.forEach(M => maps.push({ a, m: a.maps.indexOf(M), M, from: M.yr[0], to: M.yr[1], span, rank: trackOf(a) === 'world' ? 0 : trackOf(a) === 'plus' ? 2 : 1 }));
+  }
+  const years = [...new Set(maps.map(x => x.from))].sort((p, q) => p - q);
+  timeline = { plus: !!store.plus, maps, years };
+  return timeline;
+}
+// What was happening in a given year: maps whose span covers it. A map that starts that year comes first (so every
+// stop shows its own map), then the world story, then the chapter that is about that moment (the First World War
+// in 1914, not the Ottomans' six centuries).
+function atYear(y) {
+  const { maps } = timeStops();
+  return maps.filter(x => x.from <= y && y <= x.to).sort((p, q) => (p.from !== y) - (q.from !== y) || p.rank - q.rank || p.span - q.span || (p.to - p.from) - (q.to - q.from) || q.from - p.from);
+}
+function timeSheet(i, pick) {
+  const { years } = timeStops();
+  if (i == null) i = state.timeI != null ? state.timeI : years.findIndex(y => y >= 1914);
+  i = Math.max(0, Math.min(years.length - 1, i)); state.timeI = i;
+  const y = years[i], here = atYear(y), cur = pick && here.find(x => x.a.id === pick.a && x.m === pick.m) || here[0];
+  state.mode = 'era'; state.era = cur.a.id; state.mapI = cur.m; state.sel = null; state.focusG = null; state.hq = null; state.target = null;
+  setRound(false); setTab('history');
+  const M = cur.M, sc = ERA_COLOR[cur.a.sec] || secColor[cur.a.id] || 'var(--blue)';
+  const others = here.filter(x => x !== cur).filter((x, k, arr) => arr.findIndex(z => z.a.id === x.a.id) === k).slice(0, 8);
+  setSheet(`<button class="back" id="tsBack">${IC.back}Timeline</button>
+    <div class="ts" style="--sc:${sc}">
+      <div class="ts-year"><b>${fmtYear(y)}</b><button class="ts-play" id="tsPlay" aria-label="${state.timePlay ? 'Pause' : 'Play through history'}">${state.timePlay ? '❚❚' : '▶'}</button></div>
+      <input type="range" id="tsRange" min="0" max="${years.length - 1}" step="1" value="${i}" aria-label="Year" aria-valuetext="${fmtYear(y)}">
+      <div class="ts-ends"><span>${fmtYear(years[0])}</span><span>${fmtYear(years[years.length - 1])}</span></div>
+      <div class="ts-steps"><button class="btn" id="tsPrev" aria-label="Earlier" ${i ? '' : 'disabled'}>${IC.back}</button><button class="btn" id="tsNext" aria-label="Later" ${i < years.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>
+    </div>
+    <div class="hmap ts-map"><span class="yrs" style="color:${sc}">${esc(cur.a.title)}</span><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
+      <div class="legend ts-legend">${M.groups.map(g => `<div class="lrow"><i style="--gc:${PAL[g.color]}"></i><b>${esc(g.label)}</b></div>`).join('')}</div>
+      <button class="btn" id="tsOpen">Open the chapter</button></div>
+    ${others.length ? `<h4 class="home-h">Elsewhere around ${fmtYear(y)}</h4><div class="ts-else">${others.map(x => `<button class="era" data-tsa="${x.a.id}" data-tsm="${x.m}">${esc(x.M.tab)}<small>${esc(x.a.title)}</small></button>`).join('')}</div>` : ''}`);
+  sheet.style.setProperty('--sc', sc);
+  const go = (k, fit = true) => { stopPlay(); timeSheet(k); if (fit) fitTime(); };
+  const r = $('#tsRange');
+  // Dragging repaints the countries only; the camera moves once the finger lets go.
+  r.oninput = () => { const k = +r.value, Y = years[k], top = atYear(Y)[0]; $('.ts-year b').textContent = fmtYear(Y); state.timeI = k; state.era = top.a.id; state.mapI = top.m; draw(); };
+  r.onchange = () => go(+r.value);
+  $('#tsPrev').onclick = () => { buzz(5); go(i - 1); };
+  $('#tsNext').onclick = () => { buzz(5); go(i + 1); };
+  $('#tsPlay').onclick = () => { buzz(5); if (state.timePlay) { stopPlay(); timeSheet(); } else playTime(); };
+  $('#tsOpen').onclick = () => { stopPlay(); eraSheet(cur.a.id, false, cur.m); };
+  $('#tsBack').onclick = () => { stopPlay(); state.era = null; historySheet(); fitBox(G.views.world); };
+  sheet.querySelectorAll('[data-tsa]').forEach(b => b.onclick = () => { buzz(5); stopPlay(); timeSheet(i, { a: b.dataset.tsa, m: +b.dataset.tsm }); fitTime(); });
+  sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { const f = byId[b.dataset.id]; if (f) showOnGlobe(f); });
+  keyHandler = null;
+  draw();
+}
+function fitTime() { const M = curMap(); if (M) fitBox(M.box || mapBox(M)); }
+let playT = null;
+function playTime() {
+  state.timePlay = true;
+  const step = () => {
+    const { years } = timeStops();
+    if (!state.timePlay || state.mode !== 'era' || !$('#tsRange')) return stopPlay();
+    if (state.timeI >= years.length - 1) { stopPlay(); return timeSheet(); }
+    timeSheet(state.timeI + 1); fitTime();
+    playT = setTimeout(step, 2200);
+  };
+  timeSheet(); playT = setTimeout(step, 600);
+}
+function stopPlay() { state.timePlay = false; clearTimeout(playT); }
+
 // Meridian Plus: deep dives on the stories people love, shown faint and locked until unlocked.
 // The access code is a placeholder until in-app purchase arrives with the iOS app.
 const PLUS_CODE = '1234';
