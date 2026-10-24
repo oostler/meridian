@@ -2619,6 +2619,8 @@ function cloudReady() {
     const wasNamed = !!(ME && ME.name); ME = p; authKnown = true;
     if (ME && !ME.name) { if (!$('#nmForm') && !$('#siForm')) nameSheet(); return; }
     // Fully signed in (with a name) for the first time this visit: lift the gate and carry on.
+    // Signing in on another device: carry this week's points over from the profile.
+    if (ME && ME.name && ME.weekId === weekId() && (ME.weekPts || 0) > weekPts()) { store.wk = { id: weekId(), pts: ME.weekPts }; save(); }
     if (ME && !wasNamed) { store.skippedSignIn = 0; store.gateN = 0; save(); pushStatsSoon(); if (pendingAfterSignIn) { const f = pendingAfterSignIn; pendingAfterSignIn = null; f(); } }
     // The first-name card closes once the name is saved.
     if (ME && ME.name && !wasNamed && $('#nmForm') && state.tab !== 'compete') homeSheet();
