@@ -2676,8 +2676,8 @@ function signInSheet(opts = {}) {
     setSheet(`<div class="si">
       ${hard || opts.noBack ? '' : `<button class="qx si-x" id="siX" aria-label="Close">${IC.x}</button>`}
       <span class="si-art">${ART.trophy}</span>
-      <h3>${mode === 'in' ? 'Welcome back' : hard ? 'Create your profile to keep going' : 'Save your progress'}</h3>
-      <p class="hint">${mode === 'in' ? 'Sign in to pick up where you left off.' : 'Join the world leaderboard, race your friends and keep your streak on every device. It\'s free.'}</p>
+      <h3>${opts.invite ? 'You\'re invited to a race' : mode === 'in' ? 'Welcome back' : hard ? 'Create your profile to keep going' : 'Save your progress'}</h3>
+      <p class="hint">${opts.invite ? `Sign in to join race <b>${esc(opts.invite)}</b>. It's free and takes a few seconds.` : mode === 'in' ? 'Sign in to pick up where you left off.' : 'Join the world leaderboard, race your friends and keep your streak on every device. It\'s free.'}</p>
       ${email ? `<form class="si-form" id="siForm" autocomplete="on">
           ${mode === 'new' ? `<input id="siName" name="given-name" autocomplete="given-name" placeholder="First name" aria-label="First name" maxlength="20" required>` : ''}
           <input id="siEmail" type="email" name="email" autocomplete="email" placeholder="Email" aria-label="Email" value="${esc(typed)}" required>
@@ -2723,7 +2723,10 @@ function signInSheet(opts = {}) {
         fail(e2);
       });
     };
-    const later = () => { store.skippedSignIn = 1; store.gateN = 0; save(); const f = pendingAfterSignIn; pendingAfterSignIn = null; setRound(false); if (f) f(); else homeSheet(); };
+    const later = () => {
+      // Turning down an invite: forget the link so it doesn't ask again, and go home.
+      if (opts.invite) { history.replaceState(null, '', location.pathname); pendingAfterSignIn = null; setRound(false); return homeSheet(); }
+      store.skippedSignIn = 1; store.gateN = 0; save(); const f = pendingAfterSignIn; pendingAfterSignIn = null; setRound(false); if (f) f(); else homeSheet(); };
     if ($('#siLater')) $('#siLater').onclick = later;
     if ($('#siX')) $('#siX').onclick = later;
   };
@@ -2798,7 +2801,7 @@ function raceJoin(code) {
 function joinFromLink() {
   const code = new URLSearchParams(location.search).get('race');
   if (!code || state.race) return;
-  if (!ME) return signInSheet({ then: () => joinFromLink(), noBack: false });
+  if (!ME) return $('#siForm, #gsiBtn, [data-sso]') ? undefined : signInSheet({ then: () => joinFromLink(), invite: code.toUpperCase() });
   history.replaceState(null, '', location.pathname);
   showTab('compete'); raceJoin(code.toUpperCase());
 }
