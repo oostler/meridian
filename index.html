@@ -572,6 +572,9 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .sum b { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); background: var(--bg); border-radius: 13px; padding: 10px 2px; }
 .sum b .ic { width: 22px; height: 22px; }
 .sum.two { grid-template-columns: 1fr 1fr; }
+.dy-from { display: block; font-size: 13px; font-weight: 800; color: var(--ink-2); margin-bottom: 4px; }
+.dy-squares { text-align: center; font-size: 26px; letter-spacing: 2px; line-height: 1.2; }
+.go.daily.done small { line-height: 1.5; }
 .reward { position: relative; display: grid; gap: 10px; justify-items: center; width: 100%; }
 .rw-xp { display: flex; align-items: center; gap: 8px; padding: 8px 20px 8px 12px; border-radius: 999px; background: var(--gold-l, #fff4c2); color: var(--gold-d); font-weight: 900; animation: pop .5s .15s var(--ease) both; }
 .rw-xp .rw-bolt { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--gold, #ffc800); color: #fff; }
@@ -1588,6 +1591,7 @@ const IC = {
   star: svg('<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>', 2),
   clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 1.9),
   trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M17 5h3a3 3 0 01-3 4M7 5H4a3 3 0 003 4"/>', 1.9),
+  share: svg('<path d="M12 15V3M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>', 2.4),
   bolt: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2L4.5 13.5h6.2L9.5 22l9-11.5h-6.2L13.5 2z"/></svg>',
   flame: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 2.2c.4 2.6-.7 4.4-2.1 5.9-1.6 1.7-3.5 3.4-3.5 6.6 0 3.6 2.6 6.8 6.5 7.1-1.6-.8-2.6-2.4-2.6-4.2 0-2 1.3-3.2 2.3-4.3.7-.8 1.3-1.6 1.3-2.8 1.8 1.2 3.4 3.4 3.4 6.2 0 2.3-1.2 4-3 5 3.4-.6 6.1-3.5 6.1-7.3 0-5.3-4.2-9.9-8.4-12.2z"/></svg>',
   crown: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M3 7.5l4.6 3.6L12 4l4.4 7.1L21 7.5 19.2 18H4.8L3 7.5z"/><rect x="4.8" y="19.2" width="14.4" height="2.2" rx="1.1" fill="currentColor"/></svg>',
@@ -1706,7 +1710,7 @@ function placeOfDay() {
 function startHtml() {
   const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
   const go = (tab, ic, c, t, sub) => `<button class="go tile" data-go="${tab}" style="--c:${c}"><span class="go-ic">${ic}</span><span><b>${t}</b><small>${sub}</small></span>${IC.next}</button>`;
-  return `${goalBar()}${reviewCard()}${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
+  return `${goalBar()}${dailyCard()}${reviewCard()}${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
     <h4 class="home-h">Ways to learn</h4>
     ${go('learn', IC.cap, 'var(--green)', 'Learn the map', 'Name every country, capital, state and province')}
     ${go('find', IC.pin, 'var(--orange)', 'Find it on the globe', 'We name a place, you tap it')}
@@ -1788,6 +1792,7 @@ function homeSheet() {
   sheet.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { buzz(5); showTab(b.dataset.go); });
   if ($('#openSettings')) $('#openSettings').onclick = () => settingsSheet();
   if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
+  bindDaily();
   bindGoal(homeSheet);
   if ($('#openAbout')) $('#openAbout').onclick = () => aboutSheet();
   sheet.querySelectorAll('[data-pod]').forEach(b => b.onclick = () => { buzz(5); selectPlace(byId[b.dataset.pod], true); });
@@ -1820,7 +1825,7 @@ function learnSheet() {
   setRound(false); setTab('learn');
   const c = counts();
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
-  setSheet(`${goalBar()}${reviewCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
+  setSheet(`${goalBar()}${dailyCard()}${reviewCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
     ${histTile()}
     ${subjSeg()}
     ${progressCard()}
@@ -1829,6 +1834,7 @@ function learnSheet() {
   bindSubj(learnSheet);
   $('#goLearn').onclick = () => { buzz(8); startLearn(); };
   if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
+  bindDaily();
   if ($('#goHist')) $('#goHist').onclick = () => { buzz(8); startHistQuiz(); };
   bindGoal(learnSheet);
   $('#pickScope').onclick = openPicker;
@@ -2228,7 +2234,7 @@ function showOnGlobe(f) {
 
 function onPick(f) {
   // In a race, tapping the map would name places and replace the race card.
-  if (state.race) return;
+  if (state.race || state.daily) return;
   if (state.mode === 'locate') return locateTap(f);
   if (state.mode === 'learn') {
     // During a question, tapping only names places outside the quiz or already solved.
@@ -2563,6 +2569,111 @@ function summary() {
   draw();
 }
 
+// ---------- daily challenge ----------
+// Ten questions, the same for everyone on a given (UTC) day: five places on the globe, three capitals and
+// two from the timeline. One go a day, resumable; the result can be shared as a row of squares.
+const DAILY_EPOCH = Date.UTC(2026, 9, 25);
+const dailyNo = () => Math.floor((Date.now() - DAILY_EPOCH) / DAY) + 1;
+function seeded(n) {
+  let a = Math.imul(n, 2654435761) >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function dailyQuestions(no) {
+  const rnd = seeded(no), take = (arr, k) => { const a = arr.slice(), out = []; while (out.length < k && a.length) out.push(a.splice(Math.floor(rnd() * a.length), 1)[0]); return out; };
+  const mix = arr => take(arr, arr.length);
+  const W = SCOPES.find(s => s.id === 'world').items.filter(f => f.cap && f.cap[0]);
+  const big = W.filter(f => f.pop >= 30e6), mid = W.filter(f => f.pop >= 3e6 && f.pop < 30e6), small = W.filter(f => f.pop < 3e6);
+  const near = f => W.filter(x => x !== f).sort((a, b) => dist(a, f) - dist(b, f)).slice(0, 8);
+  const opts = f => mix([f, ...take(near(f), 3)]).map(x => x.id);
+  const places = [...take(big, 2), ...take(mid, 2), ...take(small, 1)];
+  const caps = take([...big, ...mid].filter(f => !places.includes(f)), 3);
+  const chs = ANCHORS.filter(a => a.quiz && trackOf(a) !== 'plus'), hist = take(chs, 2).map(a => ({ type: 'hist', a: a.id, i: Math.floor(rnd() * a.quiz.length), order: mix([0, 1, 2, 3]) }));
+  const P = mix(places).map(f => ({ type: 'map', f: f.id, opts: opts(f) })), C = caps.map(f => ({ type: 'cap', f: f.id, opts: opts(f) }));
+  return [P[0], C[0], P[1], hist[0], P[2], C[1], P[3], hist[1], P[4], C[2]].filter(Boolean);
+}
+const dailyState = () => { const no = dailyNo(); return store.daily && store.daily.no === no ? store.daily : { no, marks: [] }; };
+const dailySquares = marks => marks.map(m => m ? '🟩' : '🟥').join('');
+function untilNextDaily() { const ms = DAILY_EPOCH + dailyNo() * DAY - Date.now(), h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return h ? `${h}h ${m}m` : `${m}m`; }
+function dailyCard() {
+  const d = dailyState(), n = d.marks.length, done = n >= 10, score = d.marks.filter(Boolean).length;
+  return `<button class="go tile daily${done ? ' done' : ''}" id="goDaily" style="--c:var(--purple)"><span class="go-ic">${IC.star}</span><span><b>${done ? `Daily Challenge · ${score}/10` : `Daily Challenge #${d.no}`}</b><small>${done ? `${dailySquares(d.marks)}<br>New one in ${untilNextDaily()}` : n ? `Carry on · ${n} of 10 answered` : '10 questions · the same for everyone today'}</small></span>${IC.next}</button>`;
+}
+function bindDaily() { if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge(); }; }
+function dailyChallenge() {
+  const d = dailyState(), qs = dailyQuestions(d.no), from = state.tab, prevScope = state.scope;
+  store.daily = d; save();
+  clearTimeout(advanceT); gainStart();
+  state.daily = true; state.mode = 'learn'; state.sel = null; state.solved.clear();
+  // The challenge is about the whole world, whatever map you were studying.
+  state.scope = SCOPES.find(s => s.id === 'world'); refreshLayer(); updateTop();
+  setRound(true);
+  const leave = () => {
+    state.daily = false; state.target = null; state.flash = null; keyHandler = null;
+    state.scope = prevScope; refreshLayer(); updateTop(); draw(); showTab(from === 'learn' ? 'learn' : 'explore');
+  };
+  const show = () => {
+    const i = d.marks.length;
+    if (i >= qs.length) return result();
+    const Q = qs[i], f = byId[Q.f];
+    let prompt, options, right;
+    if (Q.type === 'hist') {
+      const a = anchorById[Q.a], H = a.quiz[Q.i];
+      state.target = null; draw();
+      prompt = `<small class="dy-from">${esc(a.title)}</small>${esc(H.q)}`; options = Q.order.map(k => ({ k, t: H.a[k] })); right = H.c;
+    } else {
+      state.target = f; state.flash = null; fitBox(contextBox(f)); draw();
+      prompt = Q.type === 'map' ? 'Which country is highlighted?' : `What is the capital of <em>${esc(f.n)}</em>?`;
+      options = Q.opts.map(id => ({ k: id, t: Q.type === 'map' ? byId[id].n : byId[id].cap[0] })); right = Q.f;
+    }
+    setSheet(`<div class="qhead"><button class="qx" id="dyX" aria-label="Stop for now">${IC.x}</button><div class="qbar"><i style="width:${i / qs.length * 100}%"></i></div></div>
+      <span class="pill daily">Daily Challenge #${d.no} · ${i + 1} of ${qs.length}</span>
+      <p class="prompt">${prompt}</p>
+      <div class="opts${Q.type === 'hist' ? ' col' : ''}">${options.map((o, j) => `<button class="opt" data-k="${o.k}"><kbd>${j + 1}</kbd><span>${esc(o.t)}</span></button>`).join('')}</div>
+      <div class="fb${Q.type === 'hist' ? ' inline' : ''}" id="fb"></div>`);
+    $('#dyX').onclick = leave;
+    const btns = [...sheet.querySelectorAll('.opt')];
+    const pick = b => {
+      if (b.disabled) return;
+      btns.forEach(x => x.disabled = true);
+      const ok = String(b.dataset.k) === String(right);
+      btns.find(x => String(x.dataset.k) === String(right)).classList.add('good');
+      if (!ok) b.classList.add('bad');
+      d.marks.push(ok ? 1 : 0); save();
+      practisedToday(ok ? 10 : 0); updateTop();
+      if (Q.type !== 'hist') { state.solved.add(f.id); draw(); }
+      const detail = Q.type === 'hist' ? esc(anchorById[Q.a].quiz[Q.i].why) : Q.type === 'map' ? `${esc(f.n)}${f.cap[0] ? ` · capital ${esc(f.cap[0])}` : ''}` : `${esc(f.cap[0])} is the capital of ${esc(f.n)}`;
+      const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : 'Not quite', detail);
+      buzz(ok ? 12 : [20, 40, 20]);
+      const nb = document.createElement('button'); nb.className = 'btn primary'; nb.textContent = d.marks.length < qs.length ? 'Next' : 'See your result';
+      nb.onclick = show; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
+      keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); show(); } };
+      if (Q.type === 'hist') requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+    };
+    btns.forEach(b => b.onclick = () => pick(b));
+    keyHandler = e => { const k = +e.key; if (k >= 1 && k <= btns.length) pick(btns[k - 1]); };
+  };
+  const result = () => {
+    state.target = null; draw(); keyHandler = null;
+    const score = d.marks.filter(Boolean).length, first = !d.done;
+    if (first) { d.done = 1; addPoints(20); save(); }
+    const text = `Meridian Daily #${d.no} · ${score}/10\n${dailySquares(d.marks)}\n${location.origin}${location.pathname}`;
+    setSheet(`<div class="done"><span class="badge">${score >= 8 ? ART.trophy : ART.medal}</span><div class="title">${score === 10 ? 'Perfect!' : score >= 8 ? 'Brilliant!' : score >= 5 ? 'Nicely done' : 'Good effort'}</div><div class="sub">Daily Challenge #${d.no} · ${score} of 10</div></div>
+      <div class="dy-squares" aria-label="${score} of 10 right">${dailySquares(d.marks)}</div>
+      ${first ? rewardBlock() : ''}
+      <button class="btn primary" id="dyShare">${IC.share}Share your result</button>
+      <p class="hint" style="text-align:center">A new challenge in ${untilNextDaily()}.</p>
+      <button class="btn" id="dyDone">Done</button>`);
+    if (first) celebrate(score >= 8);
+    $('#dyShare').onclick = () => {
+      buzz(8);
+      if (navigator.share) navigator.share({ text }).catch(() => {});
+      else navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
+    };
+    $('#dyDone').onclick = leave;
+  };
+  show();
+}
+
 // ---------- find-on-map session ----------
 function startLocate() {
   const items = quizItems();
@@ -2728,7 +2839,7 @@ function pushStatsSoon() {
 // With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
 // with this device's (the most recent answer per place wins, streak days and best scores combine), and
 // writes the result back. Settings like theme and the current map stay per device.
-const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus'];
+const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily'];
 function mergeProgress(a, b) {
   const out = {};
   const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
@@ -2747,6 +2858,8 @@ function mergeProgress(a, b) {
   out.today = newer(a.today, b.today, 'd', 'n'); out.wk = newer(a.wk, b.wk, 'id', 'pts');
   for (const k of ['goal', 'commit', 'onb', 'why', 'level']) out[k] = a[k] != null ? a[k] : b[k];
   out.plus = !!(a.plus || b.plus);
+  // Today's challenge: the further-along attempt.
+  const da = a.daily, db = b.daily; out.daily = !da || !db ? da || db : da.no !== db.no ? (da.no > db.no ? da : db) : (da.marks || []).length >= (db.marks || []).length ? da : db;
   for (const k in out) if (out[k] == null) delete out[k];
   return out;
 }
