@@ -2955,7 +2955,12 @@ function raceRender() {
   const room = race && race.room; if (!room) { if (race && !race.ended) { toast('The race has ended'); raceLeave(); } return; }
   const isHost = room.host === CLOUD.myId(), players = racePlayers(room).sort((a, b) => b.score - a.score);
   // The host's device runs the race; if it drops out mid-race, nobody can move on, so end it kindly.
-  if (!isHost && room.state !== 'done' && room.state !== 'lobby' && (room.players || {})[room.host] && room.players[room.host].gone) { toast('The host left, so the race has ended'); return raceLeave(); }
+  // The host's device runs the race. If it goes quiet (phone locked, app closed), the other players take
+  // over in turn: the first a couple of seconds after a step was due, the next a little later, and so on.
+  // Before the start there is nothing to take over, so a host who leaves the lobby ends it.
+  if (!isHost && room.state === 'lobby' && (room.players || {})[room.host] && room.players[room.host].gone) { toast('The host left, so the race has ended'); return raceLeave(); }
+  const backups = racePlayers(room).filter(p => p.uid !== room.host).map(p => p.uid).sort();
+  const myTurn = isHost ? 0 : 2500 * (backups.indexOf(CLOUD.myId()) + 1);
   if (room.scope && state.scope.id !== room.scope) setScope(SCOPES.find(x => x.id === room.scope) || state.scope);
   clearInterval(race.timer);
   if (room.state === 'lobby') {
@@ -2982,7 +2987,9 @@ function raceRender() {
       const left = Math.max(0, RACE_T - (CLOUD.serverNow() - room.qStart)), bar = $('#rcBar');
       if (bar) bar.style.width = (left / RACE_T * 100) + '%';
       const ans = room.answers && room.answers[qi] || {};
-      if (isHost && race.revealed < qi && (left <= 0 || players.every(p => ans[p.uid]))) raceScore(room, qi);
+      // Due when time runs out or everyone has answered (the latest answer's time).
+      const allIn = players.every(p => ans[p.uid]), dueAt = allIn ? Math.max(...players.map(p => ans[p.uid].t || 0)) : room.qStart + RACE_T;
+      if (race.revealed < qi && (left <= 0 || allIn) && CLOUD.serverNow() >= dueAt + myTurn) raceScore(room, qi);
     };
     tick(); race.timer = setInterval(tick, 200);
   } else if (room.state === 'reveal') {
@@ -2995,7 +3002,9 @@ function raceRender() {
     setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><span class="pill">Question ${qi + 1} of ${room.qs.length}</span></div>
       <div class="verdict ${ok ? 'good' : 'bad'} inline rc-verdict"><div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${ok ? (right[0] && right[0][0] === CLOUD.myId() ? 'First!' : 'Right!') : `It was ${esc(byId[q.id].n)}`}</b><span>${first ? `${esc(first)} got it first` : 'No one got this one'}</span></div></div></div>
       <div class="lb">${players.map((p, i) => `<div class="lb-row${p.uid === CLOUD.myId() ? ' me' : ''}"><span class="lb-n">${i + 1}</span>${avatar(p.name, p.uid)}<span class="lb-name">${who(p)}</span><b>${p.score}</b></div>`).join('')}</div>`);
-    if (isHost) { clearTimeout(race.next); race.next = setTimeout(() => qi + 1 < room.qs.length ? CLOUD.startQuestion(race.code, qi + 1) : CLOUD.finish(race.code), 3500); }
+    clearTimeout(race.next);
+    const advance = () => { if (race && race.room && race.room.state === 'reveal' && race.room.qi === qi) (qi + 1 < room.qs.length ? CLOUD.startQuestion(race.code, qi + 1) : CLOUD.finish(race.code)).catch(() => {}); };
+    race.next = setTimeout(advance, Math.max(0, (room.revealAt || CLOUD.serverNow()) + 3500 + myTurn - CLOUD.serverNow()));
   } else if (room.state === 'done') {
     const top = players.slice(0, 3), meRank = players.findIndex(p => p.uid === CLOUD.myId()) + 1;
     if (race.ended !== true) { race.ended = true; buzz(meRank === 1 ? [10, 60, 10] : 10); }
@@ -3017,7 +3026,7 @@ function raceScore(room, qi) {
     const speed = Math.max(0, 1 - (a.t - room.qStart) / RACE_T);
     scores[uid] = ((room.players[uid] || {}).score || 0) + 500 + Math.round(500 * speed) + (i === 0 ? 250 : 0);
   });
-  CLOUD.reveal(race.code, scores);
+  CLOUD.reveal(race.code, scores).catch(() => {});  // a stand-in can be refused under older rules; the host still moves on
 }
 
 // ---------- boot ----------
