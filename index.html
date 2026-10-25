@@ -211,6 +211,15 @@ h1, h2, h3 { margin: 0; }
 .pod { grid-template-columns: auto 1fr; }
 .pod .flag { font-size: 34px; line-height: 1; }
 .pod small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tapline { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+.tapline .em-ic { width: 44px; height: 44px; }
+.tapline .em-ic svg { width: 100%; height: 100%; }
+.tapline b { display: block; font-size: 16px; font-weight: 900; line-height: 1.2; }
+.tapline small { display: block; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.tapline .btn.small { padding: 8px 12px; font-size: 13px; gap: 6px; min-height: 0; width: auto; }
+.tapline .btn.small .ic { width: 16px; height: 16px; }
+@media (max-width: 360px) { .tapline .btn.small span { display: none; } }
+.pod small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .empty { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: center; }
 .empty .em-ic { grid-row: span 2; width: 58px; height: 58px; }
 .empty .em-ic svg { width: 100%; height: 100%; }
@@ -572,6 +581,11 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .sum b { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); background: var(--bg); border-radius: 13px; padding: 10px 2px; }
 .sum b .ic { width: 22px; height: 22px; }
 .sum.two { grid-template-columns: 1fr 1fr; }
+.xp-float { position: fixed; z-index: 60; transform: translate(-50%, -50%); pointer-events: none; font: 900 16px var(--font); color: #fff; background: var(--gold); padding: 3px 11px; border-radius: 999px; box-shadow: 0 2px 0 var(--gold-d), 0 6px 16px rgba(0, 0, 0, .18); animation: xpup 1s cubic-bezier(.2, .8, .3, 1) forwards; }
+@keyframes xpup { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 20% { opacity: 1; transform: translate(-50%, -80%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -260%) scale(1); } }
+.combo { position: fixed; z-index: 60; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 84px); display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: var(--orange); color: #fff; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #d97f00, 0 10px 30px rgba(0, 0, 0, .18); pointer-events: none; animation: comboin 1.7s var(--ease) forwards; }
+.combo .ic { width: 22px; height: 22px; }
+@keyframes comboin { 0% { opacity: 0; transform: translate(-50%, -20px) scale(.6); } 15% { opacity: 1; transform: translate(-50%, 0) scale(1.08); } 25% { transform: translate(-50%, 0) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -12px); } }
 .today { padding-bottom: 4px; gap: 0; }
 .today .gb-top { margin-bottom: 6px; }
 .today .gb-c { margin-top: 6px; }
@@ -1237,6 +1251,7 @@ function sfx(kind) {
     if (kind === 'right') { note(880, 0, 0.12); note(1318.5, 0.07, 0.24); }
     else if (kind === 'wrong') { note(233, 0, 0.2, 'triangle', 0.1); note(185, 0.1, 0.3, 'triangle', 0.09); }
     else if (kind === 'done') [523.3, 659.3, 784, 1046.5].forEach((f, i) => note(f, i * 0.09, i === 3 ? 0.45 : 0.2));
+    else if (kind === 'combo') [784, 987.8, 1174.7, 1568].forEach((f, i) => note(f, i * 0.06, i === 3 ? 0.35 : 0.14, 'sine', 0.06));
   } catch (e) { /* no audio here; the app carries on silently */ }
 }
 
@@ -1299,7 +1314,27 @@ function weekId(d = new Date()) {
 const weekPts = () => store.wk && store.wk.id === weekId() ? store.wk.pts : 0;
 // What the current round has earned, celebrated on its last screen.
 let gain = { xp: 0, streakUp: false, goal: false };
-const gainStart = () => { gain = { xp: 0, streakUp: false, goal: false }; };
+const gainStart = () => { gain = { xp: 0, streakUp: false, goal: false }; combo = 0; };
+// Every right answer: "+10" rises from the button you tapped, and each run of five gets its own moment.
+let lastTap = null, combo = 0;
+document.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('.opt, .rc-opt'); lastTap = b ? { el: b, t: performance.now() } : null; }, true);
+function rewardTap(ok) {
+  if (!ok) { combo = 0; return sfx('wrong'); }
+  combo++;
+  if (combo % 5 === 0) { sfx('combo'); buzz([10, 40, 10]); comboBanner(combo); } else sfx('right');
+  if (reduceMotion) return;
+  const src = lastTap && performance.now() - lastTap.t < 4000 && document.contains(lastTap.el) ? lastTap.el : $('#fb .v-ic');
+  if (!src) return;
+  const r = src.getBoundingClientRect(), f = document.createElement('div');
+  f.className = 'xp-float'; f.textContent = '+10 XP'; f.setAttribute('aria-hidden', 'true');
+  f.style.left = (r.left + r.width / 2) + 'px'; f.style.top = (r.top + Math.min(r.height / 2, 24)) + 'px';
+  document.body.appendChild(f); setTimeout(() => f.remove(), 1100);
+}
+function comboBanner(n) {
+  const el = document.createElement('div'); el.className = 'combo'; el.setAttribute('role', 'status');
+  el.innerHTML = `${IC.flame}<b>${n} in a row!</b>`;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1700);
+}
 function addPoints(n) {
   if (!n) return;
   gain.xp += n;
@@ -1744,12 +1779,7 @@ function placeOfDay() {
 }
 function startHtml() {
   const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
-  const go = (tab, ic, c, t, sub) => `<button class="go tile" data-go="${tab}" style="--c:${c}"><span class="go-ic">${ic}</span><span><b>${t}</b><small>${sub}</small></span>${IC.next}</button>`;
   return `${todayCard()}${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
-    <h4 class="home-h">Ways to learn</h4>
-    ${go('learn', IC.cap, 'var(--green)', 'Learn the map', 'Name every country, capital, state and province')}
-    ${go('find', IC.pin, 'var(--orange)', 'Find it on the globe', 'We name a place, you tap it')}
-    ${go('history', IC.clock, 'var(--purple)', 'Travel through time', `${trackList("world").length} chapters, from the first cities to today`)}
     <div class="foot"><button class="link" id="openSettings">Settings</button><span>·</span><button class="link" id="openAbout">About</button><span>·</span><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a></div>`;
 }
 // Settings and About open inside the Explore panel, with a back link.
@@ -1811,8 +1841,7 @@ function homeSheet() {
     <div class="search" id="searchBox">${IC.search}<input id="q" type="search" placeholder="Search countries, states, oceans" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Search places"><button class="clear" id="qClear" aria-label="Clear search">${IC.x}</button></div>
     <div class="results" id="results" hidden></div>
     <div id="exploreBody" style="display:grid;gap:14px">
-      ${sel ? placeCard(sel) : `<div class="empty"><span class="em-ic">${ART.globe}</span><b>Tap any place on the globe</b><p>Countries, states and oceans. Green means you've learned it.</p></div>
-        <button class="btn" id="surprise">${IC.shuffle}Surprise me</button>${startHtml()}`}
+      ${sel ? placeCard(sel) : `<div class="tapline"><span class="em-ic">${ART.globe}</span><span><b>Tap any place on the globe</b><small>Green means you've learned it</small></span><button class="btn small" id="surprise" aria-label="Surprise me">${IC.shuffle}<span>Surprise me</span></button></div>${startHtml()}`}
     </div>`);
   const q = $('#q'), res = $('#results'), body = $('#exploreBody'), box = $('#searchBox');
   q.oninput = () => {
@@ -2527,7 +2556,7 @@ const PRAISE = ['Nicely done!', 'Great job!', 'Correct!', 'You got it!', 'Excell
 function verdict(ok, title, detail) {
   const fb = $('#fb');
   fb.className = 'verdict ' + (ok ? 'good' : 'bad') + (fb.classList.contains('inline') ? ' inline' : '');
-  sfx(ok ? 'right' : 'wrong');
+  rewardTap(ok);
   fb.innerHTML = `<div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${title}</b>${detail ? `<span>${detail}</span>` : ''}</div></div>`;
   return fb;
 }
