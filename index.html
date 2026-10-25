@@ -572,6 +572,16 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .sum b { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); background: var(--bg); border-radius: 13px; padding: 10px 2px; }
 .sum b .ic { width: 22px; height: 22px; }
 .sum.two { grid-template-columns: 1fr 1fr; }
+.today { padding-bottom: 4px; gap: 0; }
+.today .gb-top { margin-bottom: 6px; }
+.today .gb-c { margin-top: 6px; }
+.td-row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; width: 100%; padding: 10px 0; margin-top: 8px; border-top: 2px solid var(--line); cursor: pointer; color: var(--ink); }
+.td-row:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 8px; }
+.td-row .td-ic { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, var(--bg)); color: var(--c); }
+.td-row .td-ic .ic { width: 20px; height: 20px; }
+.td-row b { display: block; font-size: 15px; font-weight: 900; line-height: 1.2; }
+.td-row small { display: block; font-size: 13px; color: var(--ink-2); font-weight: 700; line-height: 1.4; }
+.td-row > .ic { width: 18px; height: 18px; color: var(--ink-3, var(--ink-2)); }
 .dy-from { display: block; font-size: 13px; font-weight: 800; color: var(--ink-2); margin-bottom: 4px; }
 .dy-squares { text-align: center; font-size: 26px; letter-spacing: 2px; line-height: 1.2; }
 .go.daily.done small { line-height: 1.5; }
@@ -1204,6 +1214,31 @@ function openReport(where) {
 document.addEventListener('click', e => { const b = e.target.closest('[data-report]'); if (b) { e.stopPropagation(); buzz(5); openReport(b.dataset.report); } });
 // A light tap of feedback where the device supports it.
 const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+// Small synthesised sounds (no files to download): a bright two-note chime for right, a soft low tone for
+// wrong, a short rising run when a round is done. Quiet, switchable in Settings, and on iPhone they follow
+// the silent switch.
+let actx = null;
+function sfx(kind) {
+  if (store.sound === false) return;
+  try {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+      if (navigator.audioSession) navigator.audioSession.type = 'ambient';
+      actx = new C();
+    }
+    if (actx.state === 'suspended') actx.resume();
+    const t = actx.currentTime + 0.01;
+    const note = (f, at, dur, type = 'sine', vol = 0.07) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t + at);
+      g.gain.setValueAtTime(0.0001, t + at); g.gain.exponentialRampToValueAtTime(vol, t + at + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + at + dur);
+      o.connect(g).connect(actx.destination); o.start(t + at); o.stop(t + at + dur + 0.03);
+    };
+    if (kind === 'right') { note(880, 0, 0.12); note(1318.5, 0.07, 0.24); }
+    else if (kind === 'wrong') { note(233, 0, 0.2, 'triangle', 0.1); note(185, 0.1, 0.3, 'triangle', 0.09); }
+    else if (kind === 'done') [523.3, 659.3, 784, 1046.5].forEach((f, i) => note(f, i * 0.09, i === 3 ? 0.45 : 0.2));
+  } catch (e) { /* no audio here; the app carries on silently */ }
+}
 
 // ---------- text helpers ----------
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1303,7 +1338,7 @@ function rewardBlock() {
 }
 function celebrate(big) {
   const r = $('.reward:not([data-run])'); if (!r) return;
-  r.dataset.run = 1;
+  r.dataset.run = 1; sfx('done');
   const target = +r.dataset.xp, num = r.querySelector('.rw-n'), bar = r.querySelector('.gb-bar i');
   if (reduceMotion) return;
   const t0 = performance.now(), dur = Math.min(1400, 500 + target * 6);
@@ -1710,7 +1745,7 @@ function placeOfDay() {
 function startHtml() {
   const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
   const go = (tab, ic, c, t, sub) => `<button class="go tile" data-go="${tab}" style="--c:${c}"><span class="go-ic">${ic}</span><span><b>${t}</b><small>${sub}</small></span>${IC.next}</button>`;
-  return `${goalBar()}${dailyCard()}${reviewCard()}${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
+  return `${todayCard()}${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
     <h4 class="home-h">Ways to learn</h4>
     ${go('learn', IC.cap, 'var(--green)', 'Learn the map', 'Name every country, capital, state and province')}
     ${go('find', IC.pin, 'var(--orange)', 'Find it on the globe', 'We name a place, you tap it')}
@@ -1722,6 +1757,7 @@ function settingsSheet() {
   const th = store.theme || 'auto';
   setSheet(`<button class="back" id="setBack">${IC.back}Explore</button>
     <div class="title">Settings</div>
+    <div class="setrow"><b>Sounds</b><div class="seg">${[['on', 'On'], ['off', 'Off']].map(([k, n]) => `<button data-sound-set="${k}" aria-pressed="${(store.sound === false ? 'off' : 'on') === k}">${n}</button>`).join('')}</div></div>
     <div class="setrow"><b>Appearance</b><div class="seg">${[['auto', 'Automatic'], ['light', 'Light'], ['dark', 'Dark']].map(([k, n]) => `<button data-theme-set="${k}" aria-pressed="${th === k}">${n}</button>`).join('')}</div></div>
     <div class="setrow"><b>Progress</b><p class="hint">Your progress, streak and quiz scores are saved on this device only.</p>
       <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
@@ -1749,6 +1785,7 @@ function settingsSheet() {
     $('#accDelGo').onclick = () => { $('#accDelGo').disabled = true; del(); };
   };
   $('#plusSet').onclick = () => { buzz(5); if (store.plus) { store.plus = false; save(); histIdx = null; toast('Deep dives locked'); settingsSheet(); } else { showTab('history'); unlockSheet(); } };
+  sheet.querySelectorAll('[data-sound-set]').forEach(b => b.onclick = () => { store.sound = b.dataset.soundSet === 'on'; save(); if (store.sound) sfx('right'); settingsSheet(); });
   sheet.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { buzz(5); store.theme = b.dataset.themeSet; save(); applyTheme(); settingsSheet(); });
   $('#resetAsk').onclick = () => {
     $('#resetAll').innerHTML = `<p class="hint">This clears everything you've learned, your streak and map quiz scores. It can't be undone.</p><div class="rbtns"><button class="btn" id="resetKeep">Keep</button><button class="btn" id="resetGo" style="background:var(--red);border-color:var(--red);color:#fff">Reset</button></div>`;
@@ -1825,7 +1862,7 @@ function learnSheet() {
   setRound(false); setTab('learn');
   const c = counts();
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
-  setSheet(`${goalBar()}${dailyCard()}${reviewCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
+  setSheet(`${todayCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
     ${histTile()}
     ${subjSeg()}
     ${progressCard()}
@@ -2490,6 +2527,7 @@ const PRAISE = ['Nicely done!', 'Great job!', 'Correct!', 'You got it!', 'Excell
 function verdict(ok, title, detail) {
   const fb = $('#fb');
   fb.className = 'verdict ' + (ok ? 'good' : 'bad') + (fb.classList.contains('inline') ? ' inline' : '');
+  sfx(ok ? 'right' : 'wrong');
   fb.innerHTML = `<div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${title}</b>${detail ? `<span>${detail}</span>` : ''}</div></div>`;
   return fb;
 }
@@ -2597,6 +2635,20 @@ function untilNextDaily() { const ms = DAILY_EPOCH + dailyNo() * DAY - Date.now(
 function dailyCard() {
   const d = dailyState(), n = d.marks.length, done = n >= 10, score = d.marks.filter(Boolean).length;
   return `<button class="go tile daily${done ? ' done' : ''}" id="goDaily" style="--c:var(--purple)"><span class="go-ic">${IC.star}</span><span><b>${done ? `Daily Challenge · ${score}/10` : `Daily Challenge #${d.no}`}</b><small>${done ? `${dailySquares(d.marks)}<br>New one in ${untilNextDaily()}` : n ? `Carry on · ${n} of 10 answered` : '10 questions · the same for everyone today'}</small></span>${IC.next}</button>`;
+}
+// One calm "Today" card: the daily goal, the Daily Challenge and anything due for review, in that order.
+function todayCard() {
+  const n = answeredToday(), g = store.goal, done = g && n >= g, c = store.commit, st = streak();
+  const d = dailyState(), dn = d.marks.length, score = d.marks.filter(Boolean).length;
+  const { places, hist } = reviewDue(), rv = places.length + hist.length;
+  const commit = !c ? '' : st >= c ? `<div class="gb-c">You kept your ${c}-day promise.${c < 30 ? ` <button class="link" id="goal30">Go for 30 days</button>` : ''}</div>` : `<div class="gb-c">Day ${st || 0} of your ${c}-day streak</div>`;
+  const row = (id, color, icon, title, sub) => `<button class="td-row" id="${id}"><span class="td-ic" style="--c:${color}">${icon}</span><span><b>${title}</b><small>${sub}</small></span>${IC.next}</button>`;
+  return `<div class="today goalbar${done ? ' done' : ''}">
+    <div class="gb-top"><b>${done ? `${IC.check}Goal reached` : 'Today'}</b>${g ? `<span>${Math.min(n, g)} / ${g} answers</span>` : ''}</div>
+    ${g ? `<div class="gb-bar"><i style="width:${Math.min(100, n / g * 100)}%"></i></div>` : ''}${commit}
+    ${row('goDaily', 'var(--purple)', IC.star, `Daily Challenge #${d.no}`, dn >= 10 ? `${score}/10 · ${dailySquares(d.marks)}<br>New one in ${untilNextDaily()}` : dn ? `Carry on · ${dn} of 10 answered` : '10 questions, the same for everyone')}
+    ${rv ? row('goReview', 'var(--orange)', IC.flame, 'Review', `${rv} due · about ${Math.max(1, Math.round(rv / 3))} min. Keeps what you've learned from fading.`) : ''}
+  </div>`;
 }
 function bindDaily() { if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge(); }; }
 function dailyChallenge() {
@@ -3110,7 +3162,7 @@ function raceRender() {
     const right = Object.entries(ans).filter(([, a]) => a.c === q.a).sort((x, y) => x[1].t - y[1].t);
     const first = right[0] && (room.players[right[0][0]] || {}).name;
     const ok = mine && mine.c === q.a;
-    if (race.answered !== qi) { race.answered = qi; practisedToday(ok ? 10 : 0); buzz(ok ? 12 : [20, 40, 20]); }
+    if (race.answered !== qi) { race.answered = qi; practisedToday(ok ? 10 : 0); buzz(ok ? 12 : [20, 40, 20]); sfx(ok ? 'right' : 'wrong'); }
     state.solved.add(q.id); draw();
     setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><span class="pill">Question ${qi + 1} of ${room.qs.length}</span></div>
       <div class="verdict ${ok ? 'good' : 'bad'} inline rc-verdict"><div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${ok ? (right[0] && right[0][0] === CLOUD.myId() ? 'First!' : 'Right!') : `It was ${esc(byId[q.id].n)}`}</b><span>${first ? `${esc(first)} got it first` : 'No one got this one'}</span></div></div></div>
