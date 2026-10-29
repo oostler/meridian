@@ -2371,9 +2371,9 @@ function startLearn() {
   nextQ();
 }
 function histTile() {
-  const { mapQs, chQs } = histPool();
-  if (mapQs.length + chQs.length < 5) return '';
-  return `<button class="go tile" id="goHist" style="--c:var(--purple)"><span class="go-ic">${IC.clock}</span><span><b>History quiz: ${esc(state.scope.name)}</b><small>Empires, wars and turning points, on the map</small></span>${IC.next}</button>`;
+  const { mapQs, chQs, clues } = histPool();
+  if (mapQs.length + chQs.length + clues.length < 5) return '';
+  return `<button class="go tile" id="goHist" style="--c:var(--purple)"><span class="go-ic">${IC.clock}</span><span><b>History quiz: ${esc(state.scope.name)}</b><small>${clues.length >= 4 ? `“Which ${esc(state.scope.one || 'country')}…?” Its past, and what it's like today` : 'Empires, wars and turning points, on the map'}</small></span>${IC.next}</button>`;
 }
 // Today's review: places in this set that are due, plus chapter questions answered before. Short by design.
 function reviewDue() {
@@ -2450,14 +2450,19 @@ function histPool() {
     });
     if (rel && a.quiz) a.quiz.forEach((q, i) => chQs.push({ a, i }));
   }
-  return { mapQs, chQs };
+  // "Which country…?" clues, from each place's history and what it's like today.
+  const clues = state.scope.items.filter(f => f.h && f.h.q);
+  return { mapQs, chQs, clues };
 }
 function startHistQuiz() {
-  const { mapQs, chQs } = histPool(), seen = new Set(), maps = [];
-  for (const q of shuffle(mapQs)) { if (seen.has(q.f.id) || maps.length >= 6) continue; seen.add(q.f.id); maps.push(q); }
-  const chs = shuffle(chQs).slice(0, 10 - maps.length);
-  const ms = maps.map(q => ({ q, kind: 'hmap' })), hs = chs.map(h => ({ h, kind: 'hist' })), queue = [];
-  while (ms.length || hs.length) { if (ms.length) queue.push(ms.shift()); if (hs.length) queue.push(hs.shift()); }
+  // About half clues, then map questions, then chapter questions: ten in all.
+  const { mapQs, chQs, clues } = histPool(), seen = new Set(), maps = [];
+  const cs = shuffle(clues).slice(0, clues.length >= 4 ? 5 : 0);
+  for (const f of cs) seen.add(f.id);
+  for (const q of shuffle(mapQs)) { if (seen.has(q.f.id) || maps.length >= (cs.length ? 3 : 6)) continue; seen.add(q.f.id); maps.push(q); }
+  const chs = shuffle(chQs).slice(0, 10 - cs.length - maps.length);
+  const lists = [cs.map(f => ({ f, kind: 'clue', n: Math.random() * 3 | 0 })), maps.map(q => ({ q, kind: 'hmap' })), chs.map(h => ({ h, kind: 'hist' }))], queue = [];
+  while (lists.some(l => l.length)) for (const l of lists) if (l.length) queue.push(l.shift());
   session = { queue, done: 0, first: new Map(), mastered: 0, total: queue.length, histq: true }; gainStart();
   roundFrom = 'learn';
   state.mode = 'learn'; state.locate = false; state.sel = null; state.solved.clear();
@@ -2495,6 +2500,41 @@ function askMapQ(item) {
   btns.forEach(b => b.onclick = () => pick(b));
   keyHandler = e => { const n = +e.key; if (n >= 1 && n <= btns.length) pick(btns[n - 1]); };
 }
+// "Which country…?": a clue from the place's history or today; pick it from four nearby places. The map
+// shows the answer only once you've picked.
+function askClue(item) {
+  const f = item.f, pool = histPool().clues.filter(x => x !== f);
+  const near = shuffle(pool.slice().sort((a, b) => dist(a, f) - dist(b, f)).slice(0, 6)).slice(0, 2);
+  const opts = shuffle([f, ...near, ...shuffle(pool.filter(x => !near.includes(x))).slice(0, 3 - near.length)]);
+  setSheet(`${qhead('clue')}<p class="hq-ch">${item.n === 2 ? 'What it\'s like today' : 'From its history'}</p><p class="prompt">${esc(f.h.q[item.n])}</p>
+    <div class="opts col">${opts.map((o, n) => `<button class="opt" data-id="${o.id}"><kbd>${n + 1}</kbd><span>${esc(o.n)}</span></button>`).join('')}</div>
+    <div class="fb inline" id="fb"></div>`);
+  bindQuit();
+  const btns = [...sheet.querySelectorAll('.opt')];
+  const pick = b => {
+    if (b.disabled) return;
+    btns.forEach(x => x.disabled = true);
+    const chosen = byId[b.dataset.id], ok = chosen === f;
+    btns.find(x => x.dataset.id === f.id).classList.add('good');
+    if (!ok) { b.classList.add('bad'); flashPlace(chosen, chosen.n); }
+    const key = 'c:' + f.id;
+    if (!session.first.has(key)) session.first.set(key, ok);
+    practisedToday(ok ? 10 : 0); updateTop();
+    session.done++;
+    const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
+    state.target = f; fitBox(contextBox(f)); draw();
+    // Teach one more thing: the first line of its other side (today after a history clue, and vice versa).
+    const other = (item.n === 2 ? f.h.t : f.h.c) || '', more = (other.match(/^.{30,}?[.!?](?=\s+[A-Z]|$)/) || [other])[0];
+    const fb = verdict(ok, ok ? `${PRAISE[Math.random() * PRAISE.length | 0]} It's ${esc(f.n)}.` : `It's ${esc(f.n)}`, esc(more));
+    buzz(ok ? 12 : [20, 40, 20]);
+    requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+    const nb = document.createElement('button'); nb.className = 'btn primary'; nb.id = 'nextBtn'; nb.textContent = 'Continue';
+    nb.onclick = nextQ; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
+    keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); nextQ(); } };
+  };
+  btns.forEach(b => b.onclick = () => pick(b));
+  keyHandler = e => { const n = +e.key; if (n >= 1 && n <= btns.length) pick(btns[n - 1]); };
+}
 function requeue(item, gap) { session.queue.splice(Math.min(gap, session.queue.length), 0, item); session.total++; }
 function nextQ() {
   clearTimeout(advanceT);
@@ -2503,6 +2543,7 @@ function nextQ() {
   const item = session.queue.shift();
   session.cur = item;
   if (item.kind === 'hist') { state.target = null; state.flash = null; draw(); return askHist(item); }
+  if (item.kind === 'clue') { state.target = null; state.flash = null; fitBox(G.views[state.scope.id] || G.views.world); draw(); return askClue(item); }
   if (item.kind === 'hmap') { const M = item.q.a.maps[item.q.m]; state.target = item.q.f; state.flash = null; fitBox(M.box || mapBox(M)); draw(); return askMapQ(item); }
   state.target = item.f; state.flash = null;
   fitBox(contextBox(item.f));
@@ -2512,7 +2553,7 @@ function qhead(kind) {
   const label = kind === 'mc' ? 'Pick one' : kind === 'type' ? 'Type it' : 'Find it';
   const total = session.done + session.queue.length + 1;
   return `<div class="qhead"><button class="qx" id="quit" aria-label="End round">${IC.x}</button><div class="qbar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${session.done}"><i style="width:${session.done / total * 100}%"></i></div></div>
-    <span class="pill ${kind}">${kind === 'hist' ? 'From the timeline' : label === 'Pick one' ? 'New place' : label === 'Type it' ? 'Type the answer' : `Find it · ${session.done + 1} of ${total}`}</span>`;
+    <span class="pill ${kind === 'clue' ? 'hist' : kind}">${kind === 'clue' ? `Which ${esc(state.scope.one || 'country')}?` : kind === 'hist' ? 'From the timeline' : label === 'Pick one' ? 'New place' : label === 'Type it' ? 'Type the answer' : `Find it · ${session.done + 1} of ${total}`}</span>`;
 }
 function promptFor(f) {
   if (state.subj === 'cap') return `What is the capital of <em>${esc(f.n)}</em>?`;
