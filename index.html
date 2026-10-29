@@ -581,6 +581,25 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .sum b { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); background: var(--bg); border-radius: 13px; padding: 10px 2px; }
 .sum b .ic { width: 22px; height: 22px; }
 .sum.two { grid-template-columns: 1fr 1fr; }
+.wr-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wr-top .pill .ic { width: 16px; height: 16px; }
+.wr-time { display: flex; align-items: center; gap: 4px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.wr-time .ic { width: 18px; height: 18px; }
+.wr-count { display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+.wr-count b { font-size: 40px; font-weight: 900; color: var(--blue); font-variant-numeric: tabular-nums; }
+.wr-count span { font-size: 18px; font-weight: 800; color: var(--ink-2); }
+.wr-in { width: 100%; font: 800 18px var(--font); padding: 14px 16px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
+.wr-in:focus { outline: none; border-color: var(--blue); }
+.wr-in.miss { animation: shake .35s; border-color: var(--red); }
+.wr-last, .wr-missed { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+.wr-missed { max-height: 190px; overflow-y: auto; }
+.chip { all: unset; font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--green-l); color: var(--green-d, var(--green)); }
+.chip.new { animation: pop .35s var(--ease); }
+.chip.miss { background: var(--red-l); color: var(--red); cursor: pointer; }
+.pr-badge { display: grid; justify-items: center; gap: 2px; padding: 10px 16px; border-radius: 16px; background: var(--gold-l); color: var(--gold-d); animation: pop .5s .2s var(--ease) both; }
+.pr-badge b { display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 900; }
+.pr-badge .ic { width: 20px; height: 20px; }
+.pr-badge span { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .xp-float { position: fixed; z-index: 60; transform: translate(-50%, -50%); pointer-events: none; font: 900 16px var(--font); color: #fff; background: var(--gold); padding: 3px 11px; border-radius: 999px; box-shadow: 0 2px 0 var(--gold-d), 0 6px 16px rgba(0, 0, 0, .18); animation: xpup 1s cubic-bezier(.2, .8, .3, 1) forwards; }
 @keyframes xpup { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 20% { opacity: 1; transform: translate(-50%, -80%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -260%) scale(1); } }
 .combo { position: fixed; z-index: 60; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 84px); display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: var(--orange); color: #fff; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #d97f00, 0 10px 30px rgba(0, 0, 0, .18); pointer-events: none; animation: comboin 1.7s var(--ease) forwards; }
@@ -1318,12 +1337,12 @@ const gainStart = () => { gain = { xp: 0, streakUp: false, goal: false }; combo 
 // Every right answer: "+10" rises from the button you tapped, and each run of five gets its own moment.
 let lastTap = null, combo = 0;
 document.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('.opt, .rc-opt'); lastTap = b ? { el: b, t: performance.now() } : null; }, true);
-function rewardTap(ok) {
+function rewardTap(ok, from) {
   if (!ok) { combo = 0; return sfx('wrong'); }
   combo++;
   if (combo % 5 === 0) { sfx('combo'); buzz([10, 40, 10]); comboBanner(combo); } else sfx('right');
   if (reduceMotion) return;
-  const src = lastTap && performance.now() - lastTap.t < 4000 && document.contains(lastTap.el) ? lastTap.el : $('#fb .v-ic');
+  const src = from || (lastTap && performance.now() - lastTap.t < 4000 && document.contains(lastTap.el) ? lastTap.el : $('#fb .v-ic'));
   if (!src) return;
   const r = src.getBoundingClientRect(), f = document.createElement('div');
   f.className = 'xp-float'; f.textContent = '+10 XP'; f.setAttribute('aria-hidden', 'true');
@@ -1662,6 +1681,8 @@ const IC = {
   clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 1.9),
   trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M17 5h3a3 3 0 01-3 4M7 5H4a3 3 0 003 4"/>', 1.9),
   share: svg('<path d="M12 15V3M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>', 2.4),
+  keys: svg('<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7.5 14h9"/>', 2.2),
+  timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5"/>', 2.2),
   bolt: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2L4.5 13.5h6.2L9.5 22l9-11.5h-6.2L13.5 2z"/></svg>',
   flame: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 2.2c.4 2.6-.7 4.4-2.1 5.9-1.6 1.7-3.5 3.4-3.5 6.6 0 3.6 2.6 6.8 6.5 7.1-1.6-.8-2.6-2.4-2.6-4.2 0-2 1.3-3.2 2.3-4.3.7-.8 1.3-1.6 1.3-2.8 1.8 1.2 3.4 3.4 3.4 6.2 0 2.3-1.2 4-3 5 3.4-.6 6.1-3.5 6.1-7.3 0-5.3-4.2-9.9-8.4-12.2z"/></svg>',
   crown: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M3 7.5l4.6 3.6L12 4l4.4 7.1L21 7.5 19.2 18H4.8L3 7.5z"/><rect x="4.8" y="19.2" width="14.4" height="2.2" rx="1.1" fill="currentColor"/></svg>',
@@ -1892,6 +1913,7 @@ function learnSheet() {
   const c = counts();
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
   setSheet(`${todayCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
+    ${writeTile()}
     ${histTile()}
     ${subjSeg()}
     ${progressCard()}
@@ -1902,6 +1924,7 @@ function learnSheet() {
   if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
   bindDaily();
   if ($('#goHist')) $('#goHist').onclick = () => { buzz(8); startHistQuiz(); };
+  if ($('#goWrite')) $('#goWrite').onclick = () => { buzz(8); startWrite(); };
   bindGoal(learnSheet);
   $('#pickScope').onclick = openPicker;
   $('#reset').onclick = () => {
@@ -1918,7 +1941,7 @@ function findSheet() {
   const found = items.filter(f => store.prog[key(f.id)]).length;
   setSheet(`${hero('blue', 'Find them on the globe', found, items.length, `${found} of ${items.length} found first try`, 'goLocate', 'Start')}
     ${subjSeg()}
-    <p class="hint" style="text-align:center">We name a place. Spin the globe and tap it. Every place in the set, three tries each. Stop any time.</p>`);
+    <p class="hint" style="text-align:center">We name a place. Spin the globe and tap it. Every place in the set, three tries each, against the clock. Stop any time.${(store.prs || {})[prKey('find')] ? `<br><b>Your record: ${prLine(prKey('find'), items.length).replace('Best ', '')}</b>` : ''}</p>`);
   bindSubj(findSheet);
   $('#goLocate').onclick = () => { buzz(8); startLocate(); };
   $('#pickScope').onclick = openPicker;
@@ -2300,7 +2323,7 @@ function showOnGlobe(f) {
 
 function onPick(f) {
   // In a race, tapping the map would name places and replace the race card.
-  if (state.race || state.daily) return;
+  if (state.race || state.daily || state.writing) return;
   if (state.mode === 'locate') return locateTap(f);
   if (state.mode === 'learn') {
     // During a question, tapping only names places outside the quiz or already solved.
@@ -2620,7 +2643,14 @@ function summary() {
   state.mode = 'summary'; state.target = null; state.flash = null;
   const firstRight = [...session.first.values()].filter(Boolean).length, n = session.first.size;
   const great = n && firstRight / n >= 0.8;
-  setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : session.review ? 'Review done!' : session.histq ? 'History quiz done!' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}</div></div>
+  // Find: a run through the whole set is timed, and the fastest is a personal record.
+  let findPR = null, findTime = '';
+  if (state.locate && session.t0 && !session.queue.length && session.done >= session.total) {
+    const ms = Date.now() - session.t0; findTime = fmtTime(ms);
+    if (session.found) findPR = recordPR(prKey('find'), { n: session.found, ms });
+  }
+  setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : session.review ? 'Review done!' : session.histq ? 'History quiz done!' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}${findTime ? ` · ${findTime}` : ''}</div></div>
+    ${findPR ? `<div class="pr-badge">${IC.timer}<b>New personal record</b>${findPR.ms ? `<span>Was ${findPR.n}/${session.total} in ${fmtTime(findPR.ms)}</span>` : '<span>Your first full run on this map</span>'}</div>` : ''}
     ${rewardBlock()}
     <div class="sum two"><div style="--c:var(--green)"><span>First try</span><b>${IC.target}${n ? Math.round(firstRight / n * 100) : 0}%</b></div><div style="--c:var(--blue)"><span>${state.locate ? 'Found' : session.review ? 'Reviewed' : session.histq ? 'Right' : 'Mastered'}</span><b>${IC.crown}${session.review ? n : session.histq ? firstRight : session.mastered}</b></div></div>
     <button class="btn primary" id="again">${session.review ? 'Learn something new' : session.histq ? 'Another history quiz' : 'Keep going'}</button>
@@ -2634,6 +2664,104 @@ function summary() {
   setRound(true);
   fitBox(G.views[state.scope.id]);
   draw();
+}
+
+// ---------- personal records ----------
+// Best results for the timed challenges, per map and subject: "Name them all" (most named, then fastest)
+// and Find (fastest time through the whole set).
+const fmtTime = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const prKey = (mode, scope = state.scope, subj = state.subj) => `${mode}:${scope.id}:${subj}`;
+const prBetter = (a, b) => !b || a.n > b.n || (a.n === b.n && a.ms < b.ms);
+function recordPR(key, r) {
+  const prs = store.prs || (store.prs = {}), old = prs[key];
+  if (!prBetter(r, old)) return null;
+  prs[key] = { ...r, at: Date.now() }; save();
+  return old || {};
+}
+function prLine(key, total) { const r = (store.prs || {})[key]; return r ? `Best ${r.n === total ? '' : `${r.n}/${total} in `}${fmtTime(r.ms)}` : ''; }
+
+// ---------- name them all ----------
+// Type every place in the set from memory, against the clock. Each name fills in on the globe as soon as
+// it's spelled right; Enter also accepts a near miss. Give up any time to see what was missing.
+function writeTile() {
+  const items = quizItems(), what = state.subj === 'cap' ? 'capital' : (state.scope.one || 'country');
+  if (items.length < 5) return '';
+  const best = prLine(prKey('write'), items.length);
+  return `<button class="go tile" id="goWrite" style="--c:var(--blue)"><span class="go-ic">${IC.keys}</span><span><b>Name them all</b><small>Type every ${esc(what)} in ${esc(state.scope.name)} against the clock${best ? ` · ${best}` : ''}</small></span>${IC.next}</button>`;
+}
+function startWrite() {
+  const items = quizItems(), total = items.length, named = new Set(), order = [];
+  const t0 = Date.now(), subj = state.subj, key = prKey('write');
+  let timer = null, over = false;
+  gainStart(); clearTimeout(advanceT);
+  state.mode = 'learn'; state.locate = false; state.sel = null; state.target = null; state.solved.clear(); state.writing = true;
+  roundFrom = 'learn'; setRound(true); fitBox(G.views[state.scope.id]); draw();
+  const what = subj === 'cap' ? 'capital' : (state.scope.one || 'country');
+  setSheet(`<div class="qhead"><button class="qx" id="wrX" aria-label="Stop">${IC.x}</button><div class="qbar"><i id="wrBar" style="width:0"></i></div></div>
+    <div class="wr-top"><span class="pill">${IC.keys}Name them all · ${esc(state.scope.name)}</span><span class="wr-time" id="wrTime">${IC.timer}0:00</span></div>
+    <div class="wr-count"><b id="wrN">0</b><span>/ ${total}</span></div>
+    <input id="wrIn" class="wr-in" type="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" placeholder="Type a ${esc(what)}…" aria-label="Type a ${esc(what)}">
+    <div class="wr-last" id="wrLast" aria-live="polite"></div>
+    <button class="btn" id="wrGive">I'm done</button>`);
+  const inp = $('#wrIn');
+  setTimeout(() => inp.focus(), 60);
+  const tick = () => { const el = $('#wrTime'); if (el) el.innerHTML = `${IC.timer}${fmtTime(Date.now() - t0)}`; };
+  timer = setInterval(tick, 500);
+  const accept = f => {
+    named.add(f.id); order.unshift(f); state.solved.add(f.id);
+    inp.value = ''; inp.classList.remove('miss');
+    $('#wrN').textContent = named.size; $('#wrBar').style.width = (named.size / total * 100) + '%';
+    $('#wrLast').innerHTML = order.slice(0, 8).map((x, i) => `<span class="chip${i ? '' : ' new'}">${esc(shown(x, subj))}</span>`).join('');
+    practisedToday(10); updateTop(); rewardTap(true, inp); draw();
+    // Turn the globe to the place just named (keeping the zoom), so you see it fill in.
+    if (!map.getBounds().contains(f.l)) map.easeTo({ center: f.l, duration: reduceMotion ? 0 : 600 });
+    if (named.size === total) finish(true);
+  };
+  const find = (v, close) => {
+    for (const f of items) if (!named.has(f.id)) { const g = grade(v, f); if (g === 'exact' || (close && g === 'close')) return f; }
+    return null;
+  };
+  // "Niger" is also the start of "Nigeria": when a longer name is still possible, wait for a pause (or Enter).
+  let wait = null;
+  const longer = (v, match) => { const x = norm(v); return items.some(f => f !== match && !named.has(f.id) && answersFor(f, subj).some(a => { const y = norm(a); return y.length > x.length && y.startsWith(x); })); };
+  inp.oninput = () => {
+    clearTimeout(wait);
+    const f = find(inp.value, false); if (!f) return;
+    if (longer(inp.value, f)) { const v = inp.value; wait = setTimeout(() => { if (inp.value === v && !named.has(f.id)) accept(f); }, 900); }
+    else accept(f);
+  };
+  inp.onkeydown = e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault(); clearTimeout(wait);
+    const f = find(inp.value, true);
+    if (f) return accept(f);
+    // Already named, or not in this set: say so briefly.
+    const v = norm(inp.value); if (!v) return;
+    const dup = items.find(x => named.has(x.id) && answersFor(x, subj).map(norm).includes(v));
+    inp.classList.remove('miss'); void inp.offsetWidth; inp.classList.add('miss');
+    toast(dup ? `${shown(dup, subj)} is already named` : 'Not one of these. Keep going', 1400);
+  };
+  const finish = complete => {
+    if (over) return; over = true;
+    clearInterval(timer); state.writing = false;
+    const ms = Date.now() - t0, n = named.size;
+    const prev = n ? recordPR(key, { n, ms }) : null;
+    const missed = items.filter(f => !named.has(f.id)).sort((a, b) => shown(a, subj).localeCompare(shown(b, subj)));
+    state.target = null; draw();
+    setSheet(`<div class="done"><span class="badge">${complete ? ART.trophy : ART.medal}</span><div class="title">${complete ? 'Every one!' : `${n} of ${total}`}</div><div class="sub">${esc(state.scope.name)} · ${fmtTime(ms)}</div></div>
+      ${prev ? `<div class="pr-badge">${IC.timer}<b>New personal record</b>${prev.n != null ? `<span>Was ${prev.n === total ? '' : `${prev.n}/${total} in `}${fmtTime(prev.ms)}</span>` : '<span>Your first time on this map</span>'}</div>` : (store.prs || {})[key] ? `<p class="hint" style="text-align:center">${prLine(key, total)}</p>` : ''}
+      ${rewardBlock()}
+      ${missed.length ? `<h4 class="home-h">Missed ${missed.length}</h4><div class="wr-missed">${missed.map(f => `<button class="chip miss" data-miss="${f.id}">${esc(shown(f, subj))}</button>`).join('')}</div>` : ''}
+      <button class="btn primary" id="wrAgain">Try again</button><button class="btn" id="wrDone">Done</button>`);
+    buzz(complete ? [10, 60, 10] : 10); celebrate(!!prev || complete);
+    if (prev) sfx('combo');
+    sheet.querySelectorAll('[data-miss]').forEach(b => b.onclick = () => { const f = byId[b.dataset.miss]; state.target = f; fitBox(contextBox(f)); draw(); });
+    $('#wrAgain').onclick = () => { buzz(8); startWrite(); };
+    $('#wrDone').onclick = () => { state.target = null; state.solved.clear(); showTab('learn'); };
+  };
+  $('#wrGive').onclick = () => finish(false);
+  $('#wrX').onclick = () => { clearInterval(timer); over = true; state.writing = false; state.solved.clear(); showTab('learn'); };
+  keyHandler = null;
 }
 
 // ---------- daily challenge ----------
@@ -2761,7 +2889,7 @@ function startLocate() {
   const key = id => 'loc-' + state.subj + ':' + id;
   // Every place in the set, in random order.
   const pick = shuffle(items.slice());
-  session = { queue: pick.map(f => ({ f, kind: 'loc' })), done: 0, first: new Map(), mastered: 0, total: pick.length, key }; gainStart();
+  session = { queue: pick.map(f => ({ f, kind: 'loc' })), done: 0, first: new Map(), mastered: 0, total: pick.length, key, t0: Date.now() }; gainStart();
   roundFrom = 'find';
   state.mode = 'locate'; state.locate = true; state.sel = null; state.solved.clear();
   setRound(true);
@@ -2796,7 +2924,7 @@ function locateReveal(ok) {
   const first = ok && session.tries === 0;
   session.first.set(f.id, first);
   if (first) { if (!store.prog[session.key(f.id)]) session.mastered++; store.prog[session.key(f.id)] = 1; save(); }
-  state.target = f; state.solved.add(f.id); session.done++;
+  state.target = f; state.solved.add(f.id); session.done++; if (ok) session.found = (session.found || 0) + 1;
   practisedToday(ok ? 10 : 0); updateTop();
   const fb = ok ? verdict(true, PRAISE[Math.random() * PRAISE.length | 0], `That's ${esc(f.n)}` + (f.cap[0] ? ` · capital ${esc(f.cap[0])}` : '')) : verdict(false, `${esc(f.n)} is here`, 'Look where it sits on the globe.');
   if (ok) buzz(12);
@@ -2920,7 +3048,7 @@ function pushStatsSoon() {
 // With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
 // with this device's (the most recent answer per place wins, streak days and best scores combine), and
 // writes the result back. Settings like theme and the current map stay per device.
-const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily'];
+const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'prs'];
 function mergeProgress(a, b) {
   const out = {};
   const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
@@ -2939,6 +3067,7 @@ function mergeProgress(a, b) {
   out.today = newer(a.today, b.today, 'd', 'n'); out.wk = newer(a.wk, b.wk, 'id', 'pts');
   for (const k of ['goal', 'commit', 'onb', 'why', 'level']) out[k] = a[k] != null ? a[k] : b[k];
   out.plus = !!(a.plus || b.plus);
+  const prs = { ...(a.prs || {}) }; for (const k in b.prs || {}) if (prBetter(b.prs[k], prs[k])) prs[k] = b.prs[k]; out.prs = prs;
   // Today's challenge: the further-along attempt.
   const da = a.daily, db = b.daily; out.daily = !da || !db ? da || db : da.no !== db.no ? (da.no > db.no ? da : db) : (da.marks || []).length >= (db.marks || []).length ? da : db;
   for (const k in out) if (out[k] == null) delete out[k];
