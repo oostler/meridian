@@ -583,13 +583,6 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .sum b { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--c); background: var(--bg); border-radius: 13px; padding: 10px 2px; }
 .sum b .ic { width: 22px; height: 22px; }
 .sum.two { grid-template-columns: 1fr 1fr; }
-.wr-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.wr-top .pill .ic { width: 16px; height: 16px; }
-.wr-time { display: flex; align-items: center; gap: 4px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--ink-2); }
-.wr-time .ic { width: 18px; height: 18px; }
-.wr-count { display: flex; align-items: baseline; justify-content: center; gap: 6px; }
-.wr-count b { font-size: 40px; font-weight: 900; color: var(--blue); font-variant-numeric: tabular-nums; }
-.wr-count span { font-size: 18px; font-weight: 800; color: var(--ink-2); }
 .wr-in { width: 100%; font: 800 18px var(--font); padding: 14px 16px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); }
 .wr-in:focus { outline: none; border-color: var(--blue); }
 .wr-in.miss { animation: shake .35s; border-color: var(--red); }
@@ -602,6 +595,76 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .pr-badge b { display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 900; }
 .pr-badge .ic { width: 20px; height: 20px; }
 .pr-badge span { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+/* ---- quiz: challenge cards, run clock, results ---- */
+.qz-map { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; text-align: left; }
+.qz-flag { font-size: 30px; line-height: 1; }
+.qz-map b { display: block; font-size: 17px; font-weight: 900; }
+.qz-map small { display: block; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.qz-chg { font-size: 12px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; color: var(--blue); }
+.ch-card { --cd: color-mix(in srgb, var(--c) 72%, #000); border-radius: 22px; padding: 16px; background: var(--c); color: #fff; box-shadow: 0 5px 0 var(--cd); display: grid; gap: 12px; }
+.ch-top { display: flex; gap: 12px; align-items: center; }
+.ch-ic { width: 48px; height: 48px; flex: none; border-radius: 15px; display: grid; place-items: center; background: rgba(255, 255, 255, .22); }
+.ch-ic .ic { width: 26px; height: 26px; }
+.ch-top b { display: block; font-size: 21px; font-weight: 900; line-height: 1.1; }
+.ch-top small { display: block; font-size: 13px; font-weight: 800; opacity: .92; }
+.ch-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ch-stats div { background: rgba(0, 0, 0, .15); border-radius: 14px; padding: 8px 12px; }
+.ch-stats span { display: block; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; opacity: .88; }
+.ch-stats b { display: block; font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.ch-btns { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; }
+.ch-card .btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.ch-card .btn .ic { width: 18px; height: 18px; }
+.ch-card .btn.primary { background: #fff; border-color: #fff; color: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .2); font-size: 17px; }
+.ch-card .btn:not(.primary) { background: transparent; border-color: rgba(255, 255, 255, .65); color: #fff; box-shadow: none; }
+.qz-bhead { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: center; }
+.lb-n { font-variant-numeric: tabular-nums; }
+#runClock { display: none; align-items: center; gap: 8px; height: 56px; padding: 0 20px; margin: 0 auto; font-weight: 900; font-size: 30px; font-variant-numeric: tabular-nums; color: var(--ink); transition: color .2s, background .2s, border-color .2s; }
+#runClock .ic { width: 24px; height: 24px; }
+#runClock.ahead { color: var(--green); border-color: var(--green); }
+#runClock.behind { color: var(--red); border-color: var(--red); }
+#runClock.hot { color: #fff; background: var(--red); border-color: var(--red-d); box-shadow: 0 4px 0 var(--red-d); }
+#runClock.beat { animation: beat .35s ease-out; }
+@keyframes beat { 30% { transform: scale(1.14); } }
+body.timed #runClock { display: flex; }
+body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #top .spacer { display: none; }
+.cdown { position: fixed; inset: 0 0 45% 0; z-index: 70; display: grid; place-items: center; pointer-events: none; }
+.cdown b { font: 900 130px/1 var(--font); color: #fff; text-shadow: 0 6px 0 rgba(0, 0, 0, .25), 0 0 40px rgba(0, 0, 0, .25); animation: cd .65s ease-out both; }
+.cdown b.go { color: var(--green); font-size: 100px; animation-duration: .5s; }
+@keyframes cd { 0% { transform: scale(2.4); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 100% { transform: scale(.8); opacity: 0; } }
+.hud { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: center; }
+.hud-main { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.hud-name { display: flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
+.hud-name .ic { width: 16px; height: 16px; }
+.hud-n { font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hud-n b { font-size: 32px; font-weight: 900; color: var(--c); }
+.hud-bar { position: relative; height: 14px; border-radius: 7px; background: var(--line); }
+.hud-bar i { display: block; height: 100%; border-radius: 7px; background: var(--c); width: 0; transition: width .2s linear; }
+.hud-bar.hot i { background: var(--red); }
+.hud-bar em { position: absolute; top: -5px; bottom: -5px; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--ink); opacity: .6; transition: left .1s linear; }
+.hud-bar em::after { content: 'BEST'; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font: 900 9px var(--font); letter-spacing: .08em; color: var(--ink-2); }
+.hud-pace { margin: -2px 0 0; text-align: center; font-size: 14px; font-weight: 900; color: var(--ink-2); }
+.hud-pace.ahead { color: var(--green); }
+.hud-pace.behind, .hud-pace.hot { color: var(--red); }
+.fd-q { text-align: center; font-size: 26px; margin: 4px 0; }
+.fd-miss { color: var(--red); }
+.fd-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.fd-lives { display: flex; gap: 6px; }
+.fd-lives i { width: 14px; height: 14px; border-radius: 50%; background: var(--green); transition: background .2s, transform .2s; }
+.fd-lives i.x { background: var(--line); transform: scale(.8); }
+.res { display: grid; justify-items: center; gap: 4px; text-align: center; padding-top: 4px; }
+.res-name { display: flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--c); }
+.res-name .ic { width: 16px; height: 16px; }
+.res-big { font-weight: 900; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); animation: pop .6s var(--ease); }
+.res-big small { font-size: 24px; color: var(--ink-2); }
+.res-sub { font-weight: 800; color: var(--ink-2); }
+.res-best { text-align: center; margin: 0; }
+.rank-card { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; padding: 12px 16px; border-radius: 16px; background: var(--blue-l); animation: pop .5s .3s var(--ease) both; }
+.rank-card b { grid-row: span 2; font-size: 36px; font-weight: 900; color: var(--blue); }
+.rank-card span { font-weight: 900; color: var(--ink); }
+.rank-card small { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.res-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.res-btns .btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.res-btns .btn .ic { width: 18px; height: 18px; }
 .xp-float { position: fixed; z-index: 60; transform: translate(-50%, -50%); pointer-events: none; font: 900 16px var(--font); color: #fff; background: var(--gold); padding: 3px 11px; border-radius: 999px; box-shadow: 0 2px 0 var(--gold-d), 0 6px 16px rgba(0, 0, 0, .18); animation: xpup 1s cubic-bezier(.2, .8, .3, 1) forwards; }
 @keyframes xpup { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 20% { opacity: 1; transform: translate(-50%, -80%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -260%) scale(1); } }
 .combo { position: fixed; z-index: 60; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 84px); display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: var(--orange); color: #fff; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #d97f00, 0 10px 30px rgba(0, 0, 0, .18); pointer-events: none; animation: comboin 1.7s var(--ease) forwards; }
@@ -716,6 +779,7 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="spacer"></div>
+      <div id="runClock" class="tile" role="timer" aria-label="Time"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5"/></svg><b id="rcT">0:00.0</b></div>
       <button id="streakBtn" class="tile hstat off" aria-label="Day streak"><svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 2.2c.4 2.6-.7 4.4-2.1 5.9-1.6 1.7-3.5 3.4-3.5 6.6 0 3.6 2.6 6.8 6.5 7.1-1.6-.8-2.6-2.4-2.6-4.2 0-2 1.3-3.2 2.3-4.3.7-.8 1.3-1.6 1.3-2.8 1.8 1.2 3.4 3.4 3.4 6.2 0 2.3-1.2 4-3 5 3.4-.6 6.1-3.5 6.1-7.3 0-5.3-4.2-9.9-8.4-12.2z"/></svg><b id="streakN">0</b></button>
       <button id="ringBtn" class="tile hstat" aria-label="Progress"><svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M3 7.5l4.6 3.6L12 4l4.4 7.1L21 7.5 19.2 18H4.8L3 7.5z"/><rect x="4.8" y="19.2" width="14.4" height="2.2" rx="1.1" fill="currentColor"/></svg><b id="tallyN">0</b><small>/<span id="tallyT">197</span></small></button>
     </header>
@@ -1272,6 +1336,9 @@ function sfx(kind) {
     if (kind === 'right') { note(880, 0, 0.12); note(1318.5, 0.07, 0.24); }
     else if (kind === 'wrong') { note(233, 0, 0.2, 'triangle', 0.1); note(185, 0.1, 0.3, 'triangle', 0.09); }
     else if (kind === 'done') [523.3, 659.3, 784, 1046.5].forEach((f, i) => note(f, i * 0.09, i === 3 ? 0.45 : 0.2));
+    else if (kind === 'tick') note(880, 0, 0.08, 'square', 0.04);
+    else if (kind === 'go') { note(1318.5, 0, 0.12, 'square', 0.05); note(1760, 0.06, 0.3, 'square', 0.05); }
+    else if (kind === 'beat') note(1046.5, 0, 0.06, 'square', 0.035);
     else if (kind === 'combo') [784, 987.8, 1174.7, 1568].forEach((f, i) => note(f, i * 0.06, i === 3 ? 0.35 : 0.14, 'sine', 0.06));
   } catch (e) { /* no audio here; the app carries on silently */ }
 }
@@ -1715,7 +1782,7 @@ function setRound(on) {
   if (document.body.classList.contains('in-round') === on) return;
   document.body.classList.toggle('in-round', on);
 }
-document.querySelectorAll('#tabs [data-tab]').forEach(b => b.onclick = () => { buzz(5); showTab(b.dataset.tab); });
+document.querySelectorAll('#tabs [data-tab]').forEach(b => b.onclick = () => { buzz(5); if (b.dataset.tab === 'find') state.qview = null; showTab(b.dataset.tab); });
 
 // ---------- choosing what to learn ----------
 function setScope(s) {
@@ -1934,27 +2001,6 @@ function learnSheet() {
   };
   updateTop(); draw();
 }
-function findSheet() {
-  state.mode = 'explore'; state.target = null; state.solved.clear();
-  setRound(false); setTab('find');
-  const key = id => 'loc-' + state.subj + ':' + id, items = quizItems();
-  const found = items.filter(f => store.prog[key(f.id)]).length;
-  const best = prLine(prKey('find'), items.length);
-  setSheet(`${hero('blue', 'Find them on the globe', found, items.length, `${found} of ${items.length} found first try${best ? ` · ${best}` : ''}`, 'goLocate', 'Start')}
-    ${writeTile()}
-    ${sprintTile()}
-    ${items.length >= 5 ? `<button class="go tile" id="goRecords" style="--c:var(--gold)"><span class="go-ic">${IC.trophy}</span><span><b>Records leaderboard</b><small>The fastest full runs and best sprints on this map</small></span>${IC.next}</button>` : ''}
-    ${subjSeg()}
-    <p class="hint" style="text-align:center">Find: we name a place, you tap it on the globe. Every place in the set, three tries each, against the clock.</p>`);
-  bindSubj(findSheet);
-  $('#goLocate').onclick = () => { buzz(8); startLocate(); };
-  if ($('#goWrite')) $('#goWrite').onclick = () => { buzz(8); startWrite(); };
-  if ($('#goSprint')) $('#goSprint').onclick = () => { buzz(8); startSprint(); };
-  if ($('#goRecords')) $('#goRecords').onclick = () => { buzz(5); state.board = 'rec'; showTab('compete'); };
-  $('#pickScope').onclick = openPicker;
-  updateTop(); draw();
-}
-
 // ---------- timeline ----------
 function historySheet() {
   state.mode = 'explore'; state.target = null; state.era = null; state.solved.clear();
@@ -2330,7 +2376,7 @@ function showOnGlobe(f) {
 
 function onPick(f) {
   // In a race, tapping the map would name places and replace the race card.
-  if (state.race || state.daily || state.writing || state.sprint) return;
+  if (state.race || state.daily || (RUN && RUN.mode !== 'find') || state.writing || state.sprint) return;
   if (state.mode === 'locate') return locateTap(f);
   if (state.mode === 'learn') {
     // During a question, tapping only names places outside the quiz or already solved.
@@ -2708,7 +2754,7 @@ function summary() {
   const histq = session.histq;
   // After the very first round, offer a profile before going on (the gate makes it required a few answers later).
   const gate = fn => () => { if (offerSignIn() && store.firstRound) { store.firstRound = 0; save(); signInSheet({ then: fn }); } else fn(); };
-  $('#again').onclick = gate(() => state.locate ? startLocate() : histq ? startHistQuiz() : startLearn());
+  $('#again').onclick = gate(() => state.locate ? startFind() : histq ? startHistQuiz() : startLearn());
   $('#home').onclick = gate(() => { state.locate = false; showTab(roundFrom); });
   setRound(true);
   fitBox(G.views[state.scope.id]);
@@ -2718,7 +2764,7 @@ function summary() {
 // ---------- personal records ----------
 // Best results for the timed challenges, per map and subject: "Name them all" (most named, then fastest)
 // and Find (fastest time through the whole set).
-const fmtTime = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const fmtTime = ms => { const t = Math.max(0, Math.floor(ms / 100)), s = Math.floor(t / 10); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}.${t % 10}`; };
 const prKey = (mode, scope = state.scope, subj = state.subj) => `${mode}:${scope.id}:${subj}`;
 const prBetter = (a, b) => !b || a.n > b.n || (a.n === b.n && a.ms < b.ms);
 function recordPR(key, r) {
@@ -2743,37 +2789,233 @@ function pushRecords() {
 }
 function prLine(key, total) { const r = (store.prs || {})[key]; return r ? `Best ${r.n === total ? '' : `${r.n}/${total} in `}${fmtTime(r.ms)}` : ''; }
 
-// ---------- name them all ----------
-// Type every place in the set from memory, against the clock. Each name fills in on the globe as soon as
-// it's spelled right; Enter also accepts a near miss. Give up any time to see what was missing.
-function writeTile() {
-  const items = quizItems(), what = state.subj === 'cap' ? 'capital' : (state.scope.one || 'country');
-  if (items.length < 5) return '';
-  const best = prLine(prKey('write'), items.length);
-  return `<button class="go tile" id="goWrite" style="--c:var(--blue)"><span class="go-ic">${IC.keys}</span><span><b>Name them all</b><small>Type every ${esc(what)} in ${esc(state.scope.name)} against the clock${best ? ` · ${best}` : ''}</small></span>${IC.next}</button>`;
+// ---------- quiz: timed challenges ----------
+// Three ways to race the clock on the chosen map: Find (tap each place on the globe), Name them all (type
+// every one from memory) and the 60-second sprint. Each run starts with 3-2-1-Go; a big clock then sits at
+// the top of the screen, green while you're ahead of your record pace and red when behind. Full runs and
+// sprint scores go on the leaderboard for that map.
+const CH = {
+  find: { name: 'Find them all', icon: IC.target, color: 'var(--red)', tag: 'We name it, you tap it on the globe' },
+  write: { name: 'Name them all', icon: IC.keys, color: 'var(--blue)', tag: 'Type every one from memory' },
+  sprint: { name: '60-second sprint', icon: IC.bolt, color: 'var(--orange)', tag: 'As many as you can in a minute' },
+};
+const CH_ORDER = ['find', 'write', 'sprint'], SPRINT_MS = 60000;
+const chItems = () => quizItems().filter(f => shown(f) !== '—');
+const prOf = mode => (store.prs || {})[prKey(mode)];
+const playCh = m => m === 'find' ? startFind() : m === 'write' ? startWrite() : startSprint();
+function bestText(mode, total) {
+  const r = prOf(mode); if (!r) return '–';
+  return mode === 'sprint' ? String(r.n) : r.n === total ? fmtTime(r.ms) : `${r.n}/${total}`;
 }
+// Leaderboard reads are cached for a minute; a new record clears its map's entry.
+const rankCache = {};
+function rankOf(mode, fresh) {
+  const rk = recKey(mode, state.scope.id, state.subj), c = rankCache[rk];
+  if (!fresh && c && Date.now() - c.t < 60000) return Promise.resolve(c.v);
+  if (!CLOUD || !CLOUD.records) return Promise.resolve(null);
+  return Promise.resolve(pushRecords()).then(() => CLOUD.records(rk)).then(v => { rankCache[rk] = { t: Date.now(), v }; return v; }, () => null);
+}
+
+function findSheet() {
+  if (state.qview === 'board') return boardSheet(state.recMode || 'find');
+  state.mode = 'explore'; state.target = null; state.solved.clear();
+  setRound(false); setTab('find');
+  const total = chItems().length, what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
+  const card = m => {
+    const C = CH[m];
+    return `<div class="ch-card" style="--c:${C.color}">
+      <div class="ch-top"><span class="ch-ic">${C.icon}</span><div><b>${C.name}</b><small>${C.tag}</small></div></div>
+      <div class="ch-stats"><div><span>Your best</span><b>${bestText(m, total)}</b></div><div><span>Your rank</span><b id="rk-${m}">–</b></div></div>
+      <div class="ch-btns"><button class="btn primary" data-play="${m}">Play</button><button class="btn" data-lb="${m}">${IC.trophy}Board</button></div></div>`;
+  };
+  setSheet(`<div><div class="title">Quiz</div><p class="hint">Race the clock, beat your best, climb the board.</p></div>
+    <button class="qz-map tile" id="pickScope"><span class="qz-flag">${state.scope.icon}</span><span><b>${esc(state.scope.name)}</b><small>${total} ${esc(what)}</small></span><span class="qz-chg">Change</span></button>
+    ${subjSeg()}
+    ${total < 8 ? '<p class="hint">Pick a bigger map for the timed challenges.</p>' : CH_ORDER.map(card).join('')}`);
+  bindSubj(findSheet);
+  $('#pickScope').onclick = openPicker;
+  sheet.querySelectorAll('[data-play]').forEach(b => b.onclick = () => { buzz(8); playCh(b.dataset.play); });
+  sheet.querySelectorAll('[data-lb]').forEach(b => b.onclick = () => { buzz(5); boardSheet(b.dataset.lb); });
+  if (total >= 8 && ME) for (const m of CH_ORDER) rankOf(m).then(v => { const el = $('#rk-' + m); if (el && v && v.me && v.me.rank) el.textContent = '#' + v.me.rank; });
+  updateTop(); draw();
+}
+
+// ---------- leaderboards for the challenges ----------
+const REC_MODES = [['find', 'Find'], ['write', 'Name them all'], ['sprint', 'Sprint']];
+function recHead() {
+  const m = state.recMode || 'find';
+  return `<div class="seg small" role="tablist">${REC_MODES.map(([k, l]) => `<button data-rec="${k}" aria-pressed="${k === m}">${l}</button>`).join('')}</div>
+    <p class="hint lb-hint">${m === 'sprint' ? 'Most right answers in 60 seconds' : `Fastest time to ${m === 'write' ? 'name' : 'find'} every one`} · <b>${scopeLine()}</b> <button class="link" id="recMap">Change map</button></p>`;
+}
+function lbRows(rows, me, fmt) {
+  const mine = ME && ME.uid, medal = i => typeof i === 'number' && i <= 3 ? ['🥇', '🥈', '🥉'][i - 1] : i;
+  const row = (r, i, m) => `<div class="lb-row${m ? ' me' : ''}"><span class="lb-n">${medal(i)}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
+  const inTop = rows.some(r => r.uid === mine);
+  return rows.map((r, i) => row(r, i + 1, r.uid === mine)).join('') + (!inTop && me && ME ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank || '–', true)}` : '');
+}
+function fillBoard(el, mode) {
+  const rk = recKey(mode, state.scope.id, state.subj);
+  rankOf(mode, true).then(v => {
+    if (!document.contains(el) || rk !== recKey(mode, state.scope.id, state.subj)) return;
+    if (!v) { el.innerHTML = '<p class="hint">Couldn\'t load the leaderboard. Check your connection.</p>'; return; }
+    if (!v.rows.length) { el.innerHTML = `<p class="hint">No records on this map yet. ${mode === 'sprint' ? 'Do a sprint' : 'Get every one'} to set the first.</p>`; return; }
+    el.innerHTML = lbRows(v.rows, v.me, x => mode === 'sprint' ? `${x} right` : fmtTime(x));
+  });
+}
+function boardSheet(mode) {
+  state.mode = 'explore'; state.target = null; state.recMode = mode; state.qview = 'board';
+  setRound(false); setTab('find');
+  setSheet(`<div class="qz-bhead"><button class="qx" id="bdBack" aria-label="Back">${IC.back}</button><div class="title">Leaderboard</div></div>
+    ${recHead()}
+    <div class="lb" id="lb"><p class="hint">Loading…</p></div>
+    ${ME ? '' : `<button class="btn" id="bdIn">${IC.trophy}Make a profile to get on the board</button>`}
+    <button class="btn primary" id="bdPlay">Play ${CH[mode].name}</button>`);
+  sheet.querySelectorAll('[data-rec]').forEach(b => b.onclick = () => { buzz(5); boardSheet(b.dataset.rec); });
+  $('#recMap').onclick = openPicker;
+  $('#bdBack').onclick = () => { state.qview = null; showTab('find'); };
+  $('#bdPlay').onclick = () => { buzz(8); state.qview = null; playCh(mode); };
+  if ($('#bdIn')) $('#bdIn').onclick = () => signInSheet({ then: () => boardSheet(mode) });
+  fillBoard($('#lb'), mode);
+  updateTop(); draw();
+}
+
+// ---------- the run: countdown, clock, pace ----------
+let RUN = null;
+function runHud(mode, total) {
+  const C = CH[mode];
+  return `<div class="hud" style="--c:${C.color}"><button class="qx" id="runX" aria-label="Stop">${IC.x}</button>
+      <div class="hud-main"><span class="hud-name">${C.icon}${C.name}</span><span class="hud-n"><b id="hudN">0</b>${mode === 'sprint' ? ' right' : ` / ${total}`}</span></div></div>
+    <div class="hud-bar" style="--c:${C.color}"><i id="hudFill"></i><em id="hudGhost" hidden></em></div>
+    <p class="hud-pace" id="hudPace"></p>`;
+}
+function runBegin(mode, total, onGo) {
+  const run = RUN = { mode, total, pr: prOf(mode), t0: 0, n: 0, done: 0, timer: null, beat: 0 };
+  document.body.classList.add('timed');
+  runPaint();
+  // 3, 2, 1, Go: the clock starts at "Go".
+  const cd = document.createElement('div'); cd.className = 'cdown'; cd.setAttribute('aria-live', 'assertive'); document.body.appendChild(cd);
+  let k = 3;
+  const step = () => {
+    if (RUN !== run) return cd.remove();
+    if (k) { cd.innerHTML = `<b>${k}</b>`; sfx('tick'); buzz(6); k--; setTimeout(step, 650); return; }
+    cd.innerHTML = '<b class="go">Go!</b>'; sfx('go'); buzz(15); setTimeout(() => cd.remove(), 500);
+    run.t0 = performance.now(); run.timer = setInterval(runPaint, 100); onGo();
+  };
+  step();
+  return run;
+}
+const runMs = () => RUN && RUN.t0 ? performance.now() - RUN.t0 : 0;
+// Stop the clock; returns the time taken.
+function runStop() {
+  if (!RUN) return 0;
+  const ms = runMs(); clearInterval(RUN.timer); RUN = null;
+  document.body.classList.remove('timed'); keyHandler = null;
+  const rc = $('#runClock'); if (rc) rc.className = 'tile';
+  return ms;
+}
+function runPaint() {
+  const run = RUN; if (!run) return;
+  const { mode, total, pr } = run, ms = runMs(), rc = $('#runClock'), fill = $('#hudFill'), ghost = $('#hudGhost'), pace = $('#hudPace');
+  let cls = '', text = '', w = 0, g = null;
+  if (mode === 'sprint') {
+    const left = run.t0 ? Math.max(0, SPRINT_MS - ms) : SPRINT_MS;
+    $('#rcT').textContent = fmtTime(left); w = left / SPRINT_MS;
+    if (run.t0 && left <= 10000) {
+      cls = 'hot'; const s = Math.ceil(left / 1000);
+      if (s !== run.beat && s > 0) { run.beat = s; sfx('beat'); if (rc) { rc.classList.remove('beat'); void rc.offsetWidth; rc.classList.add('beat'); } }
+    }
+    text = !pr ? 'Set your first sprint record' : run.n > pr.n ? `New record! ${run.n - pr.n} past your best` : run.n === pr.n ? 'One more for a new record!' : `${pr.n - run.n + 1} more to beat your best of ${pr.n}`;
+    if (pr && run.n > pr.n) cls = cls || 'ahead';
+    if (run.t0 && !left && run.onEnd) { const f = run.onEnd; run.onEnd = null; f(); return; }
+  } else {
+    $('#rcT').textContent = fmtTime(ms); w = run.done / total;
+    if (pr && pr.n === total) {
+      // Your record as a ghost running at an even pace: how many places ahead or behind it you are.
+      const gh = Math.min(total, total * ms / pr.ms), d = Math.round(run.done - gh);
+      g = gh / total;
+      if (run.t0) cls = run.done - gh >= 0 ? 'ahead' : 'behind';
+      text = `${d > 0 ? `▲ ${d} ahead of` : d < 0 ? `▼ ${-d} behind` : 'Level with'} your record pace · ${fmtTime(pr.ms)}`;
+    } else text = pr ? `Your best is ${pr.n} of ${total}. Get them all to set a time` : `Get all ${total} to set your first record`;
+  }
+  if (rc) rc.className = `tile ${cls}${rc.classList.contains('beat') ? ' beat' : ''}`;
+  if (fill) { fill.style.width = (w * 100) + '%'; fill.parentElement.classList.toggle('hot', cls === 'hot'); }
+  if (ghost) { ghost.hidden = g == null; if (g != null) ghost.style.left = (g * 100) + '%'; }
+  if (pace && pace.textContent !== text) { pace.textContent = text; pace.className = `hud-pace ${cls}`; }
+}
+// Taps on the globe during Find.
+function locateTap(f) { if (RUN && RUN.onTap && RUN.t0) RUN.onTap(f); }
+const quitRun = () => { runStop(); state.solved.clear(); state.target = null; state.flash = null; draw(); showTab('find'); };
+
+// ---------- Find them all ----------
+// Every place in random order. Tap it and the next one comes straight away; three wrong taps (or Skip)
+// shows where it was and moves on.
+function startFind() {
+  const items = shuffle(chItems()), total = items.length, subj = state.subj, key = id => 'loc-' + subj + ':' + id, missed = [];
+  let i = -1, tries = 0, found = 0, cur = null, busy = true;
+  gainStart(); clearTimeout(advanceT);
+  state.mode = 'locate'; state.locate = false; state.sel = null; state.target = null; state.flash = null; state.solved.clear();
+  roundFrom = 'find'; setRound(true); fitBox(G.views[state.scope.id]); draw();
+  setSheet(`${runHud('find', total)}<p class="prompt fd-q" id="fdQ">Get ready…</p>
+    <div class="fd-row"><span class="fd-lives" id="fdLives" aria-label="Tries left"></span><button class="btn" id="fdSkip" disabled>Skip</button></div>`);
+  $('#runX').onclick = quitRun;
+  const lives = () => { $('#fdLives').innerHTML = [0, 1, 2].map(k => `<i class="${k < tries ? 'x' : ''}"></i>`).join(''); };
+  const next = () => {
+    if (RUN !== run) return;
+    i++; tries = 0; state.target = null; state.flash = null; draw();
+    if (i >= total) return finish();
+    cur = items[i]; busy = false;
+    $('#fdQ').innerHTML = subj === 'cap' ? `Which has the capital <em>${esc(cur.cap[0])}</em>?` : `Find <em>${esc(cur.n)}</em>`;
+    lives(); $('#fdSkip').disabled = false;
+  };
+  const step = () => { run.done = i + 1; runPaint(); };
+  const reveal = () => {
+    busy = true; missed.push(cur); step(); combo = 0;
+    state.target = cur; fitBox(contextBox(cur)); draw();
+    $('#fdQ').innerHTML = `<span class="fd-miss">${esc(cur.n)} is here</span>`; $('#fdSkip').disabled = true;
+    setTimeout(() => { if (RUN !== run) return; fitBox(G.views[state.scope.id]); next(); }, 1300);
+  };
+  const finish = () => {
+    const ms = runStop(); state.target = null; draw();
+    results('find', { n: found, total, ms, complete: found === total, missed });
+  };
+  const run = runBegin('find', total, next);
+  run.onTap = f => {
+    if (busy || !cur || !f) return;
+    if (f === cur) {
+      busy = true; found++; run.n = found; $('#hudN').textContent = found;
+      state.solved.add(f.id); draw();
+      if (tries === 0 && !store.prog[key(f.id)]) { store.prog[key(f.id)] = 1; save(); }
+      practisedToday(10); updateTop(); rewardTap(true, $('#fdQ'));
+      step(); setTimeout(next, 220);
+    } else {
+      tries++; lives(); flashPlace(f, f.n); rewardTap(false); buzz([20, 40, 20]);
+      if (tries >= 3) reveal();
+    }
+  };
+  $('#fdSkip').onclick = () => { if (!busy && cur) reveal(); };
+}
+
+// ---------- Name them all ----------
+// Type every place in the set from memory. Each name fills in on the globe as soon as it's spelled right;
+// Enter also accepts a near miss. "I'm done" ends the run and shows what was missing.
 function startWrite() {
-  const items = quizItems(), total = items.length, named = new Set(), order = [];
-  const t0 = Date.now(), subj = state.subj, key = prKey('write');
-  let timer = null, over = false;
+  const items = chItems(), total = items.length, named = new Set(), order = [], subj = state.subj;
   gainStart(); clearTimeout(advanceT);
   state.mode = 'learn'; state.locate = false; state.sel = null; state.target = null; state.solved.clear(); state.writing = true;
   roundFrom = 'find'; setRound(true); fitBox(G.views[state.scope.id]); draw();
   const what = subj === 'cap' ? 'capital' : (state.scope.one || 'country');
-  setSheet(`<div class="qhead"><button class="qx" id="wrX" aria-label="Stop">${IC.x}</button><div class="qbar"><i id="wrBar" style="width:0"></i></div></div>
-    <div class="wr-top"><span class="pill">${IC.keys}Name them all · ${esc(state.scope.name)}</span><span class="wr-time" id="wrTime">${IC.timer}0:00</span></div>
-    <div class="wr-count"><b id="wrN">0</b><span>/ ${total}</span></div>
+  setSheet(`${runHud('write', total)}
     <input id="wrIn" class="wr-in" type="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" placeholder="Type a ${esc(what)}…" aria-label="Type a ${esc(what)}">
     <div class="wr-last" id="wrLast" aria-live="polite"></div>
     <button class="btn" id="wrGive">I'm done</button>`);
   const inp = $('#wrIn');
-  setTimeout(() => inp.focus(), 60);
-  const tick = () => { const el = $('#wrTime'); if (el) el.innerHTML = `${IC.timer}${fmtTime(Date.now() - t0)}`; };
-  timer = setInterval(tick, 500);
+  inp.focus();  // now, while the tap still counts, so phones open the keyboard
+  let over = false;
+  const run = runBegin('write', total, () => { inp.value = ''; inp.focus({ preventScroll: true }); });
   const accept = f => {
     named.add(f.id); order.unshift(f); state.solved.add(f.id);
     inp.value = ''; inp.classList.remove('miss');
-    $('#wrN').textContent = named.size; $('#wrBar').style.width = (named.size / total * 100) + '%';
+    run.n = run.done = named.size; $('#hudN').textContent = named.size; runPaint();
     $('#wrLast').innerHTML = order.slice(0, 8).map((x, i) => `<span class="chip${i ? '' : ' new'}">${esc(shown(x, subj))}</span>`).join('');
     practisedToday(10); updateTop(); rewardTap(true, inp); draw();
     // Turn the globe to the place just named (keeping the zoom), so you see it fill in.
@@ -2789,13 +3031,15 @@ function startWrite() {
   const longer = (v, match) => { const x = norm(v); return items.some(f => f !== match && !named.has(f.id) && answersFor(f, subj).some(a => { const y = norm(a); return y.length > x.length && y.startsWith(x); })); };
   inp.oninput = () => {
     clearTimeout(wait);
+    if (!run.t0) { inp.value = ''; return; }
     const f = find(inp.value, false); if (!f) return;
-    if (longer(inp.value, f)) { const v = inp.value; wait = setTimeout(() => { if (inp.value === v && !named.has(f.id)) accept(f); }, 900); }
+    if (longer(inp.value, f)) { const v = inp.value; wait = setTimeout(() => { if (inp.value === v && !named.has(f.id) && !over) accept(f); }, 900); }
     else accept(f);
   };
   inp.onkeydown = e => {
     if (e.key !== 'Enter') return;
     e.preventDefault(); clearTimeout(wait);
+    if (!run.t0) return;
     const f = find(inp.value, true);
     if (f) return accept(f);
     // Already named, or not in this set: say so briefly.
@@ -2806,45 +3050,28 @@ function startWrite() {
   };
   const finish = complete => {
     if (over) return; over = true;
-    clearInterval(timer); state.writing = false;
-    const ms = Date.now() - t0, n = named.size;
-    const prev = n ? recordPR(key, { n, ms }) : null;
-    const missed = items.filter(f => !named.has(f.id)).sort((a, b) => shown(a, subj).localeCompare(shown(b, subj)));
+    const ms = runStop(); state.writing = false; inp.blur();
+    const missed = items.filter(f => !named.has(f.id));
     state.target = null; draw();
-    setSheet(`<div class="done"><span class="badge">${complete ? ART.trophy : ART.medal}</span><div class="title">${complete ? 'Every one!' : `${n} of ${total}`}</div><div class="sub">${esc(state.scope.name)} · ${fmtTime(ms)}</div></div>
-      ${prev ? `<div class="pr-badge">${IC.timer}<b>New personal record</b>${prev.n != null ? `<span>Was ${prev.n === total ? '' : `${prev.n}/${total} in `}${fmtTime(prev.ms)}</span>` : '<span>Your first time on this map</span>'}</div>` : (store.prs || {})[key] ? `<p class="hint" style="text-align:center">${prLine(key, total)}</p>` : ''}
-      ${rewardBlock()}
-      ${missed.length ? `<h4 class="home-h">Missed ${missed.length}</h4><div class="wr-missed">${missed.map(f => `<button class="chip miss" data-miss="${f.id}">${esc(shown(f, subj))}</button>`).join('')}</div>` : ''}
-      <button class="btn primary" id="wrAgain">Try again</button><button class="btn" id="wrDone">Done</button>`);
-    buzz(complete ? [10, 60, 10] : 10); celebrate(!!prev || complete);
-    if (prev) { sfx('combo'); pushRecords(); }
-    sheet.querySelectorAll('[data-miss]').forEach(b => b.onclick = () => { const f = byId[b.dataset.miss]; state.target = f; fitBox(contextBox(f)); draw(); });
-    $('#wrAgain').onclick = () => { buzz(8); startWrite(); };
-    $('#wrDone').onclick = () => { state.target = null; state.solved.clear(); showTab('find'); };
+    results('write', { n: named.size, total, ms, complete, missed });
   };
-  $('#wrGive').onclick = () => finish(false);
-  $('#wrX').onclick = () => { clearInterval(timer); over = true; state.writing = false; state.solved.clear(); showTab('find'); };
-  keyHandler = null;
+  $('#wrGive').onclick = () => { if (run.t0) finish(false); };
+  $('#runX').onclick = () => { over = true; state.writing = false; quitRun(); };
 }
 
 // ---------- 60-second sprint ----------
-// As many as you can in a minute: a place lights up, pick its name (or capital) from four. A right answer
-// moves straight on; a wrong one shows the answer for a moment. The best score per map is a record.
-const SPRINT_MS = 60000;
-function sprintTile() {
-  const items = quizItems(); if (items.length < 8) return '';
-  const r = (store.prs || {})[prKey('sprint')];
-  return `<button class="go tile" id="goSprint" style="--c:var(--orange)"><span class="go-ic">${IC.bolt}</span><span><b>60-second sprint</b><small>How many ${esc(state.subj === 'cap' ? 'capitals' : lower(state.scope.unit))} can you get in a minute?${r ? ` · Best ${r.n}` : ''}</small></span>${IC.next}</button>`;
-}
+// A place lights up; pick its name (or capital) from four. A right answer moves straight on; a wrong one
+// shows the answer for a moment.
 function startSprint() {
-  const items = quizItems().filter(f => shown(f) !== '—'), key = prKey('sprint');
-  let n = 0, wrong = 0, over = false, f = null, deck = [], timer = null, t0 = 0;
+  const items = chItems();
+  let n = 0, f = null, deck = [];
   gainStart(); clearTimeout(advanceT);
   state.mode = 'learn'; state.locate = false; state.sel = null; state.target = null; state.solved.clear(); state.sprint = true;
-  roundFrom = 'find'; setRound(true);
-  const left = () => Math.max(0, SPRINT_MS - (Date.now() - t0));
+  roundFrom = 'find'; setRound(true); fitBox(G.views[state.scope.id]); draw();
+  setSheet(`${runHud('sprint', items.length)}<p class="prompt" id="spQ">Get ready…</p><div class="opts" id="spOpts"></div>`);
+  $('#runX').onclick = () => { state.sprint = false; quitRun(); };
   const next = () => {
-    if (over) return;
+    if (RUN !== run) return;
     if (!deck.length) deck = shuffle(items.slice());
     f = deck.pop();
     const pool = items.filter(x => x !== f && shown(x) !== shown(f));
@@ -2855,42 +3082,55 @@ function startSprint() {
     $('#spOpts').innerHTML = opts.map((o, i) => `<button class="opt" data-id="${o.id}"><kbd>${i + 1}</kbd><span>${esc(shown(o))}</span></button>`).join('');
     const btns = [...sheet.querySelectorAll('#spOpts .opt')];
     const pick = b => {
-      if (over || b.disabled) return;
+      if (RUN !== run || b.disabled) return;
       btns.forEach(x => x.disabled = true);
       const ok = b.dataset.id === f.id;
       btns.find(x => x.dataset.id === f.id).classList.add('good');
-      if (ok) { n++; $('#spN').textContent = n; practisedToday(10); updateTop(); rewardTap(true, b); setTimeout(next, 250); }
-      else { wrong++; b.classList.add('bad'); sfx('wrong'); buzz([20, 40, 20]); setTimeout(next, 900); }
+      if (ok) { n++; run.n = n; $('#hudN').textContent = n; runPaint(); practisedToday(10); updateTop(); rewardTap(true, b); setTimeout(next, 200); }
+      else { b.classList.add('bad'); rewardTap(false); buzz([20, 40, 20]); setTimeout(next, 800); }
     };
     btns.forEach(b => b.onclick = () => pick(b));
     keyHandler = e => { const k = +e.key; if (k >= 1 && k <= btns.length) pick(btns[k - 1]); };
   };
-  const finish = () => {
-    if (over) return; over = true;
-    clearInterval(timer); state.sprint = false; keyHandler = null; state.target = null; draw();
-    const prev = n ? recordPR(key, { n, ms: SPRINT_MS }) : null;
-    setSheet(`<div class="done"><span class="badge">${n >= 20 ? ART.trophy : ART.medal}</span><div class="title">${n} in 60 seconds</div><div class="sub">${scopeLine()}${wrong ? ` · ${wrong} missed` : ''}</div></div>
-      ${prev ? `<div class="pr-badge">${IC.bolt}<b>New personal record</b><span>${prev.n != null ? `Was ${prev.n}` : 'Your first sprint on this map'}</span></div>` : (store.prs || {})[key] ? `<p class="hint" style="text-align:center">Best ${store.prs[key].n}</p>` : ''}
-      ${rewardBlock()}
-      <button class="btn primary" id="spAgain">Go again</button><button class="btn" id="spRec">See the records</button><button class="btn" id="spDone">Done</button>`);
-    buzz(prev ? [10, 60, 10] : 10); celebrate(!!prev || n >= 20);
-    if (prev) { sfx('combo'); pushRecords(); }
-    $('#spAgain').onclick = () => { buzz(8); startSprint(); };
-    $('#spRec').onclick = () => { state.board = 'rec'; state.recMode = 'sprint'; showTab('compete'); };
-    $('#spDone').onclick = () => showTab('find');
+  const run = runBegin('sprint', items.length, next);
+  run.onEnd = () => {
+    runStop(); state.sprint = false; state.target = null; draw();
+    results('sprint', { n, total: items.length, ms: SPRINT_MS, complete: true });
   };
-  setSheet(`<div class="qhead"><button class="qx" id="spX" aria-label="Stop">${IC.x}</button><div class="qbar"><i id="spBar" style="width:100%"></i></div></div>
-    <div class="wr-top"><span class="pill">${IC.bolt}Sprint · ${esc(state.scope.name)}</span><span class="wr-time" id="spTime">${IC.timer}1:00</span></div>
-    <div class="wr-count"><b id="spN">0</b><span>right</span></div>
-    <p class="prompt" id="spQ"></p><div class="opts" id="spOpts"></div>`);
-  $('#spX').onclick = () => { clearInterval(timer); over = true; state.sprint = false; keyHandler = null; state.target = null; showTab('find'); };
-  t0 = Date.now();
-  timer = setInterval(() => {
-    const ms = left(), el = $('#spTime'), bar = $('#spBar');
-    if (el) el.innerHTML = `${IC.timer}${fmtTime(ms)}`; if (bar) bar.style.width = (ms / SPRINT_MS * 100) + '%';
-    if (!ms) finish();
-  }, 200);
-  next();
+}
+
+// ---------- results ----------
+// The time (or score) big, a new record if it is one, where it puts you on the leaderboard and who to beat next.
+function results(mode, { n, total, ms, complete, missed = [] }) {
+  const C = CH[mode], key = prKey(mode), rk = recKey(mode, state.scope.id, state.subj), subj = state.subj;
+  const prev = n ? recordPR(key, { n, ms }) : null;
+  if (prev) delete rankCache[rk];
+  const onBoard = mode === 'sprint' ? n > 0 : complete;
+  const big = mode === 'sprint' ? `${n}<small> right</small>` : complete ? fmtTime(ms) : `${n}<small> / ${total}</small>`;
+  const sub = mode === 'sprint' ? `in 60 seconds · ${scopeLine()}` : complete ? `All ${total} · ${scopeLine()}` : `${fmtTime(ms)} · ${scopeLine()}`;
+  const was = p => mode === 'sprint' ? p.n : p.n === total ? fmtTime(p.ms) : `${p.n}/${total}`;
+  setSheet(`<div class="res" style="--c:${C.color}"><span class="res-name">${C.icon}${C.name}</span><div class="res-big">${big}</div><div class="res-sub">${sub}</div></div>
+    ${prev ? `<div class="pr-badge">${IC.trophy}<b>New personal record!</b><span>${prev.n == null ? 'Your first on this map' : `Was ${was(prev)}`}</span></div>` : prOf(mode) ? `<p class="hint res-best">Your best: ${bestText(mode, total)}</p>` : ''}
+    <div id="resRank">${!onBoard ? `<p class="hint res-best">Get all ${total} to post a time on the leaderboard.</p>` : !ME ? `<button class="btn" id="resIn">${IC.trophy}Put this on the leaderboard</button>` : '<p class="hint res-best">Checking the leaderboard…</p>'}</div>
+    ${rewardBlock()}
+    ${missed.length ? `<h4 class="home-h">Missed ${missed.length}</h4><div class="wr-missed">${missed.slice().sort((a, b) => shown(a, subj).localeCompare(shown(b, subj))).map(f => `<button class="chip miss" data-miss="${f.id}">${esc(shown(f, subj))}</button>`).join('')}</div>` : ''}
+    <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resLb">${IC.trophy}Board</button></div>
+    <button class="btn" id="resDone">Done</button>`);
+  buzz(prev || complete ? [10, 60, 10] : 10); celebrate(!!prev || (complete && mode !== 'sprint'));
+  if (prev) sfx('combo');
+  sheet.querySelectorAll('[data-miss]').forEach(b => b.onclick = () => { const f = byId[b.dataset.miss]; state.target = f; fitBox(contextBox(f)); draw(); });
+  $('#resAgain').onclick = () => { buzz(8); state.solved.clear(); playCh(mode); };
+  $('#resLb').onclick = () => { state.solved.clear(); boardSheet(mode); };
+  $('#resDone').onclick = () => { state.target = null; state.solved.clear(); showTab('find'); };
+  if ($('#resIn')) $('#resIn').onclick = () => signInSheet({ then: () => boardSheet(mode) });
+  if (onBoard && ME) rankOf(mode, true).then(v => {
+    const el = $('#resRank'); if (!el) return;
+    if (!v || !v.me || !v.me.rank) { el.innerHTML = ''; return; }
+    const r = v.me.rank, above = r > 1 ? v.rows[r - 2] : null;
+    const gap = above ? (mode === 'sprint' ? `${above.v - v.me.v + 1} more right` : `${fmtTime(v.me.v - above.v)} faster`) : '';
+    el.innerHTML = `<div class="rank-card"><b>#${r}</b><span>${r === 1 ? `Top of the ${esc(state.scope.name)} board!` : `on the ${esc(state.scope.name)} board`}</span>
+      <small>${above ? `Next: ${esc(above.name)} at ${mode === 'sprint' ? above.v : fmtTime(above.v)}. You need ${gap}.` : 'Everyone else is chasing you now.'}</small></div>`;
+  });
 }
 
 // ---------- daily challenge ----------
@@ -3013,59 +3253,6 @@ function dailyChallenge() {
 }
 
 // ---------- find-on-map session ----------
-function startLocate() {
-  const items = quizItems();
-  const key = id => 'loc-' + state.subj + ':' + id;
-  // Every place in the set, in random order.
-  const pick = shuffle(items.slice());
-  session = { queue: pick.map(f => ({ f, kind: 'loc' })), done: 0, first: new Map(), mastered: 0, total: pick.length, key, t0: Date.now() }; gainStart();
-  roundFrom = 'find';
-  state.mode = 'locate'; state.locate = true; state.sel = null; state.solved.clear();
-  setRound(true);
-  nextLoc();
-}
-function nextLoc() {
-  if (!session.queue.length) { state.mode = 'summary'; return summary(); }
-  const item = session.queue.shift();
-  session.cur = item; session.tries = 0;
-  state.target = null; state.flash = null; state.findTarget = item.f;
-  const f = item.f;
-  const q = state.subj === 'cap' ? `Which ${state.scope.one || 'country'} has the capital <em>${esc(f.cap[0])}</em>?` : `Find <em>${esc(f.n)}</em>`;
-  setSheet(`${qhead('loc')}<p class="prompt">${q}</p><div class="fb note" id="fb">Spin the globe and tap it. Pinch to zoom in on small places.</div>
-    <div class="row"><button class="btn" id="giveup">Show me</button></div>`);
-  bindQuit();
-  $('#giveup').onclick = () => locateReveal(false);
-  fitBox(G.views[state.scope.id]);
-}
-function locateTap(f) {
-  if (!session || !session.cur || state.target) return;
-  const t = session.cur.f;
-  if (!f) return;
-  if (f === t) return locateReveal(true);
-  session.tries++;
-  flashPlace(f, f.n);
-  buzz([20, 40, 20]);
-  const fb = $('#fb'); fb.className = 'fb note bad'; fb.innerHTML = `That's ${esc(f.n)}. ${session.tries < 3 ? `${3 - session.tries} ${session.tries === 2 ? 'try' : 'tries'} left.` : ''}`;
-  if (session.tries >= 3) locateReveal(false);
-}
-function locateReveal(ok) {
-  const f = session.cur.f;
-  const first = ok && session.tries === 0;
-  session.first.set(f.id, first);
-  if (first) { if (!store.prog[session.key(f.id)]) session.mastered++; store.prog[session.key(f.id)] = 1; save(); }
-  state.target = f; state.solved.add(f.id); session.done++; if (ok) session.found = (session.found || 0) + 1;
-  practisedToday(ok ? 10 : 0); updateTop();
-  const fb = ok ? verdict(true, PRAISE[Math.random() * PRAISE.length | 0], `That's ${esc(f.n)}` + (f.cap[0] ? ` · capital ${esc(f.cap[0])}` : '')) : verdict(false, `${esc(f.n)} is here`, 'Look where it sits on the globe.');
-  if (ok) buzz(12);
-  const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
-  const gb = $('#giveup'); if (gb) gb.closest('.row').remove();
-  fitBox(contextBox(f));
-  const b = document.createElement('button'); b.className = 'btn primary'; b.id = 'nextBtn'; b.textContent = 'Continue'; b.onclick = nextLoc; fb.append(b);
-  fb.insertAdjacentHTML('beforebegin', storyHtml(f, false));
-  keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); nextLoc(); } };
-  draw();
-}
-
 // ---------- onboarding ----------
 // A few one-tap questions, then straight into a first round: people see the app work within a minute.
 // No account is needed to play; progress stays on the device until someone chooses to sign in.
@@ -3330,13 +3517,6 @@ function nameSheet() {
 // ---------- compete: leaderboard and races ----------
 const avatar = (name, uid) => `<span class="av" style="--h:${[...(uid || name || 'x')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360}">${esc((name || '?')[0].toUpperCase())}</span>`;
 const who = r => `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`;
-// Records board: one map at a time (the one picked at the top) and one challenge.
-const REC_MODES = [['write', 'Name them all'], ['find', 'Find'], ['sprint', 'Sprint']];
-function recHead() {
-  const m = state.recMode || 'write';
-  return `<div class="seg small" role="tablist">${REC_MODES.map(([k, l]) => `<button data-rec="${k}" aria-pressed="${k === m}">${l}</button>`).join('')}</div>
-    <p class="hint lb-hint">${m === 'sprint' ? 'Most right answers in 60 seconds' : `Fastest time to ${m === 'write' ? 'name' : 'find'} every one`} · <b>${scopeLine()}</b> <button class="link" id="recMap">Change map</button></p>`;
-}
 function bindRecHead() {
   sheet.querySelectorAll('[data-rec]').forEach(b => b.onclick = () => { buzz(5); state.recMode = b.dataset.rec; competeSheet('rec'); });
   $('#recMap').onclick = openPicker;
@@ -3358,22 +3538,15 @@ function competeSheet(kind = state.board || 'week') {
     <div class="seg" role="tablist"><button data-board="week" aria-pressed="${kind === 'week'}">This week</button><button data-board="all" aria-pressed="${kind === 'all'}">Knowledge</button><button data-board="rec" aria-pressed="${kind === 'rec'}">Records</button></div>
     ${kind === 'rec' ? recHead() : `<p class="hint lb-hint">${kind === 'week' ? '10 points for every right answer, 50 for reaching your daily goal. Resets every Monday.' : 'How much of the world you know: countries, capitals, states and provinces, and history chapters understood.'}</p>`}
     <div class="lb" id="lb"><p class="hint">Loading…</p></div>`);
-  if (kind === 'rec') bindRecHead();
   sheet.querySelectorAll('[data-board]').forEach(b => b.onclick = () => { buzz(5); competeSheet(b.dataset.board); });
   $('#raceNew').onclick = () => { buzz(8); raceHost(); };
   $('#raceJoin').onclick = () => { $('#raceJoinForm').hidden = false; $('#raceCode').focus(); };
   $('#raceJoinForm').onsubmit = e => { e.preventDefault(); raceJoin($('#raceCode').value.trim().toUpperCase()); };
   updateTop();
-  const rk = recKey(state.recMode || 'write', state.scope.id, state.subj);
-  const load = kind === 'rec' ? Promise.resolve(pushRecords()).then(() => CLOUD.records(rk))
-    : CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}).then(() => CLOUD.leaderboard(kind, weekId()));
-  load.then(({ rows, me }) => {
-    if (state.tab !== 'compete' || state.board !== kind || !$('#lb') || (kind === 'rec' && rk !== recKey(state.recMode || 'write', state.scope.id, state.subj))) return;
-    const fmt = v => kind === 'week' ? `${v} XP` : kind === 'all' ? `${(v / 10).toFixed(1)}%` : rk[0] === 's' ? `${v} right` : fmtTime(v);
-    if (kind === 'rec' && !rows.length) { $('#lb').innerHTML = `<p class="hint">No records here yet. ${rk[0] === 's' ? 'Do a sprint' : `Finish a full run of ${rk[0] === 'w' ? 'Name them all' : 'Find'}`} on this map to set the first.</p>`; return; }
-    const row = (r, i, mine) => `<div class="lb-row${mine ? ' me' : ''}"><span class="lb-n">${i}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
-    const inTop = rows.some(r => r.uid === ME.uid);
-    $('#lb').innerHTML = rows.length ? rows.map((r, i) => row(r, i + 1, r.uid === ME.uid)).join('') + (!inTop && me ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank || "–", true)}` : '')
+  if (kind === 'rec') { bindRecHead(); return fillBoard($('#lb'), state.recMode || 'find'); }
+  CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}).then(() => CLOUD.leaderboard(kind, weekId())).then(({ rows, me }) => {
+    if (state.tab !== 'compete' || state.board !== kind || !$('#lb')) return;
+    $('#lb').innerHTML = rows.length ? lbRows(rows, me, v => kind === 'week' ? `${v} XP` : `${(v / 10).toFixed(1)}%`)
       : `<p class="hint">No one has scored yet this week. Answer a few questions and you'll be first.</p>`;
   }, () => { if ($('#lb')) $('#lb').innerHTML = '<p class="hint">Couldn\'t load the leaderboard. Check your connection.</p>'; });
 }
