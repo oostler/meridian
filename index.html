@@ -1913,7 +1913,6 @@ function learnSheet() {
   const c = counts();
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
   setSheet(`${todayCard()}${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
-    ${writeTile()}
     ${histTile()}
     ${subjSeg()}
     ${progressCard()}
@@ -1924,7 +1923,6 @@ function learnSheet() {
   if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
   bindDaily();
   if ($('#goHist')) $('#goHist').onclick = () => { buzz(8); startHistQuiz(); };
-  if ($('#goWrite')) $('#goWrite').onclick = () => { buzz(8); startWrite(); };
   bindGoal(learnSheet);
   $('#pickScope').onclick = openPicker;
   $('#reset').onclick = () => {
@@ -1940,10 +1938,12 @@ function findSheet() {
   const key = id => 'loc-' + state.subj + ':' + id, items = quizItems();
   const found = items.filter(f => store.prog[key(f.id)]).length;
   setSheet(`${hero('blue', 'Find them on the globe', found, items.length, `${found} of ${items.length} found first try`, 'goLocate', 'Start')}
+    ${writeTile()}
     ${subjSeg()}
     <p class="hint" style="text-align:center">We name a place. Spin the globe and tap it. Every place in the set, three tries each, against the clock. Stop any time.${(store.prs || {})[prKey('find')] ? `<br><b>Your record: ${prLine(prKey('find'), items.length).replace('Best ', '')}</b>` : ''}</p>`);
   bindSubj(findSheet);
   $('#goLocate').onclick = () => { buzz(8); startLocate(); };
+  if ($('#goWrite')) $('#goWrite').onclick = () => { buzz(8); startWrite(); };
   $('#pickScope').onclick = openPicker;
   updateTop(); draw();
 }
@@ -2736,7 +2736,7 @@ function startWrite() {
   let timer = null, over = false;
   gainStart(); clearTimeout(advanceT);
   state.mode = 'learn'; state.locate = false; state.sel = null; state.target = null; state.solved.clear(); state.writing = true;
-  roundFrom = 'learn'; setRound(true); fitBox(G.views[state.scope.id]); draw();
+  roundFrom = 'find'; setRound(true); fitBox(G.views[state.scope.id]); draw();
   const what = subj === 'cap' ? 'capital' : (state.scope.one || 'country');
   setSheet(`<div class="qhead"><button class="qx" id="wrX" aria-label="Stop">${IC.x}</button><div class="qbar"><i id="wrBar" style="width:0"></i></div></div>
     <div class="wr-top"><span class="pill">${IC.keys}Name them all · ${esc(state.scope.name)}</span><span class="wr-time" id="wrTime">${IC.timer}0:00</span></div>
@@ -2798,10 +2798,10 @@ function startWrite() {
     if (prev) sfx('combo');
     sheet.querySelectorAll('[data-miss]').forEach(b => b.onclick = () => { const f = byId[b.dataset.miss]; state.target = f; fitBox(contextBox(f)); draw(); });
     $('#wrAgain').onclick = () => { buzz(8); startWrite(); };
-    $('#wrDone').onclick = () => { state.target = null; state.solved.clear(); showTab('learn'); };
+    $('#wrDone').onclick = () => { state.target = null; state.solved.clear(); showTab('find'); };
   };
   $('#wrGive').onclick = () => finish(false);
-  $('#wrX').onclick = () => { clearInterval(timer); over = true; state.writing = false; state.solved.clear(); showTab('learn'); };
+  $('#wrX').onclick = () => { clearInterval(timer); over = true; state.writing = false; state.solved.clear(); showTab('find'); };
   keyHandler = null;
 }
 
