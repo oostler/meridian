@@ -601,30 +601,25 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .qz-map b { display: block; font-size: 17px; font-weight: 900; }
 .qz-map small { display: block; font-size: 13px; font-weight: 700; color: var(--ink-2); }
 .qz-chg { font-size: 12px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; color: var(--blue); }
-.ch-card { --cd: color-mix(in srgb, var(--c) 72%, #000); border-radius: 22px; padding: 16px; background: var(--c); color: #fff; box-shadow: 0 5px 0 var(--cd); display: grid; gap: 12px; }
-.ch-top { display: flex; gap: 12px; align-items: center; }
+.ch-card { --cd: color-mix(in srgb, var(--c) 72%, #000); display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; border: 0; border-radius: 20px; padding: 14px 14px 14px 16px; background: var(--c); color: #fff; box-shadow: 0 5px 0 var(--cd); font: inherit; cursor: pointer; transition: transform .08s, box-shadow .08s; }
+.ch-card:active { transform: translateY(5px); box-shadow: 0 0 0 var(--cd); }
 .ch-ic { width: 48px; height: 48px; flex: none; border-radius: 15px; display: grid; place-items: center; background: rgba(255, 255, 255, .22); }
 .ch-ic .ic { width: 26px; height: 26px; }
-.ch-top b { display: block; font-size: 21px; font-weight: 900; line-height: 1.1; }
-.ch-top small { display: block; font-size: 13px; font-weight: 800; opacity: .92; }
-.ch-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.ch-stats div { background: rgba(0, 0, 0, .15); border-radius: 14px; padding: 8px 12px; }
-.ch-stats span { display: block; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; opacity: .88; }
-.ch-stats b { display: block; font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
-.ch-btns { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; }
-.ch-card .btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
-.ch-card .btn .ic { width: 18px; height: 18px; }
-.ch-card .btn.primary { background: #fff; border-color: #fff; color: var(--c); box-shadow: 0 4px 0 rgba(0, 0, 0, .2); font-size: 17px; }
-.ch-card .btn:not(.primary) { background: transparent; border-color: rgba(255, 255, 255, .65); color: #fff; box-shadow: none; }
-.qz-bhead { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: center; }
+.ch-txt b { display: block; font-size: 20px; font-weight: 900; line-height: 1.15; }
+.ch-txt small { display: block; font-size: 14px; font-weight: 700; opacity: .95; margin-top: 2px; }
+.ch-txt small b { display: inline; font-size: inherit; font-variant-numeric: tabular-nums; }
+.ch-go { background: #fff; color: var(--c); border-radius: 14px; padding: 10px 16px; font-weight: 900; font-size: 15px; letter-spacing: .07em; text-transform: uppercase; box-shadow: 0 3px 0 rgba(0, 0, 0, .18); }
+.qz-board { display: grid; gap: 10px; margin-top: 6px; }
+.qz-board[hidden] { display: none; }
+.qz-bh { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.qz-bh > b { display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 900; }
+.qz-bh > b .ic { width: 20px; height: 20px; color: var(--gold-d); }
+.qz-bh .seg { flex: none; width: 150px; }
 .lb-n { font-variant-numeric: tabular-nums; }
 #runClock { display: none; align-items: center; gap: 8px; height: 56px; padding: 0 20px; margin: 0 auto; font-weight: 900; font-size: 30px; font-variant-numeric: tabular-nums; color: var(--ink); transition: color .2s, background .2s, border-color .2s; }
 #runClock .ic { width: 24px; height: 24px; }
 #runClock.ahead { color: var(--green); border-color: var(--green); }
 #runClock.behind { color: var(--red); border-color: var(--red); }
-#runClock.hot { color: #fff; background: var(--red); border-color: var(--red-d); box-shadow: 0 4px 0 var(--red-d); }
-#runClock.beat { animation: beat .35s ease-out; }
-@keyframes beat { 30% { transform: scale(1.14); } }
 body.timed #runClock { display: flex; }
 body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #top .spacer { display: none; }
 .cdown { position: fixed; inset: 0 0 45% 0; z-index: 70; display: grid; place-items: center; pointer-events: none; }
@@ -639,12 +634,11 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .hud-n b { font-size: 32px; font-weight: 900; color: var(--c); }
 .hud-bar { position: relative; height: 14px; border-radius: 7px; background: var(--line); }
 .hud-bar i { display: block; height: 100%; border-radius: 7px; background: var(--c); width: 0; transition: width .2s linear; }
-.hud-bar.hot i { background: var(--red); }
 .hud-bar em { position: absolute; top: -5px; bottom: -5px; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--ink); opacity: .6; transition: left .1s linear; }
 .hud-bar em::after { content: 'BEST'; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font: 900 9px var(--font); letter-spacing: .08em; color: var(--ink-2); }
 .hud-pace { margin: -2px 0 0; text-align: center; font-size: 14px; font-weight: 900; color: var(--ink-2); }
 .hud-pace.ahead { color: var(--green); }
-.hud-pace.behind, .hud-pace.hot { color: var(--red); }
+.hud-pace.behind { color: var(--red); }
 .fd-q { text-align: center; font-size: 26px; margin: 4px 0; }
 .fd-miss { color: var(--red); }
 .fd-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -1338,7 +1332,6 @@ function sfx(kind) {
     else if (kind === 'done') [523.3, 659.3, 784, 1046.5].forEach((f, i) => note(f, i * 0.09, i === 3 ? 0.45 : 0.2));
     else if (kind === 'tick') note(880, 0, 0.08, 'square', 0.04);
     else if (kind === 'go') { note(1318.5, 0, 0.12, 'square', 0.05); note(1760, 0.06, 0.3, 'square', 0.05); }
-    else if (kind === 'beat') note(1046.5, 0, 0.06, 'square', 0.035);
     else if (kind === 'combo') [784, 987.8, 1174.7, 1568].forEach((f, i) => note(f, i * 0.06, i === 3 ? 0.35 : 0.14, 'sine', 0.06));
   } catch (e) { /* no audio here; the app carries on silently */ }
 }
@@ -1782,7 +1775,7 @@ function setRound(on) {
   if (document.body.classList.contains('in-round') === on) return;
   document.body.classList.toggle('in-round', on);
 }
-document.querySelectorAll('#tabs [data-tab]').forEach(b => b.onclick = () => { buzz(5); if (b.dataset.tab === 'find') state.qview = null; showTab(b.dataset.tab); });
+document.querySelectorAll('#tabs [data-tab]').forEach(b => b.onclick = () => { buzz(5); showTab(b.dataset.tab); });
 
 // ---------- choosing what to learn ----------
 function setScope(s) {
@@ -2376,7 +2369,7 @@ function showOnGlobe(f) {
 
 function onPick(f) {
   // In a race, tapping the map would name places and replace the race card.
-  if (state.race || state.daily || (RUN && RUN.mode !== 'find') || state.writing || state.sprint) return;
+  if (state.race || state.daily || (RUN && RUN.mode !== 'find') || state.writing) return;
   if (state.mode === 'locate') return locateTap(f);
   if (state.mode === 'learn') {
     // During a question, tapping only names places outside the quiz or already solved.
@@ -2773,7 +2766,7 @@ function recordPR(key, r) {
   prs[key] = { ...r, at: Date.now() }; save();
   return old || {};
 }
-// The records board takes full runs only (every place named or found) and sprint scores.
+// The leaderboard takes full runs only: every place named or found.
 const recKey = (mode, scopeId, subj) => `${mode[0]}_${scopeId.replace(/[^A-Za-z]/g, '')}_${subj}`;
 function pushRecords() {
   if (!CLOUD || !ME || ME.pending) return;
@@ -2782,101 +2775,84 @@ function pushRecords() {
     const [mode, scopeId, subj] = k.split(':'), sc = SCOPES.find(s => s.id === scopeId);
     if (!sc || !r) continue;
     const total = subj === 'cap' ? sc.items.filter(f => f.cap[0]).length : sc.items.length;
-    if (mode === 'sprint') out[recKey(mode, scopeId, subj)] = r.n;
-    else if ((mode === 'write' || mode === 'find') && r.n === total) out[recKey(mode, scopeId, subj)] = r.ms;
+    if ((mode === 'write' || mode === 'find') && r.n === total) out[recKey(mode, scopeId, subj)] = r.ms;
   }
   return CLOUD.pushRecords(out).catch(() => {});
 }
 function prLine(key, total) { const r = (store.prs || {})[key]; return r ? `Best ${r.n === total ? '' : `${r.n}/${total} in `}${fmtTime(r.ms)}` : ''; }
 
 // ---------- quiz: timed challenges ----------
-// Three ways to race the clock on the chosen map: Find (tap each place on the globe), Name them all (type
-// every one from memory) and the 60-second sprint. Each run starts with 3-2-1-Go; a big clock then sits at
-// the top of the screen, green while you're ahead of your record pace and red when behind. Full runs and
-// sprint scores go on the leaderboard for that map.
+// Two ways to race the clock on the chosen map: Find (tap each place on the globe) and Name them all (type
+// every one from memory). Each run starts with 3-2-1-Go; a big clock then sits at the top of the screen,
+// green while you're ahead of your record pace and red when behind. Full runs go on the map's leaderboard.
 const CH = {
   find: { name: 'Find them all', icon: IC.target, color: 'var(--red)', tag: 'We name it, you tap it on the globe' },
   write: { name: 'Name them all', icon: IC.keys, color: 'var(--blue)', tag: 'Type every one from memory' },
-  sprint: { name: '60-second sprint', icon: IC.bolt, color: 'var(--orange)', tag: 'As many as you can in a minute' },
 };
-const CH_ORDER = ['find', 'write', 'sprint'], SPRINT_MS = 60000;
+const CH_ORDER = ['find', 'write'];
 const chItems = () => quizItems().filter(f => shown(f) !== '—');
 const prOf = mode => (store.prs || {})[prKey(mode)];
-const playCh = m => m === 'find' ? startFind() : m === 'write' ? startWrite() : startSprint();
+const playCh = m => m === 'find' ? startFind() : startWrite();
 function bestText(mode, total) {
-  const r = prOf(mode); if (!r) return '–';
-  return mode === 'sprint' ? String(r.n) : r.n === total ? fmtTime(r.ms) : `${r.n}/${total}`;
+  const r = prOf(mode); if (!r) return '';
+  return r.n === total ? fmtTime(r.ms) : `${r.n} of ${total}`;
 }
-// Leaderboard reads are cached for a minute; a new record clears its map's entry.
+
+// The Quiz tab: the map, two challenges, and the fastest times on this map once anyone has posted one.
+function findSheet() {
+  state.mode = 'explore'; state.target = null; state.solved.clear();
+  setRound(false); setTab('find');
+  const total = chItems().length, what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
+  const mins = s => `about ${Math.max(1, Math.round(total * s / 60))} min`;
+  const card = m => {
+    const C = CH[m], best = bestText(m, total), full = best && !best.includes(' of ');
+    const line = best ? (full ? `Your best <b>${best}</b>` : `Best so far: <b>${best}</b>`) : m === 'find' ? `Tap all ${total} on the globe · ${mins(4)}` : `Type all ${total} from memory · ${mins(5)}`;
+    return `<button class="ch-card" data-play="${m}" style="--c:${C.color}"><span class="ch-ic">${C.icon}</span>
+      <span class="ch-txt"><b>${C.name}</b><small>${line}</small></span><span class="ch-go">Play</span></button>`;
+  };
+  setSheet(`<div><div class="title">Quiz</div><p class="hint">Race the clock. Beat your best time.</p></div>
+    <button class="qz-map tile" id="pickScope"><span class="qz-flag">${state.scope.icon}</span><span><b>${esc(state.scope.name)}</b><small>${total} ${esc(what)}</small></span><span class="qz-chg">Change</span></button>
+    ${subjSeg()}
+    ${total < 8 ? '<p class="hint">Pick a bigger map for the timed challenges.</p>' : CH_ORDER.map(card).join('')}
+    <div class="qz-board" id="qzBoard" hidden></div>`);
+  bindSubj(findSheet);
+  $('#pickScope').onclick = openPicker;
+  sheet.querySelectorAll('[data-play]').forEach(b => b.onclick = () => { buzz(8); playCh(b.dataset.play); });
+  if (total >= 8) quizBoard();
+  updateTop(); draw();
+}
+// "Fastest on Europe": top five for Find or Name them all, plus your own place. Hidden until someone has a time.
+// Reads are cached for a minute; a new record clears its map's entry.
 const rankCache = {};
 function rankOf(mode, fresh) {
   const rk = recKey(mode, state.scope.id, state.subj), c = rankCache[rk];
   if (!fresh && c && Date.now() - c.t < 60000) return Promise.resolve(c.v);
   if (!CLOUD || !CLOUD.records) return Promise.resolve(null);
-  return Promise.resolve(pushRecords()).then(() => CLOUD.records(rk)).then(v => { rankCache[rk] = { t: Date.now(), v }; return v; }, () => null);
+  return Promise.resolve(pushRecords()).then(() => CLOUD.records(rk)).then(v => { if (v.rows.length) rankCache[rk] = { t: Date.now(), v }; return v; }, () => null);
 }
-
-function findSheet() {
-  if (state.qview === 'board') return boardSheet(state.recMode || 'find');
-  state.mode = 'explore'; state.target = null; state.solved.clear();
-  setRound(false); setTab('find');
-  const total = chItems().length, what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
-  const card = m => {
-    const C = CH[m];
-    return `<div class="ch-card" style="--c:${C.color}">
-      <div class="ch-top"><span class="ch-ic">${C.icon}</span><div><b>${C.name}</b><small>${C.tag}</small></div></div>
-      <div class="ch-stats"><div><span>Your best</span><b>${bestText(m, total)}</b></div><div><span>Your rank</span><b id="rk-${m}">–</b></div></div>
-      <div class="ch-btns"><button class="btn primary" data-play="${m}">Play</button><button class="btn" data-lb="${m}">${IC.trophy}Board</button></div></div>`;
-  };
-  setSheet(`<div><div class="title">Quiz</div><p class="hint">Race the clock, beat your best, climb the board.</p></div>
-    <button class="qz-map tile" id="pickScope"><span class="qz-flag">${state.scope.icon}</span><span><b>${esc(state.scope.name)}</b><small>${total} ${esc(what)}</small></span><span class="qz-chg">Change</span></button>
-    ${subjSeg()}
-    ${total < 8 ? '<p class="hint">Pick a bigger map for the timed challenges.</p>' : CH_ORDER.map(card).join('')}`);
-  bindSubj(findSheet);
-  $('#pickScope').onclick = openPicker;
-  sheet.querySelectorAll('[data-play]').forEach(b => b.onclick = () => { buzz(8); playCh(b.dataset.play); });
-  sheet.querySelectorAll('[data-lb]').forEach(b => b.onclick = () => { buzz(5); boardSheet(b.dataset.lb); });
-  if (total >= 8 && ME) for (const m of CH_ORDER) rankOf(m).then(v => { const el = $('#rk-' + m); if (el && v && v.me && v.me.rank) el.textContent = '#' + v.me.rank; });
-  updateTop(); draw();
-}
-
-// ---------- leaderboards for the challenges ----------
-const REC_MODES = [['find', 'Find'], ['write', 'Name them all'], ['sprint', 'Sprint']];
-function recHead() {
-  const m = state.recMode || 'find';
-  return `<div class="seg small" role="tablist">${REC_MODES.map(([k, l]) => `<button data-rec="${k}" aria-pressed="${k === m}">${l}</button>`).join('')}</div>
-    <p class="hint lb-hint">${m === 'sprint' ? 'Most right answers in 60 seconds' : `Fastest time to ${m === 'write' ? 'name' : 'find'} every one`} · <b>${scopeLine()}</b> <button class="link" id="recMap">Change map</button></p>`;
-}
-function lbRows(rows, me, fmt) {
-  const mine = ME && ME.uid, medal = i => typeof i === 'number' && i <= 3 ? ['🥇', '🥈', '🥉'][i - 1] : i;
-  const row = (r, i, m) => `<div class="lb-row${m ? ' me' : ''}"><span class="lb-n">${medal(i)}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
-  const inTop = rows.some(r => r.uid === mine);
-  return rows.map((r, i) => row(r, i + 1, r.uid === mine)).join('') + (!inTop && me && ME ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank || '–', true)}` : '');
-}
-function fillBoard(el, mode) {
-  const rk = recKey(mode, state.scope.id, state.subj);
-  rankOf(mode, true).then(v => {
-    if (!document.contains(el) || rk !== recKey(mode, state.scope.id, state.subj)) return;
-    if (!v) { el.innerHTML = '<p class="hint">Couldn\'t load the leaderboard. Check your connection.</p>'; return; }
-    if (!v.rows.length) { el.innerHTML = `<p class="hint">No records on this map yet. ${mode === 'sprint' ? 'Do a sprint' : 'Get every one'} to set the first.</p>`; return; }
-    el.innerHTML = lbRows(v.rows, v.me, x => mode === 'sprint' ? `${x} right` : fmtTime(x));
+function quizBoard() {
+  const scope = state.scope.id, subj = state.subj;
+  Promise.all(CH_ORDER.map(m => rankOf(m))).then(vs => {
+    const el = $('#qzBoard');
+    if (!el || state.scope.id !== scope || state.subj !== subj) return;
+    const has = m => { const v = vs[CH_ORDER.indexOf(m)]; return v && v.rows.length ? v : null; };
+    if (!has('find') && !has('write')) return;
+    let m = state.recMode && has(state.recMode) ? state.recMode : has('find') ? 'find' : 'write';
+    const paint = () => {
+      const v = has(m);
+      el.innerHTML = `<div class="qz-bh"><b>${IC.trophy}Fastest on ${esc(state.scope.name)}</b>
+        <div class="seg small" role="tablist">${CH_ORDER.map(k => `<button data-bm="${k}" aria-pressed="${k === m}">${k === 'find' ? 'Find' : 'Name'}</button>`).join('')}</div></div>
+        <div class="lb">${v ? lbRows(v.rows.slice(0, 5), v.me, fmtTime, 5) : '<p class="hint">No times yet. Finish one and you\'re first.</p>'}</div>`;
+      el.querySelectorAll('[data-bm]').forEach(b => b.onclick = () => { buzz(5); m = state.recMode = b.dataset.bm; paint(); });
+    };
+    paint(); el.hidden = false;
   });
 }
-function boardSheet(mode) {
-  state.mode = 'explore'; state.target = null; state.recMode = mode; state.qview = 'board';
-  setRound(false); setTab('find');
-  setSheet(`<div class="qz-bhead"><button class="qx" id="bdBack" aria-label="Back">${IC.back}</button><div class="title">Leaderboard</div></div>
-    ${recHead()}
-    <div class="lb" id="lb"><p class="hint">Loading…</p></div>
-    ${ME ? '' : `<button class="btn" id="bdIn">${IC.trophy}Make a profile to get on the board</button>`}
-    <button class="btn primary" id="bdPlay">Play ${CH[mode].name}</button>`);
-  sheet.querySelectorAll('[data-rec]').forEach(b => b.onclick = () => { buzz(5); boardSheet(b.dataset.rec); });
-  $('#recMap').onclick = openPicker;
-  $('#bdBack').onclick = () => { state.qview = null; showTab('find'); };
-  $('#bdPlay').onclick = () => { buzz(8); state.qview = null; playCh(mode); };
-  if ($('#bdIn')) $('#bdIn').onclick = () => signInSheet({ then: () => boardSheet(mode) });
-  fillBoard($('#lb'), mode);
-  updateTop(); draw();
+function lbRows(rows, me, fmt, shownN = rows.length) {
+  const mine = ME && ME.uid, medal = i => typeof i === 'number' && i <= 3 ? ['🥇', '🥈', '🥉'][i - 1] : i;
+  const row = (r, i, m) => `<div class="lb-row${m ? ' me' : ''}"><span class="lb-n">${medal(i)}</span>${avatar(r.name, r.uid)}<span class="lb-name">${who(r)}</span><b>${fmt(r.v)}</b></div>`;
+  const inTop = rows.slice(0, shownN).some(r => r.uid === mine);
+  return rows.map((r, i) => row(r, i + 1, r.uid === mine)).join('') + (!inTop && me && me.rank && ME ? `<div class="lb-gap">…</div>${row({ name: ME.name, tag: ME.tag, uid: ME.uid, v: me.v }, me.rank, true)}` : '');
 }
 
 // ---------- the run: countdown, clock, pace ----------
@@ -2884,7 +2860,7 @@ let RUN = null;
 function runHud(mode, total) {
   const C = CH[mode];
   return `<div class="hud" style="--c:${C.color}"><button class="qx" id="runX" aria-label="Stop">${IC.x}</button>
-      <div class="hud-main"><span class="hud-name">${C.icon}${C.name}</span><span class="hud-n"><b id="hudN">0</b>${mode === 'sprint' ? ' right' : ` / ${total}`}</span></div></div>
+      <div class="hud-main"><span class="hud-name">${C.icon}${C.name}</span><span class="hud-n"><b id="hudN">0</b> / ${total}</span></div></div>
     <div class="hud-bar" style="--c:${C.color}"><i id="hudFill"></i><em id="hudGhost" hidden></em></div>
     <p class="hud-pace" id="hudPace"></p>`;
 }
@@ -2915,30 +2891,18 @@ function runStop() {
 }
 function runPaint() {
   const run = RUN; if (!run) return;
-  const { mode, total, pr } = run, ms = runMs(), rc = $('#runClock'), fill = $('#hudFill'), ghost = $('#hudGhost'), pace = $('#hudPace');
-  let cls = '', text = '', w = 0, g = null;
-  if (mode === 'sprint') {
-    const left = run.t0 ? Math.max(0, SPRINT_MS - ms) : SPRINT_MS;
-    $('#rcT').textContent = fmtTime(left); w = left / SPRINT_MS;
-    if (run.t0 && left <= 10000) {
-      cls = 'hot'; const s = Math.ceil(left / 1000);
-      if (s !== run.beat && s > 0) { run.beat = s; sfx('beat'); if (rc) { rc.classList.remove('beat'); void rc.offsetWidth; rc.classList.add('beat'); } }
-    }
-    text = !pr ? 'Set your first sprint record' : run.n > pr.n ? `New record! ${run.n - pr.n} past your best` : run.n === pr.n ? 'One more for a new record!' : `${pr.n - run.n + 1} more to beat your best of ${pr.n}`;
-    if (pr && run.n > pr.n) cls = cls || 'ahead';
-    if (run.t0 && !left && run.onEnd) { const f = run.onEnd; run.onEnd = null; f(); return; }
-  } else {
-    $('#rcT').textContent = fmtTime(ms); w = run.done / total;
-    if (pr && pr.n === total) {
-      // Your record as a ghost running at an even pace: how many places ahead or behind it you are.
-      const gh = Math.min(total, total * ms / pr.ms), d = Math.round(run.done - gh);
-      g = gh / total;
-      if (run.t0) cls = run.done - gh >= 0 ? 'ahead' : 'behind';
-      text = `${d > 0 ? `▲ ${d} ahead of` : d < 0 ? `▼ ${-d} behind` : 'Level with'} your record pace · ${fmtTime(pr.ms)}`;
-    } else text = pr ? `Your best is ${pr.n} of ${total}. Get them all to set a time` : `Get all ${total} to set your first record`;
-  }
-  if (rc) rc.className = `tile ${cls}${rc.classList.contains('beat') ? ' beat' : ''}`;
-  if (fill) { fill.style.width = (w * 100) + '%'; fill.parentElement.classList.toggle('hot', cls === 'hot'); }
+  const { total, pr } = run, ms = runMs(), rc = $('#runClock'), fill = $('#hudFill'), ghost = $('#hudGhost'), pace = $('#hudPace');
+  let cls = '', text, g = null;
+  $('#rcT').textContent = fmtTime(ms);
+  if (pr && pr.n === total) {
+    // Your record as a ghost running at an even pace: how many places ahead or behind it you are.
+    const gh = Math.min(total, total * ms / pr.ms), d = Math.round(run.done - gh);
+    g = gh / total;
+    if (run.t0) cls = run.done - gh >= 0 ? 'ahead' : 'behind';
+    text = `${d > 0 ? `▲ ${d} ahead of` : d < 0 ? `▼ ${-d} behind` : 'Level with'} your record pace · ${fmtTime(pr.ms)}`;
+  } else text = pr ? `Your best is ${pr.n} of ${total}. Get them all to set a time` : `Get all ${total} to set your first time`;
+  if (rc) rc.className = `tile ${cls}`;
+  if (fill) fill.style.width = (run.done / total * 100) + '%';
   if (ghost) { ghost.hidden = g == null; if (g != null) ghost.style.left = (g * 100) + '%'; }
   if (pace && pace.textContent !== text) { pace.textContent = text; pace.className = `hud-pace ${cls}`; }
 }
@@ -3059,77 +3023,35 @@ function startWrite() {
   $('#runX').onclick = () => { over = true; state.writing = false; quitRun(); };
 }
 
-// ---------- 60-second sprint ----------
-// A place lights up; pick its name (or capital) from four. A right answer moves straight on; a wrong one
-// shows the answer for a moment.
-function startSprint() {
-  const items = chItems();
-  let n = 0, f = null, deck = [];
-  gainStart(); clearTimeout(advanceT);
-  state.mode = 'learn'; state.locate = false; state.sel = null; state.target = null; state.solved.clear(); state.sprint = true;
-  roundFrom = 'find'; setRound(true); fitBox(G.views[state.scope.id]); draw();
-  setSheet(`${runHud('sprint', items.length)}<p class="prompt" id="spQ">Get ready…</p><div class="opts" id="spOpts"></div>`);
-  $('#runX').onclick = () => { state.sprint = false; quitRun(); };
-  const next = () => {
-    if (RUN !== run) return;
-    if (!deck.length) deck = shuffle(items.slice());
-    f = deck.pop();
-    const pool = items.filter(x => x !== f && shown(x) !== shown(f));
-    const near = shuffle(pool.slice().sort((a, b) => dist(a, f) - dist(b, f)).slice(0, 6)).slice(0, 2);
-    const opts = shuffle([f, ...near, ...shuffle(pool.filter(x => !near.includes(x))).slice(0, 3 - near.length)]);
-    state.target = f; state.flash = null; fitBox(contextBox(f)); draw();
-    $('#spQ').innerHTML = promptFor(f);
-    $('#spOpts').innerHTML = opts.map((o, i) => `<button class="opt" data-id="${o.id}"><kbd>${i + 1}</kbd><span>${esc(shown(o))}</span></button>`).join('');
-    const btns = [...sheet.querySelectorAll('#spOpts .opt')];
-    const pick = b => {
-      if (RUN !== run || b.disabled) return;
-      btns.forEach(x => x.disabled = true);
-      const ok = b.dataset.id === f.id;
-      btns.find(x => x.dataset.id === f.id).classList.add('good');
-      if (ok) { n++; run.n = n; $('#hudN').textContent = n; runPaint(); practisedToday(10); updateTop(); rewardTap(true, b); setTimeout(next, 200); }
-      else { b.classList.add('bad'); rewardTap(false); buzz([20, 40, 20]); setTimeout(next, 800); }
-    };
-    btns.forEach(b => b.onclick = () => pick(b));
-    keyHandler = e => { const k = +e.key; if (k >= 1 && k <= btns.length) pick(btns[k - 1]); };
-  };
-  const run = runBegin('sprint', items.length, next);
-  run.onEnd = () => {
-    runStop(); state.sprint = false; state.target = null; draw();
-    results('sprint', { n, total: items.length, ms: SPRINT_MS, complete: true });
-  };
-}
-
 // ---------- results ----------
-// The time (or score) big, a new record if it is one, where it puts you on the leaderboard and who to beat next.
+// The time big, a new record if it is one, and (once you have one) your place on the map's leaderboard.
 function results(mode, { n, total, ms, complete, missed = [] }) {
   const C = CH[mode], key = prKey(mode), rk = recKey(mode, state.scope.id, state.subj), subj = state.subj;
   const prev = n ? recordPR(key, { n, ms }) : null;
   if (prev) delete rankCache[rk];
-  const onBoard = mode === 'sprint' ? n > 0 : complete;
-  const big = mode === 'sprint' ? `${n}<small> right</small>` : complete ? fmtTime(ms) : `${n}<small> / ${total}</small>`;
-  const sub = mode === 'sprint' ? `in 60 seconds · ${scopeLine()}` : complete ? `All ${total} · ${scopeLine()}` : `${fmtTime(ms)} · ${scopeLine()}`;
-  const was = p => mode === 'sprint' ? p.n : p.n === total ? fmtTime(p.ms) : `${p.n}/${total}`;
+  const onBoard = complete;
+  const big = complete ? fmtTime(ms) : `${n}<small> / ${total}</small>`;
+  const sub = complete ? `All ${total} · ${scopeLine()}` : `${fmtTime(ms)} · ${scopeLine()}`;
+  const was = p => p.n === total ? fmtTime(p.ms) : `${p.n} of ${total}`;
   setSheet(`<div class="res" style="--c:${C.color}"><span class="res-name">${C.icon}${C.name}</span><div class="res-big">${big}</div><div class="res-sub">${sub}</div></div>
     ${prev ? `<div class="pr-badge">${IC.trophy}<b>New personal record!</b><span>${prev.n == null ? 'Your first on this map' : `Was ${was(prev)}`}</span></div>` : prOf(mode) ? `<p class="hint res-best">Your best: ${bestText(mode, total)}</p>` : ''}
-    <div id="resRank">${!onBoard ? `<p class="hint res-best">Get all ${total} to post a time on the leaderboard.</p>` : !ME ? `<button class="btn" id="resIn">${IC.trophy}Put this on the leaderboard</button>` : '<p class="hint res-best">Checking the leaderboard…</p>'}</div>
+    <div id="resRank">${onBoard && !ME && CLOUD ? `<button class="btn" id="resIn">${IC.trophy}Post your time</button>` : ''}</div>
     ${rewardBlock()}
     ${missed.length ? `<h4 class="home-h">Missed ${missed.length}</h4><div class="wr-missed">${missed.slice().sort((a, b) => shown(a, subj).localeCompare(shown(b, subj))).map(f => `<button class="chip miss" data-miss="${f.id}">${esc(shown(f, subj))}</button>`).join('')}</div>` : ''}
-    <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resLb">${IC.trophy}Board</button></div>
-    <button class="btn" id="resDone">Done</button>`);
-  buzz(prev || complete ? [10, 60, 10] : 10); celebrate(!!prev || (complete && mode !== 'sprint'));
+    <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>`);
+  buzz(prev || complete ? [10, 60, 10] : 10); celebrate(!!prev || complete);
   if (prev) sfx('combo');
   sheet.querySelectorAll('[data-miss]').forEach(b => b.onclick = () => { const f = byId[b.dataset.miss]; state.target = f; fitBox(contextBox(f)); draw(); });
   $('#resAgain').onclick = () => { buzz(8); state.solved.clear(); playCh(mode); };
-  $('#resLb').onclick = () => { state.solved.clear(); boardSheet(mode); };
   $('#resDone').onclick = () => { state.target = null; state.solved.clear(); showTab('find'); };
-  if ($('#resIn')) $('#resIn').onclick = () => signInSheet({ then: () => boardSheet(mode) });
+  if ($('#resIn')) $('#resIn').onclick = () => signInSheet({ then: () => { state.recMode = mode; showTab('find'); } });
   if (onBoard && ME) rankOf(mode, true).then(v => {
     const el = $('#resRank'); if (!el) return;
     if (!v || !v.me || !v.me.rank) { el.innerHTML = ''; return; }
     const r = v.me.rank, above = r > 1 ? v.rows[r - 2] : null;
-    const gap = above ? (mode === 'sprint' ? `${above.v - v.me.v + 1} more right` : `${fmtTime(v.me.v - above.v)} faster`) : '';
+    const gap = above ? fmtTime(v.me.v - above.v) : '';
     el.innerHTML = `<div class="rank-card"><b>#${r}</b><span>${r === 1 ? `Top of the ${esc(state.scope.name)} board!` : `on the ${esc(state.scope.name)} board`}</span>
-      <small>${above ? `Next: ${esc(above.name)} at ${mode === 'sprint' ? above.v : fmtTime(above.v)}. You need ${gap}.` : 'Everyone else is chasing you now.'}</small></div>`;
+      <small>${above ? `Next up: ${esc(above.name)} at ${fmtTime(above.v)}, ${gap} faster.` : 'Everyone else is chasing you now.'}</small></div>`;
   });
 }
 
@@ -3517,11 +3439,7 @@ function nameSheet() {
 // ---------- compete: leaderboard and races ----------
 const avatar = (name, uid) => `<span class="av" style="--h:${[...(uid || name || 'x')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360}">${esc((name || '?')[0].toUpperCase())}</span>`;
 const who = r => `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`;
-function bindRecHead() {
-  sheet.querySelectorAll('[data-rec]').forEach(b => b.onclick = () => { buzz(5); state.recMode = b.dataset.rec; competeSheet('rec'); });
-  $('#recMap').onclick = openPicker;
-}
-function competeSheet(kind = state.board || 'week') {
+function competeSheet(kind = state.board === 'all' ? 'all' : 'week') {
   state.mode = 'explore'; state.target = null; state.board = kind;
   setRound(false); setTab('compete');
   if (!ME) {
@@ -3535,15 +3453,14 @@ function competeSheet(kind = state.board || 'week') {
       <div class="rbtns"><button class="btn primary" id="raceNew">Start a race</button><button class="btn" id="raceJoin">Join with a code</button></div>
       <form class="race-join" id="raceJoinForm" hidden><input id="raceCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Race code"><button class="btn primary" type="submit">Join</button></form>
       <p class="err" id="raceErr" role="alert"></p></div>
-    <div class="seg" role="tablist"><button data-board="week" aria-pressed="${kind === 'week'}">This week</button><button data-board="all" aria-pressed="${kind === 'all'}">Knowledge</button><button data-board="rec" aria-pressed="${kind === 'rec'}">Records</button></div>
-    ${kind === 'rec' ? recHead() : `<p class="hint lb-hint">${kind === 'week' ? '10 points for every right answer, 50 for reaching your daily goal. Resets every Monday.' : 'How much of the world you know: countries, capitals, states and provinces, and history chapters understood.'}</p>`}
+    <div class="seg" role="tablist"><button data-board="week" aria-pressed="${kind === 'week'}">This week</button><button data-board="all" aria-pressed="${kind === 'all'}">World knowledge</button></div>
+    <p class="hint lb-hint">${kind === 'week' ? '10 points for every right answer, 50 for reaching your daily goal. Resets every Monday.' : 'How much of the world you know: countries, capitals, states and provinces, and history chapters understood.'}</p>
     <div class="lb" id="lb"><p class="hint">Loading…</p></div>`);
   sheet.querySelectorAll('[data-board]').forEach(b => b.onclick = () => { buzz(5); competeSheet(b.dataset.board); });
   $('#raceNew').onclick = () => { buzz(8); raceHost(); };
   $('#raceJoin').onclick = () => { $('#raceJoinForm').hidden = false; $('#raceCode').focus(); };
   $('#raceJoinForm').onsubmit = e => { e.preventDefault(); raceJoin($('#raceCode').value.trim().toUpperCase()); };
   updateTop();
-  if (kind === 'rec') { bindRecHead(); return fillBoard($('#lb'), state.recMode || 'find'); }
   CLOUD.pushStats({ weekId: weekId(), weekPts: weekPts(), know: knowledge() }).catch(() => {}).then(() => CLOUD.leaderboard(kind, weekId())).then(({ rows, me }) => {
     if (state.tab !== 'compete' || state.board !== kind || !$('#lb')) return;
     $('#lb').innerHTML = rows.length ? lbRows(rows, me, v => kind === 'week' ? `${v} XP` : `${(v / 10).toFixed(1)}%`)
