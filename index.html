@@ -657,6 +657,24 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .rank-card span { font-weight: 900; color: var(--ink); }
 .rank-card small { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .res-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hr-lives { display: flex; gap: 4px; color: var(--red); }
+.hr-lives i { display: grid; }
+.hr-lives .ic { width: 24px; height: 24px; }
+.hr-lives i.lost { color: var(--line); }
+.hr-lives i.pop { animation: shake .45s; }
+.hr-score { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.hr-score > b { font-size: 44px; font-weight: 900; line-height: 1; color: var(--purple); font-variant-numeric: tabular-nums; }
+.hr-score span { display: grid; }
+.hr-score small { font-size: 13px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.hr-score small:first-child { color: var(--purple-d); }
+.hr-q { font-size: 20px; line-height: 1.3; }
+.hr-miss { display: grid; gap: 8px; }
+.hr-miss > div { border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.hr-miss small { display: block; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.hr-miss p { margin: 4px 0; font-weight: 800; }
+.hr-miss b { display: flex; gap: 6px; align-items: center; color: var(--green-d, var(--green)); font-weight: 900; }
+.hr-miss b .ic { width: 16px; height: 16px; flex: none; }
+.combo.level { background: var(--purple); box-shadow: 0 4px 0 var(--purple-d), 0 10px 30px rgba(0, 0, 0, .18); }
 .res-btns .btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .res-btns .btn .ic { width: 18px; height: 18px; }
 .xp-float { position: fixed; z-index: 60; transform: translate(-50%, -50%); pointer-events: none; font: 900 16px var(--font); color: #fff; background: var(--gold); padding: 3px 11px; border-radius: 999px; box-shadow: 0 2px 0 var(--gold-d), 0 6px 16px rgba(0, 0, 0, .18); animation: xpup 1s cubic-bezier(.2, .8, .3, 1) forwards; }
@@ -1740,6 +1758,7 @@ const IC = {
   cap: svg('<path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>', 1.9),
   lock: svg('<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/>', 2.2),
   star: svg('<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>', 2),
+  heart: '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.4C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.5 1.1 4.4 2.5.9-1.4 2.3-2.5 4.4-2.5 3.6 0 5.7 3.7 4.2 7.1C19.5 16.4 12 21 12 21z"/></svg>',
   clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 1.9),
   trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M17 5h3a3 3 0 01-3 4M7 5H4a3 3 0 003 4"/>', 1.9),
   share: svg('<path d="M12 15V3M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>', 2.4),
@@ -2369,7 +2388,7 @@ function showOnGlobe(f) {
 
 function onPick(f) {
   // In a race, tapping the map would name places and replace the race card.
-  if (state.race || state.daily || (RUN && RUN.mode !== 'find') || state.writing) return;
+  if (state.race || state.daily || (RUN && RUN.mode !== 'find') || state.writing || state.histrun) return;
   if (state.mode === 'locate') return locateTap(f);
   if (state.mode === 'learn') {
     // During a question, tapping only names places outside the quiz or already solved.
@@ -2766,7 +2785,7 @@ function recordPR(key, r) {
   prs[key] = { ...r, at: Date.now() }; save();
   return old || {};
 }
-// The leaderboard takes full runs only: every place named or found.
+// The leaderboard takes full runs only (every place named or found), and History run scores.
 const recKey = (mode, scopeId, subj) => `${mode[0]}_${scopeId.replace(/[^A-Za-z]/g, '')}_${subj}`;
 function pushRecords() {
   if (!CLOUD || !ME || ME.pending) return;
@@ -2776,6 +2795,7 @@ function pushRecords() {
     if (!sc || !r) continue;
     const total = subj === 'cap' ? sc.items.filter(f => f.cap[0]).length : sc.items.length;
     if ((mode === 'write' || mode === 'find') && r.n === total) out[recKey(mode, scopeId, subj)] = r.ms;
+    if (mode === 'hist' && r.n > 0) out[recKey(mode, scopeId, subj)] = r.n;
   }
   return CLOUD.pushRecords(out).catch(() => {});
 }
@@ -2792,7 +2812,7 @@ const CH = {
 const CH_ORDER = ['find', 'write'];
 const chItems = () => quizItems().filter(f => shown(f) !== '—');
 const prOf = mode => (store.prs || {})[prKey(mode)];
-const playCh = m => m === 'find' ? startFind() : startWrite();
+const playCh = m => m === 'find' ? startFind() : m === 'hist' ? startHistRun() : startWrite();
 function bestText(mode, total) {
   const r = prOf(mode); if (!r) return '';
   return r.n === total ? fmtTime(r.ms) : `${r.n} of ${total}`;
@@ -2810,39 +2830,43 @@ function findSheet() {
     return `<button class="ch-card" data-play="${m}" style="--c:${C.color}"><span class="ch-ic">${C.icon}</span>
       <span class="ch-txt"><b>${C.name}</b><small>${line}</small></span><span class="ch-go">Play</span></button>`;
   };
-  setSheet(`<div><div class="title">Quiz</div><p class="hint">Race the clock. Beat your best time.</p></div>
+  const hist = histPool(), histN = hist.chQs.length + hist.clues.length;
+  setSheet(`<div><div class="title">Quiz</div><p class="hint">Race the clock, master the history, top the board.</p></div>
     <button class="qz-map tile" id="pickScope"><span class="qz-flag">${state.scope.icon}</span><span><b>${esc(state.scope.name)}</b><small>${total} ${esc(what)}</small></span><span class="qz-chg">Change</span></button>
     ${subjSeg()}
     ${total < 8 ? '<p class="hint">Pick a bigger map for the timed challenges.</p>' : CH_ORDER.map(card).join('')}
+    ${histN >= 12 ? hrCard() : ''}
     <div class="qz-board" id="qzBoard" hidden></div>`);
   bindSubj(findSheet);
   $('#pickScope').onclick = openPicker;
   sheet.querySelectorAll('[data-play]').forEach(b => b.onclick = () => { buzz(8); playCh(b.dataset.play); });
-  if (total >= 8) quizBoard();
+  if (total >= 8 || histN >= 12) quizBoard();
   updateTop(); draw();
 }
-// "Fastest on Europe": top five for Find or Name them all, plus your own place. Hidden until someone has a time.
+// "Top on Europe": top five for Find, Name them all or the History run, plus your own place. Hidden until
+// anyone has a score.
 // Reads are cached for a minute; a new record clears its map's entry.
 const rankCache = {};
+const BOARDS = ['find', 'write', 'hist'], boardSubj = m => m === 'hist' ? 'name' : state.subj;
 function rankOf(mode, fresh) {
-  const rk = recKey(mode, state.scope.id, state.subj), c = rankCache[rk];
+  const rk = recKey(mode, state.scope.id, boardSubj(mode)), c = rankCache[rk];
   if (!fresh && c && Date.now() - c.t < 60000) return Promise.resolve(c.v);
   if (!CLOUD || !CLOUD.records) return Promise.resolve(null);
   return Promise.resolve(pushRecords()).then(() => CLOUD.records(rk)).then(v => { if (v.rows.length) rankCache[rk] = { t: Date.now(), v }; return v; }, () => null);
 }
 function quizBoard() {
   const scope = state.scope.id, subj = state.subj;
-  Promise.all(CH_ORDER.map(m => rankOf(m))).then(vs => {
+  Promise.all(BOARDS.map(m => rankOf(m))).then(vs => {
     const el = $('#qzBoard');
     if (!el || state.scope.id !== scope || state.subj !== subj) return;
-    const has = m => { const v = vs[CH_ORDER.indexOf(m)]; return v && v.rows.length ? v : null; };
-    if (!has('find') && !has('write')) return;
-    let m = state.recMode && has(state.recMode) ? state.recMode : has('find') ? 'find' : 'write';
+    const has = m => { const v = vs[BOARDS.indexOf(m)]; return v && v.rows.length ? v : null; };
+    if (!BOARDS.some(has)) return;
+    let m = state.recMode && has(state.recMode) ? state.recMode : BOARDS.find(has);
     const paint = () => {
-      const v = has(m);
-      el.innerHTML = `<div class="qz-bh"><b>${IC.trophy}Fastest on ${esc(state.scope.name)}</b>
-        <div class="seg small" role="tablist">${CH_ORDER.map(k => `<button data-bm="${k}" aria-pressed="${k === m}">${k === 'find' ? 'Find' : 'Name'}</button>`).join('')}</div></div>
-        <div class="lb">${v ? lbRows(v.rows.slice(0, 5), v.me, fmtTime, 5) : '<p class="hint">No times yet. Finish one and you\'re first.</p>'}</div>`;
+      const v = has(m), fmt = m === 'hist' ? x => `${x} in a row` : fmtTime;
+      el.innerHTML = `<div class="qz-bh"><b>${IC.trophy}Top on ${esc(state.scope.name)}</b>
+        <div class="seg small" role="tablist">${BOARDS.map(k => `<button data-bm="${k}" aria-pressed="${k === m}">${{ find: 'Find', write: 'Name', hist: 'History' }[k]}</button>`).join('')}</div></div>
+        <div class="lb">${v ? lbRows(v.rows.slice(0, 5), v.me, fmt, 5) : '<p class="hint">No one on this board yet. Play and you\'re first.</p>'}</div>`;
       el.querySelectorAll('[data-bm]').forEach(b => b.onclick = () => { buzz(5); m = state.recMode = b.dataset.bm; paint(); });
     };
     paint(); el.hidden = false;
@@ -3053,6 +3077,123 @@ function results(mode, { n, total, ms, complete, missed = [] }) {
     el.innerHTML = `<div class="rank-card"><b>#${r}</b><span>${r === 1 ? `Top of the ${esc(state.scope.name)} board!` : `on the ${esc(state.scope.name)} board`}</span>
       <small>${above ? `Next up: ${esc(above.name)} at ${fmtTime(above.v)}, ${gap} faster.` : 'Everyone else is chasing you now.'}</small></div>`;
   });
+}
+
+// ---------- history run ----------
+// Everything the app teaches about this map's past, as one game: "Which country…?" clues, which side or
+// empire a place was in, and the timeline's questions on why things happened and what they changed. Three
+// lives; easier clues first, then more of the why. Every answer explains itself, and every 10 right is a
+// new rank. The best run on each map goes on its leaderboard.
+const HR_LEVELS = [[0, 'Apprentice'], [10, 'Scholar'], [20, 'Historian'], [35, 'Professor'], [50, 'Grand Historian']];
+const hrLevel = n => HR_LEVELS.filter(([t]) => n >= t).pop()[1];
+const hrPrKey = () => prKey('hist', state.scope, 'name');
+const hrBest = () => (store.prs || {})[hrPrKey()];
+function hrQuestions() {
+  const { mapQs, chQs, clues } = histPool(), seenMap = new Set();
+  const nearOpts = (f, pool) => {
+    const others = pool.filter(x => x !== f), near = shuffle(others.slice().sort((a, b) => dist(a, f) - dist(b, f)).slice(0, 6)).slice(0, 2);
+    return shuffle([f, ...near, ...shuffle(others.filter(x => !near.includes(x))).slice(0, 3 - near.length)]);
+  };
+  const C = shuffle(clues).map(f => {
+    const n = Math.random() * 3 | 0, opts = nearOpts(f, clues), other = (n === 2 ? f.h.t : f.h.c) || '';
+    return { ctx: n === 2 ? `Which ${state.scope.one || 'country'}? · Today` : `Which ${state.scope.one || 'country'}? · History`, q: esc(f.h.q[n]), opts: opts.map(o => esc(o.n)), c: opts.indexOf(f), why: esc((other.match(/^.{30,}?[.!?](?=\s+[A-Z]|$)/) || [other])[0]), after: f };
+  });
+  const M = shuffle(mapQs).filter(x => !seenMap.has(x.f.id) && seenMap.add(x.f.id)).map(({ a, m, gi, f, part }) => {
+    const Mp = a.maps[m], ks = shuffle([gi, ...shuffle(Mp.groups.map((g, k) => k).filter(k => k !== gi)).slice(0, 3)]);
+    const note = Mp.notes && (Mp.notes[f.id] || Mp.notes[parentId(f)]);
+    return { ctx: `${a.title} · ${Mp.title}`, q: part ? `Part of today's <em>${esc(f.n)}</em> belonged to which?` : /today|now/i.test(a.years) || /20[12]\d/.test(Mp.title) ? `Which group is <em>${esc(f.n)}</em> in?` : `Which was <em>${esc(f.n)}</em> part of?`, opts: ks.map(k => esc(Mp.groups[k].label)), c: ks.indexOf(gi), why: esc(note || Mp.groups[gi].sub || ''), before: f };
+  });
+  const Q = shuffle(chQs).map(({ a, i }) => {
+    const x = a.quiz[i], order = shuffle([0, 1, 2, 3]);
+    return { ctx: `${a.title} · ${a.years}`, q: esc(x.q), opts: order.map(k => esc(x.a[k])), c: order.indexOf(x.c), why: esc(x.why), deep: true };
+  });
+  // Warm up on places, then lean on the why: two timeline questions for every clue and map question.
+  const out = [...C.splice(0, 2), ...M.splice(0, 2), ...C.splice(0, 1)];
+  while (C.length || M.length || Q.length) for (const [l, k] of [[Q, 2], [C, 1], [Q, 0], [M, 1]]) out.push(...l.splice(0, k || 1));
+  return out.filter(Boolean);
+}
+function hrCard() {
+  const r = hrBest();
+  const line = r ? `Your best <b>${r.n} in a row</b> · ${hrLevel(r.n)}` : 'Empires, wars and big ideas. Three lives: how far can you go?';
+  return `<button class="ch-card" data-play="hist" style="--c:var(--purple)"><span class="ch-ic">${IC.clock}</span>
+    <span class="ch-txt"><b>History run</b><small>${line}</small></span><span class="ch-go">Play</span></button>`;
+}
+function startHistRun() {
+  const qs = hrQuestions(), t0 = Date.now(), missed = [];
+  let i = 0, n = 0, lives = 3, cur = null;
+  gainStart(); clearTimeout(advanceT);
+  state.mode = 'learn'; state.locate = false; state.sel = null; state.target = null; state.flash = null; state.solved.clear(); state.histrun = true;
+  roundFrom = 'find'; setRound(true); fitBox(G.views[state.scope.id] || G.views.world); draw();
+  const best = (hrBest() || {}).n || 0;
+  const hud = () => `<div class="hud" style="--c:var(--purple)"><button class="qx" id="hrX" aria-label="Stop">${IC.x}</button>
+      <div class="hud-main"><span class="hud-name">${IC.clock}History run</span><span class="hr-lives" aria-label="${lives} lives left">${[0, 1, 2].map(k => `<i class="${k < lives ? '' : 'lost'}">${IC.heart || '♥'}</i>`).join('')}</span></div></div>
+    <div class="hr-score"><b id="hrN">${n}</b><span><small>${hrLevel(n)}</small>${best ? `<small>Best ${best}</small>` : ''}</span></div>`;
+  const quit = () => { state.histrun = false; keyHandler = null; state.target = null; draw(); showTab('find'); };
+  const show = () => {
+    if (!lives || i >= qs.length) return end();
+    cur = qs[i];
+    if (cur.before) { state.target = cur.before; fitBox(contextBox(cur.before)); } else state.target = null;
+    state.flash = null; draw();
+    setSheet(`${hud()}<p class="hq-ch">${esc(cur.ctx)}</p><p class="prompt hr-q">${cur.q}</p>
+      <div class="opts col">${cur.opts.map((o, k) => `<button class="opt" data-k="${k}"><kbd>${k + 1}</kbd><span>${o}</span></button>`).join('')}</div>
+      <div class="fb inline" id="fb"></div>`);
+    $('#hrX').onclick = quit;
+    const btns = [...sheet.querySelectorAll('.opt')];
+    const pick = b => {
+      if (b.disabled) return;
+      btns.forEach(x => x.disabled = true);
+      const ok = +b.dataset.k === cur.c;
+      btns[cur.c].classList.add('good');
+      if (ok) {
+        n++; $('#hrN').textContent = n; practisedToday(10); updateTop();
+        if (n % 10 === 0 && n <= 50) setTimeout(() => levelBanner(hrLevel(n)), 300);
+      } else {
+        b.classList.add('bad'); lives--; missed.push(cur); practisedToday(0);
+        const h = sheet.querySelectorAll('.hr-lives i')[lives]; if (h) h.classList.add('lost', 'pop');
+      }
+      if (cur.after) { state.target = cur.after; fitBox(contextBox(cur.after)); draw(); }
+      const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : lives ? `${lives} ${lives === 1 ? 'life' : 'lives'} left` : 'Out of lives', cur.why);
+      if (!ok) buzz([20, 40, 20]); else buzz(12);
+      requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+      const nb = document.createElement('button'); nb.className = 'btn primary'; nb.id = 'nextBtn'; nb.textContent = lives ? 'Continue' : 'See your score';
+      nb.onclick = () => { i++; show(); }; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
+      keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); i++; show(); } };
+    };
+    btns.forEach(b => b.onclick = () => pick(b));
+    keyHandler = e => { const k = +e.key; if (k >= 1 && k <= btns.length) pick(btns[k - 1]); };
+    if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__hr = { right: cur.c, left: qs.length - i };  // tests only
+  };
+  const end = () => {
+    state.histrun = false; keyHandler = null; state.target = null; draw();
+    const all = i >= qs.length && lives > 0;
+    const prev = n ? recordPR(hrPrKey(), { n, ms: Date.now() - t0 }) : null;
+    const rk = recKey('hist', state.scope.id, 'name'); if (prev) delete rankCache[rk];
+    setSheet(`<div class="res" style="--c:var(--purple)"><span class="res-name">${IC.clock}History run · ${esc(state.scope.name)}</span><div class="res-big">${n}<small> right</small></div><div class="res-sub">${all ? 'You answered every question!' : `Rank: <b>${hrLevel(n)}</b>${n < 50 ? ` · ${HR_LEVELS.find(([t]) => t > n)[0] - n} more for ${HR_LEVELS.find(([t]) => t > n)[1]}` : ''}`}</div></div>
+      ${prev ? `<div class="pr-badge">${IC.trophy}<b>New personal record!</b><span>${prev.n == null ? 'Your first run on this map' : `Was ${prev.n} in a row`}</span></div>` : best ? `<p class="hint res-best">Your best: ${best} in a row</p>` : ''}
+      <div id="resRank">${n && !ME && CLOUD ? `<button class="btn" id="resIn">${IC.trophy}Post your score</button>` : ''}</div>
+      ${rewardBlock()}
+      ${missed.length ? `<h4 class="home-h">Brush up on</h4><div class="hr-miss">${missed.map(x => `<div><small>${esc(x.ctx)}</small><p>${x.q}</p><b>${IC.check}${x.opts[x.c]}</b></div>`).join('')}</div>` : ''}
+      <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>`);
+    requestAnimationFrame(() => sheet.scrollTo({ top: 0 }));
+    buzz(prev ? [10, 60, 10] : 10); celebrate(!!prev || n >= 10);
+    if (prev) sfx('combo');
+    $('#resAgain').onclick = () => { buzz(8); startHistRun(); };
+    $('#resDone').onclick = () => showTab('find');
+    if ($('#resIn')) $('#resIn').onclick = () => signInSheet({ then: () => { state.recMode = 'hist'; showTab('find'); } });
+    if (n && ME) rankOf('hist', true).then(v => {
+      const el = $('#resRank'); if (!el) return;
+      if (!v || !v.me || !v.me.rank) { el.innerHTML = ''; return; }
+      const r = v.me.rank, above = r > 1 ? v.rows[r - 2] : null;
+      el.innerHTML = `<div class="rank-card"><b>#${r}</b><span>${r === 1 ? `Top of the ${esc(state.scope.name)} board!` : `on the ${esc(state.scope.name)} board`}</span>
+        <small>${above ? `Next up: ${esc(above.name)} with ${above.v} in a row.` : 'Everyone else is chasing you now.'}</small></div>`;
+    });
+  };
+  show();
+}
+function levelBanner(name) {
+  const el = document.createElement('div'); el.className = 'combo level'; el.setAttribute('role', 'status');
+  el.innerHTML = `${IC.trophy}<b>New rank: ${esc(name)}!</b>`;
+  document.body.appendChild(el); sfx('combo'); buzz([10, 40, 10]); setTimeout(() => el.remove(), 1900);
 }
 
 // ---------- daily challenge ----------
