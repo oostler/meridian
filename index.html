@@ -532,6 +532,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .pill::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: currentColor; }
 .pill.type { color: var(--blue-d); }
 .pill.loc { color: var(--orange); }
+.pill.daily { color: var(--pc, var(--purple-d)); }
 .prompt { font-weight: 900; font-size: 24px; line-height: 1.2; margin: -6px 0 0; text-wrap: balance; }
 .prompt em { font-style: normal; color: var(--blue); }
 .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -3299,26 +3300,70 @@ const DD_HIST = [
   ['now', 'The EU and NATO', 'EU and NATO', 'Name a country that is in both the EU and NATO'],
   ['now', 'Where the people are', 'Ten most populous', 'Name one of the 10 most populous countries'],
   ['now', 'Rich and poor', 'Low income', 'Name a country the World Bank counts as low income'],
+  ['islam', 'spread of Islamic rule', 'First caliphs, 632–661', 'Name a country the first caliphs conquered (632–661)'],
+  ['silk', 'overland routes', 'Lands on the main routes', 'Name a country on the main overland Silk Road routes'],
+  ['silk', 'sea routes', 'Lands on the main sea routes', 'Name a country on the Silk Road\'s main sea routes'],
+  ['americas', 'Maya, Aztecs and Inca', 'Inca Empire, about 1530', 'Name a country that was part of the Inca Empire'],
+  ['revolutions', "Napoleon's Europe", 'French Empire', "Name a country that was part of Napoleon's French Empire in 1812"],
+  ['revolutions', "Napoleon's Europe", 'Allies of France', "Name a country allied with Napoleon's France in 1812"],
+  ['reformation', "Europe's faiths", 'Orthodox', 'Name a country that was mostly Orthodox Christian in 1600'],
+  ['asiaemp', 'Russia expands', 'Gained 1800–1900', 'Name a country Russia took over between 1800 and 1900'],
+  ['ottoman', 'What was left in 1914', 'Lost by 1914', 'Name a country the Ottomans had ruled but lost by 1914'],
+  ['nations', 'New states in Europe', 'From the Ottoman Empire', 'Name a European country that broke away from the Ottomans before 1914'],
+  ['scramble', 'Africa carved up', 'Britain', 'Name an African country that Britain ruled in 1914'],
+  ['scramble', 'Africa carved up', 'France', 'Name an African country that France ruled in 1914'],
+  ['scramble', 'Africa carved up', 'Germany', 'Name an African country that Germany ruled in 1914'],
+  ['scramble', 'British Empire at its height', 'Colonies and protectorates', 'Name a country that was a British colony or protectorate around 1921'],
+  ['ww1', 'The new map', 'New nation-states', 'Name a new nation-state created after World War I'],
+  ['ww1', 'The new map', 'Kingdom of Serbs, Croats and Slovenes', 'Name a country that was part of the first Yugoslavia (1918)'],
+  ['interwar', 'Dictators and democracies', 'Communist', 'Name a country that was under communist rule in 1938'],
+  ['ww2', 'The Axis at its height', 'Axis allies', 'Name a country that was an Axis ally in World War II'],
+  ['asia', 'Who left Asia', 'Britain', 'Name an Asian country that won independence from Britain'],
+  ['coldwar', 'Where communists took power', '1917–1924', 'Name a country that came under Soviet rule between 1917 and 1924'],
+  ['coldwar', 'Where communists took power', 'Marxist regimes, 1967–1978', 'Name a country where a Marxist regime took power between 1967 and 1978'],
+  ['collapse', 'fall of communism', 'Soviet satellites', 'Name a Soviet satellite state that threw off communism in 1989'],
+  ['africa', 'When Africa became independent', '1961–1969', 'Name an African country that became independent between 1961 and 1969'],
+  ['africa', 'When Africa became independent', '1970–1980', 'Name an African country that became independent in the 1970s'],
+  ['islands', 'Small states', 'Caribbean', 'Name a Caribbean country that became independent between 1962 and 1983'],
+  ['islands', 'Small states', 'Pacific', 'Name a Pacific island country that became independent between 1962 and 1983'],
+  ['europe', 'How the EU grew', '2004–2013', 'Name a country that joined the EU between 2004 and 2013'],
+  ['religions', 'Majority religion', 'No religion', 'Name a country where most people follow no religion'],
+  ['today', 'Arab Spring', 'Big protests', 'Name a country with big Arab Spring protests in 2011'],
 ];
-function dailyPrompts(no) {
-  const rnd = seeded(no * 7 + 3), pick = a => a.splice(Math.floor(rnd() * a.length), 1)[0];
+// Two dailies, each with its own number, curve and share line.
+const DD_KIND = {
+  geo: { key: 'daily', doc: no => String(no), title: 'Daily Geography', short: 'Geography', emoji: '🌍', color: 'var(--blue)', icon: IC.globe },
+  hist: { key: 'dailyH', doc: no => 'h' + no, title: 'Daily History', short: 'History', emoji: '📜', color: 'var(--purple)', icon: IC.clock },
+};
+function dailyPrompts(no, kind = 'geo') {
   const W = SCOPES.find(s => s.id === 'world').items, inW = new Set(W.map(f => f.id)), ids = l => l.map(f => f.id);
+  if (kind === 'hist') {
+    // A side, empire or bloc on one of the timeline's maps, asked in words that stand on their own. The set is
+    // dealt seven a day in one fixed shuffled order, so each prompt comes back only after all the others.
+    const pool = [];
+    for (const [aid, title, label, q] of DD_HIST) {
+      const M = ((anchorById[aid] || {}).maps || []).find(m => m.title.includes(title)), g = M && M.groups.find(x => x.label === label);
+      const m = g ? [...(g.full || []), ...(g.part || [])].filter(id => inW.has(id)) : [];
+      if (m.length >= 6 && !plusLocked(aid)) pool.push({ q, ctx: `${anchorById[aid].title} · ${M.title}`, ids: m });
+    }
+    const r = seeded(20261025), order = pool.map((_, k) => k);
+    for (let k = order.length - 1; k > 0; k--) { const j = Math.floor(r() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; }
+    const out = [];
+    for (let k = (no - 1) * DD_N; out.length < DD_N; k++) out.push(pool[order.at(k % pool.length)]);
+    return out;
+  }
+  const rnd = seeded(no * 7 + 3), pick = a => a.splice(Math.floor(rnd() * a.length), 1)[0];
   const CONT = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
   const pools = {
     cont: CONT.map(c => ({ q: `Name a country in ${c}`, ids: ids(W.filter(f => f.co.includes(c))) })),
     letter: [...'ABCGIMNPST'].map(L => ({ q: `Name a country that starts with ${L}`, ids: ids(W.filter(f => norm(f.n)[0] === L.toLowerCase())) })).filter(p => p.ids.length >= 6),
     border: W.filter(f => (f.nb || []).filter(id => inW.has(id)).length >= 6).map(f => ({ q: `Name a country that borders ${f.n}`, ids: f.nb.filter(id => inW.has(id)), show: f.id })),
     cap: CONT.map(c => ({ q: `Name a capital city in ${c}`, cap: true, ids: ids(W.filter(f => f.co.includes(c) && f.cap[0])) })),
+    capLetter: [...'ABKLMPST'].map(L => ({ q: `Name a capital city that starts with ${L}`, cap: true, ids: ids(W.filter(f => f.cap[0] && norm(f.cap[0])[0] === L.toLowerCase())) })).filter(p => p.ids.length >= 6),
+    ends: [['ia', '‑ia'], ['stan', '‑stan'], ['land', '‑land'], ['a', '‑a']].map(([s, w]) => ({ q: `Name a country whose name ends in ${w}`, ids: ids(W.filter(f => norm(f.n).endsWith(s))) })).filter(p => p.ids.length >= 6),
     size: [{ q: 'Name a country with more than 100 million people', ids: ids(W.filter(f => f.pop > 1e8)) }, { q: 'Name a country with fewer than 1 million people', ids: ids(W.filter(f => f.pop < 1e6)) }, { q: 'Name a country larger than 1 million km²', ids: ids(W.filter(f => f.ar > 1e6)) }],
-    hist: [],
   };
-  // History: a side, empire or bloc on one of the timeline's maps, asked in words that stand on their own.
-  for (const [aid, title, label, q] of DD_HIST) {
-    const M = ((anchorById[aid] || {}).maps || []).find(m => m.title.includes(title)), g = M && M.groups.find(x => x.label === label);
-    const m = g ? [...(g.full || []), ...(g.part || [])].filter(id => inW.has(id)) : [];
-    if (m.length >= 6 && !plusLocked(aid)) pools.hist.push({ q, ctx: `${anchorById[aid].title} · ${M.title}`, ids: m });
-  }
-  return ['cont', 'letter', 'border', 'hist', 'cap', 'size', 'hist'].map(k => pick(pools[k]));
+  return ['cont', 'letter', 'border', 'cap', 'ends', 'size', 'capLetter'].map(k => pick(pools[k]));
 }
 // Before many people have played, a guess at how often each answer comes up: answers to these prompts
 // bunch on the biggest places, roughly in proportion to 1 / rank by population. Real counts soon take over.
@@ -3341,48 +3386,48 @@ function ddMatch(p, input) {
   for (const f of valid) for (const a of answersFor(f, subj)) { const o = norm(a); if (o.length < 4) continue; const tol = o.length >= 9 ? 2 : o.length >= 5 ? 1 : 0; if (tol && lev(x, o) <= tol) return { f }; }
   return {};
 }
-const dailyState = () => { const no = dailyNo(); return store.daily && store.daily.no === no && store.daily.ans ? store.daily : { no, ans: [] }; };
+const dailyState = (kind = 'geo') => { const no = dailyNo(), s = store[DD_KIND[kind].key]; return s && s.no === no && s.ans ? s : { no, ans: [] }; };
 const ddScore = d => d.ans.reduce((s, a) => s + (a && a.t >= 0 ? DD_TIERS[a.t].pts : 0), 0);
 const dailySquares = d => d.ans.map(a => a && a.t >= 0 ? DD_TIERS[a.t].e : '⬛').join('');
 function untilNextDaily() { const ms = DAILY_EPOCH + dailyNo() * DAY - Date.now(), h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return h ? `${h}h ${m}m` : `${m}m`; }
-const dailyLine = d => d.done ? `${ddScore(d)} points · ${dailySquares(d)}<br>${d.pct != null ? `Better than ${d.pct}% of players · ` : ''}new one in ${untilNextDaily()}` : d.ans.length ? `Carry on · ${d.ans.length} of ${DD_N} answered` : `${DD_N} prompts, 25 seconds each. Rarer answers score more.`;
-function dailyCard() {
-  const d = dailyState();
-  return `<button class="go tile daily${d.done ? ' done' : ''}" id="goDaily" style="--c:var(--purple)"><span class="go-ic">${IC.star}</span><span><b>Daily Challenge #${d.no}</b><small>${dailyLine(d)}</small></span>${IC.next}</button>`;
-}
-// One calm "Today" card: the daily goal, the Daily Challenge and anything due for review, in that order.
+const dailyLine = d => d.done ? `${ddScore(d)} points · ${dailySquares(d)}<br>${d.pct != null ? `Better than ${d.pct}% of players · ` : ''}new one in ${untilNextDaily()}` : d.ans.length ? `Carry on · ${d.ans.length} of ${DD_N} answered` : `${DD_N} prompts · rarer answers score more`;
+// One calm "Today" card: the daily goal, the two dailies and anything due for review, in that order.
 function todayCard() {
   const n = answeredToday(), g = store.goal, done = g && n >= g, c = store.commit, st = streak();
-  const d = dailyState();
+  const dg = dailyState('geo'), dh = dailyState('hist');
   const { places, hist } = reviewDue(), rv = places.length + hist.length;
   const commit = !c ? '' : st >= c ? `<div class="gb-c">You kept your ${c}-day promise.${c < 30 ? ` <button class="link" id="goal30">Go for 30 days</button>` : ''}</div>` : `<div class="gb-c">Day ${st || 0} of your ${c}-day streak</div>`;
   const row = (id, color, icon, title, sub) => `<button class="td-row" id="${id}"><span class="td-ic" style="--c:${color}">${icon}</span><span><b>${title}</b><small>${sub}</small></span>${IC.next}</button>`;
   return `<div class="today goalbar${done ? ' done' : ''}">
     <div class="gb-top"><b>${done ? `${IC.check}Goal reached` : 'Today'}</b>${g ? `<span>${Math.min(n, g)} / ${g} answers</span>` : ''}</div>
     ${g ? `<div class="gb-bar"><i style="width:${Math.min(100, n / g * 100)}%"></i></div>` : ''}${commit}
-    ${row('goDaily', 'var(--purple)', IC.star, `Daily Challenge #${d.no}`, dailyLine(d))}
+    ${row('goDaily', DD_KIND.geo.color, DD_KIND.geo.icon, `${DD_KIND.geo.title} #${dg.no}`, dailyLine(dg))}
+    ${row('goDailyH', DD_KIND.hist.color, DD_KIND.hist.icon, `${DD_KIND.hist.title} #${dh.no}`, dailyLine(dh))}
     ${rv ? row('goReview', 'var(--orange)', IC.flame, 'Review', `${rv} due · about ${Math.max(1, Math.round(rv / 3))} min. Keeps what you've learned from fading.`) : ''}
   </div>`;
 }
-if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__ddPrompts = no => dailyPrompts(no);  // tests only
-function bindDaily() { if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge(); }; }
+if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__ddPrompts = (no, kind) => dailyPrompts(no, kind);  // tests only
+function bindDaily() {
+  if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
+  if ($('#goDailyH')) $('#goDailyH').onclick = () => { buzz(8); dailyChallenge('hist'); };
+}
 const ddStatsGet = no => CLOUD && CLOUD.dailyStats ? Promise.race([CLOUD.dailyStats(no), new Promise(r => setTimeout(() => r(null), 5000))]).catch(() => null) : Promise.resolve(null);
-function dailyChallenge() {
-  const d = dailyState(), ps = dailyPrompts(d.no), from = state.tab, prevScope = state.scope;
-  store.daily = d; save();
+function dailyChallenge(kind = 'geo') {
+  const K = DD_KIND[kind], d = dailyState(kind), ps = dailyPrompts(d.no, kind), from = state.tab, prevScope = state.scope;
+  store[K.key] = d; save();
   clearTimeout(advanceT); gainStart();
   state.daily = true; state.mode = 'learn'; state.sel = null; state.solved.clear();
   state.scope = SCOPES.find(s => s.id === 'world'); refreshLayer(); updateTop();
   setRound(true);
   let stats = null, timer = null;
-  const statsReady = ddStatsGet(d.no).then(s => { stats = s; });
+  const statsReady = ddStatsGet(K.doc(d.no)).then(s => { stats = s; });
   const leave = () => {
     clearInterval(timer);
     state.daily = false; state.target = null; state.flash = null; keyHandler = null;
     state.scope = prevScope; refreshLayer(); updateTop(); draw(); showTab(from === 'learn' ? 'learn' : 'explore');
   };
   const head = i => `<div class="qhead"><button class="qx" id="dyX" aria-label="Stop for now">${IC.x}</button><div class="qbar"><i style="width:${i / DD_N * 100}%"></i></div></div>
-    <div class="dd-top"><span class="pill daily">Daily Challenge #${d.no} · ${Math.min(i + 1, DD_N)} of ${DD_N}</span><span class="dd-score"><b>${ddScore(d)}</b> pts</span></div>`;
+    <div class="dd-top"><span class="pill daily" style="--pc:${K.color}">${K.title} #${d.no} · ${Math.min(i + 1, DD_N)} of ${DD_N}</span><span class="dd-score"><b>${ddScore(d)}</b> pts</span></div>`;
   const ask = () => {
     const i = d.ans.length;
     if (i >= DD_N) return finish();
@@ -3441,27 +3486,27 @@ function dailyChallenge() {
     clearInterval(timer); keyHandler = null; state.target = null; draw();
     const first = !d.done, score = ddScore(d);
     if (first) { d.done = 1; addPoints(20); save(); }
-    setSheet(`<div class="dd-res"><span class="pill daily">Daily Challenge #${d.no}</span><div class="res-big">${score}<small> pts</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
+    setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title} #${d.no}</span><div class="res-big">${score}<small> pts</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
       <div class="dd-curve" id="ddCurve"><p class="hint">Finding where you rank among today's players…</p></div>
       ${first ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}Share your result</button>
       <h4 class="home-h">What everyone said</h4><div class="dd-catch" id="ddCatch"></div>
-      <p class="hint" style="text-align:center">A new challenge in ${untilNextDaily()}. Same prompts for everyone.</p>
+      <p class="hint" style="text-align:center">New ${K.short.toLowerCase()} prompts in ${untilNextDaily()}. Same for everyone.</p>
       <button class="btn" id="dyDone">Done</button>`);
     if (first) celebrate(score >= 350);
     $('#dyDone').onclick = leave;
     const share = () => {
       buzz(8);
-      const text = `Meridian Daily #${d.no} 🧭\n${score} pts${d.pct != null ? ` · better than ${d.pct}% of players` : ''}\n${dailySquares(d)}\n${location.origin}${location.pathname}`;
+      const text = `Meridian ${K.title} #${d.no} ${K.emoji}\n${score} pts${d.pct != null ? ` · better than ${d.pct}% of players` : ''}\n${dailySquares(d)}\n${location.origin}${location.pathname}`;
       if (navigator.share) navigator.share({ text }).catch(() => {});
       else navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
     };
     $('#dyShare').onclick = share;
     // Count this run once, then fetch everyone's results (including it) for the curve and the answers.
     const send = !d.sent && CLOUD && CLOUD.dailySubmit
-      ? CLOUD.dailySubmit(d.no, [`h${Math.min(70, Math.floor(score / 10))}`, ...d.ans.map((a, i) => a ? `a${i}_${a.id}` : null).filter(Boolean)]).then(() => { d.sent = 1; save(); }, () => {})
+      ? CLOUD.dailySubmit(K.doc(d.no), [`h${Math.min(70, Math.floor(score / 10))}`, ...d.ans.map((a, i) => a ? `a${i}_${a.id}` : null).filter(Boolean)]).then(() => { d.sent = 1; save(); }, () => {})
       : Promise.resolve();
-    send.then(() => ddStatsGet(d.no)).then(s => {
+    send.then(() => ddStatsGet(K.doc(d.no))).then(s => {
       if (!$('#ddCurve')) return;
       paintCurve(s, score); paintCatch(s);
     });
@@ -3608,7 +3653,7 @@ function pushStatsSoon() {
 // With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
 // with this device's (the most recent answer per place wins, streak days and best scores combine), and
 // writes the result back. Settings like theme and the current map stay per device.
-const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'prs'];
+const SYNC_KEYS = ['prog', 'days', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
 function mergeProgress(a, b) {
   const out = {};
   const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
@@ -3629,7 +3674,7 @@ function mergeProgress(a, b) {
   out.plus = !!(a.plus || b.plus);
   const prs = { ...(a.prs || {}) }; for (const k in b.prs || {}) if (prBetter(b.prs[k], prs[k])) prs[k] = b.prs[k]; out.prs = prs;
   // Today's challenge: the further-along attempt.
-  const da = a.daily, db = b.daily, dn = x => (x.ans || x.marks || []).length + (x.done ? 1 : 0) + (x.sent ? 1 : 0); out.daily = !da || !db ? da || db : da.no !== db.no ? (da.no > db.no ? da : db) : dn(da) >= dn(db) ? da : db;
+  const da = a.daily, db = b.daily, dn = x => (x.ans || x.marks || []).length + (x.done ? 1 : 0) + (x.sent ? 1 : 0); const pickD = (x, y) => !x || !y ? x || y : x.no !== y.no ? (x.no > y.no ? x : y) : dn(x) >= dn(y) ? x : y; out.daily = pickD(da, db); out.dailyH = pickD(a.dailyH, b.dailyH);
   for (const k in out) if (out[k] == null) delete out[k];
   return out;
 }
