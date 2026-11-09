@@ -657,6 +657,50 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .rank-card span { font-weight: 900; color: var(--ink); }
 .rank-card small { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .res-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* ---- daily challenge: rarity rounds ---- */
+.dd-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.dd-score { font-weight: 800; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.dd-score b { font-size: 20px; font-weight: 900; color: var(--purple-d); }
+.dd-q { font-size: 24px; line-height: 1.25; }
+.dd-clock { position: relative; height: 10px; border-radius: 5px; background: var(--line); }
+.dd-clock i { position: absolute; inset: 0 auto 0 0; border-radius: 5px; background: var(--purple); transition: width .1s linear; }
+.dd-clock.hot i { background: var(--red); }
+.dd-clock span { position: absolute; right: 0; top: -22px; font-size: 13px; font-weight: 900; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.dd-clock.hot span { color: var(--red); }
+.dd-msg { margin: 0; text-align: center; font-size: 14px; font-weight: 800; color: var(--ink-2); min-height: 20px; }
+.dd-tier { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 18px 14px; border-radius: 20px; background: color-mix(in srgb, var(--tc) 12%, var(--bg)); border: 2px solid color-mix(in srgb, var(--tc) 45%, transparent); animation: pop .5s var(--ease); }
+.dd-tname { font-size: 13px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--tc); }
+.dd-tier b { font-size: 26px; font-weight: 900; line-height: 1.15; }
+.dd-pts { font-size: 20px; font-weight: 900; color: var(--tc); }
+.dd-tier small { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.dd-ladder { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.dd-ladder i { font-style: normal; display: grid; justify-items: center; padding: 6px 2px; border-radius: 10px; font-size: 10px; font-weight: 800; color: var(--ink-3); border: 2px solid var(--line); text-align: center; }
+.dd-ladder i b { font-size: 15px; font-weight: 900; color: var(--ink-2); }
+.dd-ladder i.on { border-color: var(--tc); background: color-mix(in srgb, var(--tc) 14%, var(--bg)); color: var(--tc); }
+.dd-ladder i.on b { color: var(--tc); }
+.dd-res { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.dd-squares { font-size: 26px; letter-spacing: 4px; }
+.dd-curve svg { width: 100%; height: auto; display: block; }
+.dd-curve text { font: 800 10px var(--font); fill: var(--ink-3); }
+.dd-area { fill: color-mix(in srgb, var(--purple) 18%, transparent); }
+.dd-line { fill: none; stroke: var(--purple); stroke-width: 2.5; }
+.dd-axis { stroke: var(--line); stroke-width: 1.5; }
+.dd-you { fill: var(--red); stroke: #fff; stroke-width: 2; }
+.dd-you-l { stroke: var(--red); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.dd-curve .dd-you-t { font-size: 11px; font-weight: 900; fill: var(--red); }
+.dd-rank { margin: 4px 0 0; text-align: center; font-size: 18px; font-weight: 900; }
+.dd-rank b { color: var(--purple-d); font-size: 24px; }
+.dd-catch { display: grid; gap: 8px; }
+.dd-c { border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.dd-c summary { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; cursor: pointer; list-style: none; }
+.dd-c summary::-webkit-details-marker { display: none; }
+.dd-chip { font-size: 22px; }
+.dd-c summary small { display: block; font-size: 12px; font-weight: 800; color: var(--ink-3); }
+.dd-c summary b { font-size: 16px; font-weight: 900; }
+.dd-top3 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.dd-top3 span { font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.dd-top3 i { font-style: normal; color: var(--ink-3); }
+.dd-top3 .dd-rare { background: color-mix(in srgb, var(--purple) 14%, var(--bg)); border-color: var(--purple); }
 .hr-lives { display: flex; gap: 4px; color: var(--red); }
 .hr-lives i { display: grid; }
 .hr-lives .ic { width: 24px; height: 24px; }
@@ -3197,122 +3241,259 @@ function levelBanner(name) {
 }
 
 // ---------- daily challenge ----------
-// Ten questions, the same for everyone on a given (UTC) day: five places on the globe, three capitals and
-// two from the timeline. One go a day, resumable; the result can be shared as a row of squares.
+// One go a day, resumable, numbered from the first day; the result can be shared as a row of squares.
 const DAILY_EPOCH = Date.UTC(2026, 9, 25);
 const dailyNo = () => Math.floor((Date.now() - DAILY_EPOCH) / DAY) + 1;
 function seeded(n) {
   let a = Math.imul(n, 2654435761) >>> 0;
   return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
-function dailyQuestions(no) {
-  const rnd = seeded(no), take = (arr, k) => { const a = arr.slice(), out = []; while (out.length < k && a.length) out.push(a.splice(Math.floor(rnd() * a.length), 1)[0]); return out; };
-  const mix = arr => take(arr, arr.length);
-  const W = SCOPES.find(s => s.id === 'world').items.filter(f => f.cap && f.cap[0]);
-  const big = W.filter(f => f.pop >= 30e6), mid = W.filter(f => f.pop >= 3e6 && f.pop < 30e6), small = W.filter(f => f.pop < 3e6);
-  const near = f => W.filter(x => x !== f).sort((a, b) => dist(a, f) - dist(b, f)).slice(0, 8);
-  const opts = f => mix([f, ...take(near(f), 3)]).map(x => x.id);
-  const places = [...take(big, 2), ...take(mid, 2), ...take(small, 1)];
-  const caps = take([...big, ...mid].filter(f => !places.includes(f)), 3);
-  const chs = ANCHORS.filter(a => a.quiz && trackOf(a) !== 'plus'), hist = take(chs, 2).map(a => ({ type: 'hist', a: a.id, i: Math.floor(rnd() * a.quiz.length), order: mix([0, 1, 2, 3]) }));
-  const P = mix(places).map(f => ({ type: 'map', f: f.id, opts: opts(f) })), C = caps.map(f => ({ type: 'cap', f: f.id, opts: opts(f) }));
-  return [P[0], C[0], P[1], hist[0], P[2], C[1], P[3], hist[1], P[4], C[2]].filter(Boolean);
+// Seven prompts, the same for everyone on a given (UTC) day, each with many right answers: "Name a country
+// that borders China", "Name a capital city in Africa", "Name a country that was in the Warsaw Pact". You
+// have 25 seconds to type one, and the rarer your answer among today's players, the more it scores. At the
+// end you see where your score sits on the curve of everyone who played today, and what everyone else said.
+const DD_N = 7, DD_MS = 25000, DD_K = 25;
+const DD_TIERS = [  // by the share of today's players who gave the same answer
+  { min: 0.12, name: 'Tourist', pts: 10, e: '🟦', c: 'var(--blue)', quip: 'Everyone has been here.' },
+  { min: 0.05, name: 'Traveller', pts: 30, e: '🟩', c: 'var(--green)', quip: 'Off the main road.' },
+  { min: 0.02, name: 'Explorer', pts: 60, e: '🟨', c: 'var(--gold-d)', quip: 'Few came this way.' },
+  { min: 0.007, name: 'Cartographer', pts: 85, e: '🟧', c: 'var(--orange)', quip: 'You are mapping new ground.' },
+  { min: 0, name: 'Uncharted', pts: 100, e: '💎', c: 'var(--purple)', quip: 'Almost nobody found this.' },
+];
+const ddTier = s => DD_TIERS.findIndex(t => s >= t.min);
+// [chapter, words in the map's title, group on that map, the prompt]
+const DD_HIST = [
+  ['ancient', 'Persian Empire', 'Persian Empire', 'Name a country that was part of the Persian Empire around 500 BC'],
+  ['ancient', "Alexander's empire", "Alexander's empire", "Name a country that was part of Alexander the Great's empire"],
+  ['rome', 'at its height', 'Roman provinces', 'Name a country that was part of the Roman Empire in AD 117'],
+  ['rome', 'East and West', 'Western Roman Empire', 'Name a country that was in the Western Roman Empire after 395'],
+  ['rome', 'East and West', 'Eastern Roman Empire', 'Name a country that was in the Eastern Roman Empire after 395'],
+  ['islam', 'spread of Islamic rule', 'Umayyad caliphs, 661–750', 'Name a country the Umayyad caliphs conquered (661–750)'],
+  ['mongol', 'four khanates', 'Ilkhanate', 'Name a country that was part of the Ilkhanate, the Mongols\' Persian khanate'],
+  ['ottoman', 'at its height', 'Ottoman provinces', 'Name a country the Ottoman Empire ruled at its height in 1683'],
+  ['explore', 'Spain and Portugal', 'Spanish Empire', 'Name a country that was part of the Spanish Empire in 1790'],
+  ['explore', 'Spain and Portugal', 'Portuguese Empire', 'Name a country that was part of the Portuguese Empire in 1790'],
+  ['revolutions', 'New nations by 1830', 'From Spain', 'Name a country that won independence from Spain by 1830'],
+  ['revolutions', "Napoleon's Europe", 'Against Napoleon', 'Name a country that fought against Napoleon in 1812'],
+  ['reformation', "Europe's faiths", 'Catholic', 'Name a country that was mostly Catholic in 1600'],
+  ['reformation', "Europe's faiths", 'Lutheran', 'Name a country that was mostly Lutheran in 1600'],
+  ['scramble', 'Empires of the world', 'Britain', 'Name a country that was part of the British Empire in 1914'],
+  ['scramble', 'Empires of the world', 'France', 'Name a country that was part of the French Empire in 1914'],
+  ['scramble', 'Empires of the world', 'Portugal', 'Name a country that was part of the Portuguese Empire in 1914'],
+  ['ww1', 'Four empires that fell', 'Russian Empire', 'Name a country that was part of the Russian Empire in 1914'],
+  ['ww1', 'Four empires that fell', 'Austria-Hungary', 'Name a country that was part of Austria-Hungary in 1914'],
+  ['ww1', 'Four empires that fell', 'Ottoman Empire', 'Name a country that was part of the Ottoman Empire in 1914'],
+  ['ww1', 'Who fought whom', 'Allies', 'Name a country on the Allied side in World War I'],
+  ['ww1', 'Who fought whom', 'Central Powers', 'Name a country on the side of the Central Powers in World War I'],
+  ['ww1', 'The new map', 'League of Nations mandates', 'Name a country that was a League of Nations mandate after World War I'],
+  ['ww2', 'The Axis at its height', 'Japan', 'Name a country Japan held at its height in 1942'],
+  ['coldwar', 'The two blocs', 'Warsaw Pact', 'Name a country that was in the Warsaw Pact'],
+  ['coldwar', 'The two blocs', 'NATO', 'Name a country that was in NATO in 1980'],
+  ['coldwar', 'Where communists took power', '1940–1949', 'Name a country where communists took power in the 1940s'],
+  ['interwar', 'Dictators and democracies', 'Democracies', 'Name a country that was a democracy in 1938'],
+  ['africa', 'When Africa became independent', '1960', 'Name an African country that became independent in 1960'],
+  ['religions', 'Majority religion', 'Muslim', 'Name a country where most people are Muslim'],
+  ['religions', 'Majority religion', 'Buddhist', 'Name a country where most people are Buddhist'],
+  ['mideast', 'OPEC', 'OPEC', 'Name a member of OPEC'],
+  ['europe', 'How the EU grew', 'Founders, 1958', 'Name a founding member of the European Union (1958)'],
+  ['now', 'The EU and NATO', 'EU and NATO', 'Name a country that is in both the EU and NATO'],
+  ['now', 'Where the people are', 'Ten most populous', 'Name one of the 10 most populous countries'],
+  ['now', 'Rich and poor', 'Low income', 'Name a country the World Bank counts as low income'],
+];
+function dailyPrompts(no) {
+  const rnd = seeded(no * 7 + 3), pick = a => a.splice(Math.floor(rnd() * a.length), 1)[0];
+  const W = SCOPES.find(s => s.id === 'world').items, inW = new Set(W.map(f => f.id)), ids = l => l.map(f => f.id);
+  const CONT = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
+  const pools = {
+    cont: CONT.map(c => ({ q: `Name a country in ${c}`, ids: ids(W.filter(f => f.co.includes(c))) })),
+    letter: [...'ABCGIMNPST'].map(L => ({ q: `Name a country that starts with ${L}`, ids: ids(W.filter(f => norm(f.n)[0] === L.toLowerCase())) })).filter(p => p.ids.length >= 6),
+    border: W.filter(f => (f.nb || []).filter(id => inW.has(id)).length >= 6).map(f => ({ q: `Name a country that borders ${f.n}`, ids: f.nb.filter(id => inW.has(id)), show: f.id })),
+    cap: CONT.map(c => ({ q: `Name a capital city in ${c}`, cap: true, ids: ids(W.filter(f => f.co.includes(c) && f.cap[0])) })),
+    size: [{ q: 'Name a country with more than 100 million people', ids: ids(W.filter(f => f.pop > 1e8)) }, { q: 'Name a country with fewer than 1 million people', ids: ids(W.filter(f => f.pop < 1e6)) }, { q: 'Name a country larger than 1 million km²', ids: ids(W.filter(f => f.ar > 1e6)) }],
+    hist: [],
+  };
+  // History: a side, empire or bloc on one of the timeline's maps, asked in words that stand on their own.
+  for (const [aid, title, label, q] of DD_HIST) {
+    const M = ((anchorById[aid] || {}).maps || []).find(m => m.title.includes(title)), g = M && M.groups.find(x => x.label === label);
+    const m = g ? [...(g.full || []), ...(g.part || [])].filter(id => inW.has(id)) : [];
+    if (m.length >= 6 && !plusLocked(aid)) pools.hist.push({ q, ctx: `${anchorById[aid].title} · ${M.title}`, ids: m });
+  }
+  return ['cont', 'letter', 'border', 'hist', 'cap', 'size', 'hist'].map(k => pick(pools[k]));
 }
-const dailyState = () => { const no = dailyNo(); return store.daily && store.daily.no === no ? store.daily : { no, marks: [] }; };
-const dailySquares = marks => marks.map(m => m ? '🟩' : '🟥').join('');
+// Before many people have played, a guess at how often each answer comes up: answers to these prompts
+// bunch on the biggest places, roughly in proportion to 1 / rank by population. Real counts soon take over.
+function ddPrior(p, id) {
+  const rank = p.ids.slice().sort((a, b) => (byId[b].pop || 0) - (byId[a].pop || 0)).indexOf(id) + 1;
+  return 1 / rank / p.ids.reduce((s, _, k) => s + 1 / (k + 1), 0);
+}
+function ddShare(p, i, id, stats) {
+  const prior = ddPrior(p, id);
+  const n = stats ? stats.n || 0 : 0, c = stats ? stats[`a${i}_${id}`] || 0 : 0;
+  return { s: (c + DD_K * prior) / (n + DD_K), c, n };
+}
+function ddMatch(p, input) {
+  const x = norm(input); if (!x) return {};
+  const subj = p.cap ? 'cap' : 'name', valid = p.ids.map(id => byId[id]);
+  const exact = valid.find(f => answersFor(f, subj).some(a => norm(a) === x));
+  if (exact) return { f: exact };
+  const W = SCOPES.find(s => s.id === 'world').items, other = W.find(f => answersFor(f, subj).some(a => norm(a) === x));
+  if (other) return { other };
+  for (const f of valid) for (const a of answersFor(f, subj)) { const o = norm(a); if (o.length < 4) continue; const tol = o.length >= 9 ? 2 : o.length >= 5 ? 1 : 0; if (tol && lev(x, o) <= tol) return { f }; }
+  return {};
+}
+const dailyState = () => { const no = dailyNo(); return store.daily && store.daily.no === no && store.daily.ans ? store.daily : { no, ans: [] }; };
+const ddScore = d => d.ans.reduce((s, a) => s + (a && a.t >= 0 ? DD_TIERS[a.t].pts : 0), 0);
+const dailySquares = d => d.ans.map(a => a && a.t >= 0 ? DD_TIERS[a.t].e : '⬛').join('');
 function untilNextDaily() { const ms = DAILY_EPOCH + dailyNo() * DAY - Date.now(), h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return h ? `${h}h ${m}m` : `${m}m`; }
+const dailyLine = d => d.done ? `${ddScore(d)} points · ${dailySquares(d)}<br>${d.pct != null ? `Better than ${d.pct}% of players · ` : ''}new one in ${untilNextDaily()}` : d.ans.length ? `Carry on · ${d.ans.length} of ${DD_N} answered` : `${DD_N} prompts, 25 seconds each. Rarer answers score more.`;
 function dailyCard() {
-  const d = dailyState(), n = d.marks.length, done = n >= 10, score = d.marks.filter(Boolean).length;
-  return `<button class="go tile daily${done ? ' done' : ''}" id="goDaily" style="--c:var(--purple)"><span class="go-ic">${IC.star}</span><span><b>${done ? `Daily Challenge · ${score}/10` : `Daily Challenge #${d.no}`}</b><small>${done ? `${dailySquares(d.marks)}<br>New one in ${untilNextDaily()}` : n ? `Carry on · ${n} of 10 answered` : '10 questions · the same for everyone today'}</small></span>${IC.next}</button>`;
+  const d = dailyState();
+  return `<button class="go tile daily${d.done ? ' done' : ''}" id="goDaily" style="--c:var(--purple)"><span class="go-ic">${IC.star}</span><span><b>Daily Challenge #${d.no}</b><small>${dailyLine(d)}</small></span>${IC.next}</button>`;
 }
 // One calm "Today" card: the daily goal, the Daily Challenge and anything due for review, in that order.
 function todayCard() {
   const n = answeredToday(), g = store.goal, done = g && n >= g, c = store.commit, st = streak();
-  const d = dailyState(), dn = d.marks.length, score = d.marks.filter(Boolean).length;
+  const d = dailyState();
   const { places, hist } = reviewDue(), rv = places.length + hist.length;
   const commit = !c ? '' : st >= c ? `<div class="gb-c">You kept your ${c}-day promise.${c < 30 ? ` <button class="link" id="goal30">Go for 30 days</button>` : ''}</div>` : `<div class="gb-c">Day ${st || 0} of your ${c}-day streak</div>`;
   const row = (id, color, icon, title, sub) => `<button class="td-row" id="${id}"><span class="td-ic" style="--c:${color}">${icon}</span><span><b>${title}</b><small>${sub}</small></span>${IC.next}</button>`;
   return `<div class="today goalbar${done ? ' done' : ''}">
     <div class="gb-top"><b>${done ? `${IC.check}Goal reached` : 'Today'}</b>${g ? `<span>${Math.min(n, g)} / ${g} answers</span>` : ''}</div>
     ${g ? `<div class="gb-bar"><i style="width:${Math.min(100, n / g * 100)}%"></i></div>` : ''}${commit}
-    ${row('goDaily', 'var(--purple)', IC.star, `Daily Challenge #${d.no}`, dn >= 10 ? `${score}/10 · ${dailySquares(d.marks)}<br>New one in ${untilNextDaily()}` : dn ? `Carry on · ${dn} of 10 answered` : '10 questions, the same for everyone')}
+    ${row('goDaily', 'var(--purple)', IC.star, `Daily Challenge #${d.no}`, dailyLine(d))}
     ${rv ? row('goReview', 'var(--orange)', IC.flame, 'Review', `${rv} due · about ${Math.max(1, Math.round(rv / 3))} min. Keeps what you've learned from fading.`) : ''}
   </div>`;
 }
+if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__ddPrompts = no => dailyPrompts(no);  // tests only
 function bindDaily() { if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge(); }; }
+const ddStatsGet = no => CLOUD && CLOUD.dailyStats ? Promise.race([CLOUD.dailyStats(no), new Promise(r => setTimeout(() => r(null), 5000))]).catch(() => null) : Promise.resolve(null);
 function dailyChallenge() {
-  const d = dailyState(), qs = dailyQuestions(d.no), from = state.tab, prevScope = state.scope;
+  const d = dailyState(), ps = dailyPrompts(d.no), from = state.tab, prevScope = state.scope;
   store.daily = d; save();
   clearTimeout(advanceT); gainStart();
   state.daily = true; state.mode = 'learn'; state.sel = null; state.solved.clear();
-  // The challenge is about the whole world, whatever map you were studying.
   state.scope = SCOPES.find(s => s.id === 'world'); refreshLayer(); updateTop();
   setRound(true);
+  let stats = null, timer = null;
+  const statsReady = ddStatsGet(d.no).then(s => { stats = s; });
   const leave = () => {
+    clearInterval(timer);
     state.daily = false; state.target = null; state.flash = null; keyHandler = null;
     state.scope = prevScope; refreshLayer(); updateTop(); draw(); showTab(from === 'learn' ? 'learn' : 'explore');
   };
-  const show = () => {
-    const i = d.marks.length;
-    if (i >= qs.length) return result();
-    const Q = qs[i], f = byId[Q.f];
-    let prompt, options, right;
-    if (Q.type === 'hist') {
-      const a = anchorById[Q.a], H = a.quiz[Q.i];
-      state.target = null; draw();
-      prompt = `<small class="dy-from">${esc(a.title)}</small>${esc(H.q)}`; options = Q.order.map(k => ({ k, t: H.a[k] })); right = H.c;
-    } else {
-      state.target = f; state.flash = null; fitBox(contextBox(f)); draw();
-      prompt = Q.type === 'map' ? 'Which country is highlighted?' : `What is the capital of <em>${esc(f.n)}</em>?`;
-      options = Q.opts.map(id => ({ k: id, t: Q.type === 'map' ? byId[id].n : byId[id].cap[0] })); right = Q.f;
-    }
-    setSheet(`<div class="qhead"><button class="qx" id="dyX" aria-label="Stop for now">${IC.x}</button><div class="qbar"><i style="width:${i / qs.length * 100}%"></i></div></div>
-      <span class="pill daily">Daily Challenge #${d.no} · ${i + 1} of ${qs.length}</span>
-      <p class="prompt">${prompt}</p>
-      <div class="opts${Q.type === 'hist' ? ' col' : ''}">${options.map((o, j) => `<button class="opt" data-k="${o.k}"><kbd>${j + 1}</kbd><span>${esc(o.t)}</span></button>`).join('')}</div>
-      <div class="fb${Q.type === 'hist' ? ' inline' : ''}" id="fb"></div>`);
+  const head = i => `<div class="qhead"><button class="qx" id="dyX" aria-label="Stop for now">${IC.x}</button><div class="qbar"><i style="width:${i / DD_N * 100}%"></i></div></div>
+    <div class="dd-top"><span class="pill daily">Daily Challenge #${d.no} · ${Math.min(i + 1, DD_N)} of ${DD_N}</span><span class="dd-score"><b>${ddScore(d)}</b> pts</span></div>`;
+  const ask = () => {
+    const i = d.ans.length;
+    if (i >= DD_N) return finish();
+    const p = ps[i];
+    state.target = p.show ? byId[p.show] : null; state.flash = null; fitBox(p.show ? contextBox(byId[p.show]) : G.views.world); draw();
+    setSheet(`${head(i)}${p.ctx ? `<p class="hq-ch">${esc(p.ctx)}</p>` : ''}<p class="prompt dd-q">${esc(p.q)}</p>
+      <div class="dd-clock"><i id="ddBar"></i><span id="ddSec">25</span></div>
+      <form class="typerow" id="ddForm" autocomplete="off"><input id="ddIn" type="text" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="${p.cap ? 'Type a capital' : 'Type a country'}" aria-label="Your answer"><button class="btn primary" type="submit">Go</button></form>
+      <p class="dd-msg" id="ddMsg" aria-live="polite">Rarer answers score more.</p>`);
     $('#dyX').onclick = leave;
-    const btns = [...sheet.querySelectorAll('.opt')];
-    const pick = b => {
-      if (b.disabled) return;
-      btns.forEach(x => x.disabled = true);
-      const ok = String(b.dataset.k) === String(right);
-      btns.find(x => String(x.dataset.k) === String(right)).classList.add('good');
-      if (!ok) b.classList.add('bad');
-      d.marks.push(ok ? 1 : 0); save();
-      practisedToday(ok ? 10 : 0); updateTop();
-      if (Q.type !== 'hist') { state.solved.add(f.id); draw(); }
-      const detail = Q.type === 'hist' ? esc(anchorById[Q.a].quiz[Q.i].why) : Q.type === 'map' ? `${esc(f.n)}${f.cap[0] ? ` · capital ${esc(f.cap[0])}` : ''}` : `${esc(f.cap[0])} is the capital of ${esc(f.n)}`;
-      const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : 'Not quite', detail);
-      buzz(ok ? 12 : [20, 40, 20]);
-      const nb = document.createElement('button'); nb.className = 'btn primary'; nb.textContent = d.marks.length < qs.length ? 'Next' : 'See your result';
-      nb.onclick = show; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
-      keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); show(); } };
-      if (Q.type === 'hist') requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+    const inp = $('#ddIn'); inp.focus();
+    if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__dd = { ids: p.ids, cap: !!p.cap };  // tests only
+    const t0 = Date.now(); let over = false;
+    clearInterval(timer);
+    timer = setInterval(() => {
+      const left = Math.max(0, DD_MS - (Date.now() - t0)), bar = $('#ddBar'), sec = $('#ddSec');
+      if (bar) bar.style.width = (left / DD_MS * 100) + '%';
+      if (sec) sec.textContent = Math.ceil(left / 1000);
+      if (bar) bar.parentElement.classList.toggle('hot', left < 6000);
+      if (!left && !over) { over = true; clearInterval(timer); d.ans.push(null); save(); reveal(i, null); }
+    }, 100);
+    $('#ddForm').onsubmit = e => {
+      e.preventDefault(); if (over) return;
+      const m = ddMatch(p, inp.value), msg = $('#ddMsg');
+      if (!m.f) {
+        inp.classList.remove('miss'); void inp.offsetWidth; inp.classList.add('miss'); buzz([15, 30, 15]);
+        msg.textContent = m.other ? `${p.cap ? m.other.cap[0] : m.other.n} doesn't count here. Try another.` : `No match for “${inp.value.trim()}”. Try again.`;
+        inp.select(); return;
+      }
+      over = true; clearInterval(timer);
+      statsReady.then(() => {
+        const sh = ddShare(p, i, m.f.id, stats), t = ddTier(sh.s);
+        d.ans.push({ id: m.f.id, t, s: Math.round(sh.s * 1000) / 1000 }); save();
+        practisedToday(10); updateTop();
+        reveal(i, d.ans[i], sh);
+      });
     };
-    btns.forEach(b => b.onclick = () => pick(b));
-    keyHandler = e => { const k = +e.key; if (k >= 1 && k <= btns.length) pick(btns[k - 1]); };
   };
-  const result = () => {
-    state.target = null; draw(); keyHandler = null;
-    const score = d.marks.filter(Boolean).length, first = !d.done;
+  const reveal = (i, a, sh) => {
+    const p = ps[i], f = a && byId[a.id], T = a ? DD_TIERS[a.t] : null;
+    if (f) { state.target = f; state.solved.add(f.id); fitBox(contextBox(f)); draw(); } else { state.target = null; draw(); }
+    const others = sh && sh.n >= 10 ? (sh.c ? `${sh.c.toLocaleString()} of ${sh.n.toLocaleString()} players today chose this` : `Nobody else has said this yet today`) : '';
+    setSheet(`${head(i + 1)}<p class="hq-ch">${esc(p.q)}</p>
+      <div class="dd-tier" style="--tc:${T ? T.c : 'var(--ink-3)'}">
+        <span class="dd-tname">${T ? T.name : 'Out of time'}</span>
+        ${f ? `<b>“${esc(p.cap ? f.cap[0] : f.n)}”</b><span class="dd-pts">+${T.pts} pts</span><small>${T.quip}${others ? `<br>${others}` : ''}</small>` : '<small>Nothing landed this time.</small>'}
+      </div>
+      <div class="dd-ladder">${DD_TIERS.map((t, k) => `<i class="${a && a.t === k ? 'on' : ''}" style="--tc:${t.c}"><b>${t.pts}</b>${t.name}</i>`).join('')}</div>
+      <button class="btn primary" id="ddNext">${i + 1 < DD_N ? 'Next prompt' : 'See where you rank'}</button>`);
+    if (T) { rewardTap(true, $('.dd-pts')); if (a.t >= 3) { sfx('combo'); buzz([10, 40, 10]); } } else { sfx('wrong'); buzz(20); }
+    $('#dyX').onclick = leave;
+    $('#ddNext').onclick = ask; setTimeout(() => $('#ddNext') && $('#ddNext').focus({ preventScroll: true }), 30);
+    keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); ask(); } };
+  };
+  const finish = () => {
+    clearInterval(timer); keyHandler = null; state.target = null; draw();
+    const first = !d.done, score = ddScore(d);
     if (first) { d.done = 1; addPoints(20); save(); }
-    const text = `Meridian Daily #${d.no} · ${score}/10\n${dailySquares(d.marks)}\n${location.origin}${location.pathname}`;
-    setSheet(`<div class="done"><span class="badge">${score >= 8 ? ART.trophy : ART.medal}</span><div class="title">${score === 10 ? 'Perfect!' : score >= 8 ? 'Brilliant!' : score >= 5 ? 'Nicely done' : 'Good effort'}</div><div class="sub">Daily Challenge #${d.no} · ${score} of 10</div></div>
-      <div class="dy-squares" aria-label="${score} of 10 right">${dailySquares(d.marks)}</div>
+    setSheet(`<div class="dd-res"><span class="pill daily">Daily Challenge #${d.no}</span><div class="res-big">${score}<small> pts</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
+      <div class="dd-curve" id="ddCurve"><p class="hint">Finding where you rank among today's players…</p></div>
       ${first ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}Share your result</button>
-      <p class="hint" style="text-align:center">A new challenge in ${untilNextDaily()}.</p>
+      <h4 class="home-h">What everyone said</h4><div class="dd-catch" id="ddCatch"></div>
+      <p class="hint" style="text-align:center">A new challenge in ${untilNextDaily()}. Same prompts for everyone.</p>
       <button class="btn" id="dyDone">Done</button>`);
-    if (first) celebrate(score >= 8);
-    $('#dyShare').onclick = () => {
+    if (first) celebrate(score >= 350);
+    $('#dyDone').onclick = leave;
+    const share = () => {
       buzz(8);
+      const text = `Meridian Daily #${d.no} 🧭\n${score} pts${d.pct != null ? ` · better than ${d.pct}% of players` : ''}\n${dailySquares(d)}\n${location.origin}${location.pathname}`;
       if (navigator.share) navigator.share({ text }).catch(() => {});
       else navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
     };
-    $('#dyDone').onclick = leave;
+    $('#dyShare').onclick = share;
+    // Count this run once, then fetch everyone's results (including it) for the curve and the answers.
+    const send = !d.sent && CLOUD && CLOUD.dailySubmit
+      ? CLOUD.dailySubmit(d.no, [`h${Math.min(70, Math.floor(score / 10))}`, ...d.ans.map((a, i) => a ? `a${i}_${a.id}` : null).filter(Boolean)]).then(() => { d.sent = 1; save(); }, () => {})
+      : Promise.resolve();
+    send.then(() => ddStatsGet(d.no)).then(s => {
+      if (!$('#ddCurve')) return;
+      paintCurve(s, score); paintCatch(s);
+    });
   };
-  show();
+  const paintCurve = (s, score) => {
+    const el = $('#ddCurve'), n = s ? s.n || 0 : 0, mine = Math.min(70, Math.floor(score / 10));
+    const h = Array.from({ length: 71 }, (_, b) => (s && s[`h${b}`]) || 0);
+    if (!d.sent && n) { h[mine]++; }
+    const total = h.reduce((x, y) => x + y, 0), below = h.slice(0, mine).reduce((x, y) => x + y, 0) + h[mine] / 2 - 0.5;
+    if (total < 5) { el.innerHTML = `<p class="dd-rank">${total > 1 ? `You're one of the first ${total} players today.` : `You're one of the first players today.`}</p><p class="hint">Come back later to see where your score lands on everyone's curve.</p>`; return; }
+    d.pct = Math.max(0, Math.min(99, Math.round(below / total * 100))); save();
+    // A smoothed histogram of today's scores, with you on it.
+    const sm = h.map((_, x) => h.reduce((acc, v, b) => acc + v * Math.exp(-((b - x) ** 2) / 18), 0)), top = Math.max(...sm) || 1;
+    const X = b => 12 + b / 70 * 316, Y = v => 112 - v / top * 96;
+    const path = sm.map((v, b) => `${b ? 'L' : 'M'}${X(b).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
+    el.innerHTML = `<svg viewBox="0 0 340 140" role="img" aria-label="Your score on today's curve"><path d="${path}L328 112L12 112Z" class="dd-area"/><path d="${path}" class="dd-line"/><line x1="12" x2="328" y1="112" y2="112" class="dd-axis"/>${[0, 100, 200, 300, 400, 500, 600, 700].map(v => `<text x="${X(v / 10)}" y="128" text-anchor="middle">${v}</text>`).join('')}<line x1="${X(score / 10)}" x2="${X(score / 10)}" y1="${Y(sm[mine])}" y2="112" class="dd-you-l"/><circle cx="${X(score / 10)}" cy="${Y(sm[mine])}" r="5" class="dd-you"/><text x="${Math.min(300, Math.max(30, X(score / 10)))}" y="${Math.max(12, Y(sm[mine]) - 10)}" text-anchor="middle" class="dd-you-t">YOU</text></svg>
+      <p class="dd-rank">Better than <b>${d.pct}%</b> of today's players</p><p class="hint" style="text-align:center">${total.toLocaleString()} players so far today</p>`;
+  };
+  const paintCatch = s => {
+    const el = $('#ddCatch'); if (!el) return;
+    el.innerHTML = ps.map((p, i) => {
+      const a = d.ans[i], T = a ? DD_TIERS[a.t] : null, name = id => esc(p.cap ? byId[id].cap[0] : byId[id].n);
+      const counts = s ? Object.entries(s).filter(([k]) => k.startsWith(`a${i}_`)).map(([k, v]) => [k.slice(`a${i}_`.length), v]).filter(([id]) => byId[id]).sort((x, y) => y[1] - x[1]) : [];
+      const n = counts.reduce((x, y) => x + y[1], 0), pc = v => `${Math.max(1, Math.round(v / n * 100))}%`;
+      const rare = counts.length > 3 ? counts.at(-1) : null;
+      return `<details class="dd-c"><summary><span class="dd-chip" style="--tc:${T ? T.c : 'var(--line)'}">${T ? T.e : '⬛'}</span><span><small>${esc(p.q)}</small><b>${a ? name(a.id) : 'No answer'}</b></span></summary>
+        ${n >= 3 ? `<div class="dd-top3">${counts.slice(0, 3).map(([id, v]) => `<span>${name(id)} <i>${pc(v)}</i></span>`).join('')}${rare ? `<span class="dd-rare">Rarest: ${name(rare[0])} <i>${rare[1] === 1 ? '1 player' : `${rare[1]} players`}</i></span>` : ''}</div>` : '<p class="hint">Top answers show once more people have played.</p>'}
+        <p class="hint">${p.ids.length} right answers in all.</p></details>`;
+    }).join('');
+  };
+  if (d.done) { setRound(true); return finish(); }
+  ask();
 }
 
 // ---------- find-on-map session ----------
@@ -3448,7 +3629,7 @@ function mergeProgress(a, b) {
   out.plus = !!(a.plus || b.plus);
   const prs = { ...(a.prs || {}) }; for (const k in b.prs || {}) if (prBetter(b.prs[k], prs[k])) prs[k] = b.prs[k]; out.prs = prs;
   // Today's challenge: the further-along attempt.
-  const da = a.daily, db = b.daily; out.daily = !da || !db ? da || db : da.no !== db.no ? (da.no > db.no ? da : db) : (da.marks || []).length >= (db.marks || []).length ? da : db;
+  const da = a.daily, db = b.daily, dn = x => (x.ans || x.marks || []).length + (x.done ? 1 : 0) + (x.sent ? 1 : 0); out.daily = !da || !db ? da || db : da.no !== db.no ? (da.no > db.no ? da : db) : dn(da) >= dn(db) ? da : db;
   for (const k in out) if (out[k] == null) delete out[k];
   return out;
 }
