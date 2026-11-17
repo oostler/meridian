@@ -920,7 +920,10 @@ let store = { prog: {}, scope: 'world', subj: 'name' };
 try { const raw = localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} try { syncSoon(); } catch (e) { /* during start-up, before the sync code has run */ } }
 // Appearance: follow the device, or a fixed light or dark theme.
-function applyTheme() { if (store.theme === 'light' || store.theme === 'dark') document.documentElement.dataset.theme = store.theme; else delete document.documentElement.dataset.theme; }
+function applyTheme() {
+  if (store.theme === 'light' || store.theme === 'dark') document.documentElement.dataset.theme = store.theme; else delete document.documentElement.dataset.theme;
+  if (window.MeridianNative) window.MeridianNative.theme(document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches));
+}
 applyTheme();
 const pkey = (id, subj = state.subj) => subj + ':' + id;
 const prog = (id, subj) => store.prog[pkey(id, subj)] || { s: 0, c: 0, w: 0, t: 0 };
@@ -1369,7 +1372,9 @@ function openReport(where) {
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-report]'); if (b) { e.stopPropagation(); buzz(5); openReport(b.dataset.report); } });
 // A light tap of feedback where the device supports it.
-const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+// The iPhone app build sets MERIDIAN_NATIVE; App Store rules shape a few screens there (no access codes).
+const NATIVE = !!window.MERIDIAN_NATIVE;
+const buzz = p => { try { if (window.MeridianNative) window.MeridianNative.buzz(p); else if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
 // Small synthesised sounds (no files to download): a bright two-note chime for right, a soft low tone for
 // wrong, a short rising run when a round is done. Quiet, switchable in Settings, and on iPhone they follow
 // the silent switch.
@@ -2196,10 +2201,10 @@ function unlockSheet(id) {
     <div class="pwall"><span class="ptag">${IC.star}Meridian Plus</span>
       <h3>${want ? `Unlock ${esc(want.title)} and every deep dive` : 'Unlock every deep dive'}</h3>
       <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
-      <form class="unlock" id="ulForm" autocomplete="off">
+      ${NATIVE ? '<p class="hint" style="color:#fff;text-align:center">Coming soon to the iPhone app.</p>' : `<form class="unlock" id="ulForm" autocomplete="off">
         <input id="ulCode" type="password" inputmode="numeric" autocomplete="off" name="plus-code" data-form-type="other" placeholder="Access code" aria-label="Access code">
         <p class="err" id="ulErr" role="alert"></p>
-        <button class="btn pbtn" type="submit">${IC.lock}Unlock</button></form></div>
+        <button class="btn pbtn" type="submit">${IC.lock}Unlock</button></form>`}</div>
     <ul class="pben">
       <li>${IC.clock}<span><b>The full story</b>What happened, why, and what it changed, with the turning points most courses skip.</span></li>
       <li>${IC.globe}<span><b>Maps that show it</b>Empires, faiths and front lines lit up on today's globe, country by country.</span></li>
@@ -2208,7 +2213,7 @@ function unlockSheet(id) {
     <div class="pcats">${cats.map(([c, l]) => `<details><summary><b>${PLUS_CAT[c]}</b><em>${l.length}</em></summary><p>${l.map(a => esc(a.title)).join(' · ')}</p></details>`).join('')}</div>
     <p class="fine" style="text-align:center">Subscriptions are coming soon. Your progress stays on this device.</p>`);
   $('#ulBack').onclick = () => { if (want) { state.track = 'plus'; } historySheet(); };
-  $('#ulForm').onsubmit = e => {
+  if ($('#ulForm')) $('#ulForm').onsubmit = e => {
     e.preventDefault();
     const v = $('#ulCode').value.trim();
     if (v !== PLUS_CODE) { buzz(30); $('#ulErr').textContent = v ? "That code didn't work." : 'Enter your access code.'; $('#ulCode').select(); return; }
