@@ -725,6 +725,26 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .rem-card .sv-ic { background: var(--blue); }
 .save-card .link { white-space: nowrap; }
 .save-card .rbtns { display: flex; gap: 10px; align-items: center; }
+.td-arc { margin-top: 8px; justify-self: center; font-size: 14px; }
+.dd-stats { display: grid; gap: 10px; padding: 12px; border: 2px solid var(--line); border-radius: 18px; }
+.dd-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; height: 110px; align-items: end; }
+.dd-bars > div { display: grid; grid-template-rows: 1fr auto auto; height: 100%; justify-items: center; }
+.dd-bars i { align-self: end; width: 70%; border-radius: 6px 6px 3px 3px; background: color-mix(in srgb, var(--pc) 45%, var(--line)); }
+.dd-bars .now i { background: var(--pc); }
+.dd-bars b { font-size: 11px; font-weight: 900; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.dd-bars small { font-size: 10px; font-weight: 800; color: var(--ink-3); }
+.dd-kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; }
+.dd-kpi b { display: block; font-size: 20px; font-weight: 900; color: var(--pc); }
+.dd-kpi span { font-size: 11px; font-weight: 800; color: var(--ink-3); }
+.arc { display: grid; gap: 8px; }
+.arc-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; }
+.arc-no { font-weight: 900; }
+.arc-no small { display: block; font-size: 12px; color: var(--ink-3); font-weight: 800; }
+.arc-b { all: unset; box-sizing: border-box; cursor: pointer; display: flex; gap: 6px; align-items: center; justify-content: center; padding: 10px 8px; border-radius: 14px; border: 2px solid var(--line); font-weight: 900; font-size: 14px; color: var(--ink); }
+.arc-b.done { border-color: var(--pc); background: color-mix(in srgb, var(--pc) 10%, var(--bg)); }
+.arc-b.locked { color: var(--ink-3); }
+.arc-b .ic { width: 16px; height: 16px; }
+.arc-b:focus-visible { outline: 3px solid var(--blue); }
 .hr-lives { display: flex; gap: 4px; color: var(--red); }
 .hr-lives i { display: grid; }
 .hr-lives .ic { width: 24px; height: 24px; }
@@ -2234,7 +2254,7 @@ function unlockSheet(id) {
   const cats = Object.keys(PLUS_CAT).map(c => [c, list.filter(a => a.cat === c)]).filter(([, l]) => l.length);
   setSheet(`<button class="back" id="ulBack">${IC.back}Timeline</button>
     <div class="pwall"><span class="ptag">${IC.star}Globe Genius Plus</span>
-      <h3>${want ? `Unlock ${esc(want.title)} and every deep dive` : 'Unlock every deep dive'}</h3>
+      <h3>${want ? `Unlock ${esc(want.title)} and every deep dive` : 'Unlock everything in Plus'}</h3>
       <p class="pprice"><b>$4.99</b> once · founder price<br><small>Pay once, keep it forever. No subscription, no ads.</small></p>
       <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
       ${NATIVE ? '<p class="hint" style="color:#fff;text-align:center">Coming soon to the iPhone app.</p>' : `<form class="unlock" id="ulForm" autocomplete="off">
@@ -2245,6 +2265,7 @@ function unlockSheet(id) {
       <li>${IC.clock}<span><b>The full story</b>What happened, why, and what it changed, with the turning points most courses skip.</span></li>
       <li>${IC.globe}<span><b>Maps that show it</b>Empires, faiths and front lines lit up on today's globe, country by country.</span></li>
       <li>${IC.target}<span><b>Quizzes that make it stick</b>A quiz on every map, with your progress saved.</span></li>
+      <li>${IC.trophy}<span><b>Every past daily challenge</b>Missed a day? Play any Daily Geography or History from the archive and see how you'd have ranked.</span></li>
       <li>${IC.flame}<span><b>Two streak freezes a week</b>Miss a day or two without losing your streak.</span></li>
     </ul>
     <div class="pcats">${cats.map(([c, l]) => `<details><summary><b>${PLUS_CAT[c]}</b><em>${l.length}</em></summary><p>${l.map(a => esc(a.title)).join(' · ')}</p></details>`).join('')}</div>
@@ -3398,7 +3419,55 @@ function dailyQs(no, kind = 'geo') {
   for (const t of ['clue', 'clue', 'map', 'ch', 'clue', 'map', 'ch', 'ch', 'map', 'ch']) out.push(t === 'clue' ? clueQ() : t === 'map' ? mapQ() : chQ());
   return out;
 }
-const dailyState = (kind = 'geo') => { const no = dailyNo(), s = store[DD_KIND[kind].key]; return s && s.no === no && s.v === 2 ? s : { no, v: 2, ans: [] }; };
+// Today's attempt lives in store.daily / store.dailyH; past days played from the archive in store.ddArc.
+const dailyState = (kind = 'geo', no = dailyNo()) => {
+  const K = DD_KIND[kind];
+  if (no !== dailyNo()) { const a = (store.ddArc || {})[K.doc(no)]; return a && a.v === 2 ? a : { no, v: 2, ans: [], arc: 1 }; }
+  const s = store[K.key]; return s && s.no === no && s.v === 2 ? s : { no, v: 2, ans: [] };
+};
+function dailyKeep(kind, d) {
+  const K = DD_KIND[kind];
+  if (!d.arc) { store[K.key] = d; return; }
+  const a = store.ddArc || (store.ddArc = {}); a[K.doc(d.no)] = d;
+  const ks = Object.keys(a); if (ks.length > 80) delete a[ks[0]];
+}
+// Your results day by day (today's plays only, so they compare fairly): { G24: { s: 870, p: 86 } }.
+function ddLogSet(kind, d) {
+  if (d.arc || !d.done) return;
+  const L = store.ddLog || (store.ddLog = {}), k = DD_KIND[kind].doc(d.no);
+  L[k] = { s: ddScore(d), p: d.pct != null ? d.pct : (L[k] || {}).p };
+  const ks = Object.keys(L); if (ks.length > 400) delete L[ks[0]];
+}
+// The last seven days of one challenge as bars, with your average rank and best score.
+function ddStatsCard(kind) {
+  const K = DD_KIND[kind], L = store.ddLog || {}, today = dailyNo();
+  const days = Array.from({ length: 7 }, (_, k) => today - 6 + k).filter(n => n >= 1).map(n => ({ n, r: L[K.doc(n)] }));
+  const all = Object.entries(L).filter(([k]) => k[0] === K.doc(1)[0]).map(([, v]) => v);
+  if (all.length < 2) return '';
+  const ps = all.filter(v => v.p != null).map(v => v.p), avg = ps.length ? Math.round(ps.reduce((a, b) => a + b, 0) / ps.length) : null;
+  const best = Math.max(...all.map(v => v.s));
+  return `<div class="dd-stats" style="--pc:${K.color}"><div class="dd-bars">${days.map(({ n, r }) => `<div class="${n === today ? 'now' : ''}"><i style="height:${r ? Math.max(6, r.s / 10) : 0}%"></i><b>${r ? r.s : '·'}</b><small>#${n}</small></div>`).join('')}</div>
+    <div class="dd-kpi"><div><b>${all.length}</b><span>played</span></div><div><b>${best}</b><span>best score</span></div><div><b>${avg != null ? topPct(avg) : '–'}</b><span>average finish</span></div></div></div>`;
+}
+const archiveFree = no => no === dailyNo() - 1;
+// Past challenges: yesterday's are free for everyone; older days come with Plus.
+function archiveSheet() {
+  const today = dailyNo(), from = state.tab;
+  const rows = Array.from({ length: Math.min(30, today - 1) }, (_, k) => today - 1 - k).map(no => {
+    const cell = kind => { const d = dailyState(kind, no), lk = !store.plus && !archiveFree(no); return `<button class="arc-b${d.done ? ' done' : ''}${lk ? ' locked' : ''}" data-arc="${kind}:${no}" style="--pc:${DD_KIND[kind].color}">${lk ? IC.lock : DD_KIND[kind].emoji}<span>${d.done ? ddScore(d) : DD_KIND[kind].short}</span></button>`; };
+    return `<div class="arc-row"><span class="arc-no">#${no}<small>${archiveFree(no) ? 'Yesterday' : `${today - no} days ago`}</small></span>${cell('geo')}${cell('hist')}</div>`;
+  }).join('');
+  setSheet(`<button class="back" id="arcBack">${IC.back}Today</button>
+    <div class="title">Past challenges</div>
+    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${store.plus ? '' : 'Yesterday\'s are free; every older day comes with Plus.'} Past days don't change your streak.</p>
+    <div class="arc">${rows || '<p class="hint">The archive fills up from tomorrow.</p>'}</div>`);
+  $('#arcBack').onclick = () => showTab(from === 'learn' ? 'learn' : 'explore');
+  sheet.querySelectorAll('[data-arc]').forEach(b => b.onclick = () => {
+    buzz(5); const [kind, no] = b.dataset.arc.split(':');
+    if (!store.plus && !archiveFree(+no)) { showTab('history'); return unlockSheet(); }
+    dailyChallenge(kind, +no);
+  });
+}
 const ddScore = d => d.ans.reduce((s, a) => s + (a ? a.p || 0 : 0), 0);
 const dqSquare = a => !a || !a.p ? '🟥' : a.p >= 80 ? '🟩' : '🟨';
 const dailySquares = d => d.ans.map(dqSquare).join('');
@@ -3446,12 +3515,14 @@ function todayCard() {
     ${row('goToday', 'var(--green)', IC.target, 'Learn', t.learn ? 'Done. Keep going any time.' : `5 minutes · new ${esc(what)} and a quick review`, t.learn)}
     ${row('goDaily', DD_KIND.geo.color, DD_KIND.geo.icon, `${DD_KIND.geo.title} #${dg.no}`, dailyLine(dg), dg.done)}
     ${row('goDailyH', DD_KIND.hist.color, DD_KIND.hist.icon, `${DD_KIND.hist.title} #${dh.no}`, dailyLine(dh), dh.done)}
+    ${dg.no > 1 ? `<button class="link td-arc" id="goArc">Missed one? Play past challenges</button>` : ''}
   </div>`;
 }
 function bindDaily() {
   if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); startLearn(); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
   if ($('#goDailyH')) $('#goDailyH').onclick = () => { buzz(8); dailyChallenge('hist'); };
+  if ($('#goArc')) $('#goArc').onclick = () => { buzz(5); archiveSheet(); };
 }
 // "Save your streak": the account is offered once there's something to lose, never forced on the web.
 function saveCard(topQ) {
@@ -3478,9 +3549,9 @@ function ddPostPending() {
     return CLOUD.dailyPost(K.doc(d.no), ddScore(d)).then(() => { d.posted = 1; store[K.key] = d; save(); }, () => {});
   }));
 }
-function dailyChallenge(kind = 'geo') {
-  const K = DD_KIND[kind], d = dailyState(kind), qs = dailyQs(d.no, kind), from = state.tab, prevScope = state.scope;
-  store[K.key] = d; save();
+function dailyChallenge(kind = 'geo', no) {
+  const K = DD_KIND[kind], d = dailyState(kind, no), qs = dailyQs(d.no, kind), from = state.tab, prevScope = state.scope, arc = !!d.arc;
+  dailyKeep(kind, d); save();
   clearTimeout(advanceT); gainStart();
   state.daily = true; state.mode = 'learn'; state.sel = null; state.solved.clear();
   state.scope = SCOPES.find(s => s.id === 'world'); refreshLayer(); updateTop();
@@ -3535,37 +3606,42 @@ function dailyChallenge(kind = 'geo') {
   const finish = () => {
     clearInterval(timer); keyHandler = null; state.target = null; draw();
     const first = !d.done, score = ddScore(d);
-    if (first) { d.done = 1; addPoints(Math.round(score / 10)); markDay(kind); save(); }
+    if (first) { d.done = 1; if (!arc) { addPoints(Math.round(score / 10)); markDay(kind); } ddLogSet(kind, d); save(); }
+    const day = arc ? 'that day\'s' : 'today\'s';
     const review = qs.map((q, i) => { const a = d.ans[i] || {}; return `<details class="dd-c"><summary><span class="dd-chip">${dqSquare(a)}</span><span><small>${esc(q.ctx)}</small><b>${q.q.replace(/<\/?em>/g, '')}</b></span><em class="dd-p">${a.p ? `+${a.p}` : '0'}</em></summary>
       <p class="hint">${a.k === q.c ? 'You said' : a.k >= 0 ? `You said ${esc(q.opts[a.k])}. Answer:` : 'Answer:'} <b>${esc(q.opts[q.c])}</b>${q.why ? `<br>${esc(q.why)}` : ''}</p></details>`; }).join('');
     setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title} #${d.no}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
-      <div class="dd-curve" id="ddCurve"><p class="hint" style="text-align:center">Finding where you rank among today's players…</p></div>
-      <div id="ddSave">${first ? remindCard() : ''}</div>
-      ${first ? rewardBlock() : ''}
+      <div class="dd-curve" id="ddCurve"><p class="hint" style="text-align:center">Finding where you rank among ${day} players…</p></div>
+      ${arc ? '' : ddStatsCard(kind)}
+      <div id="ddSave">${first && !arc ? remindCard() : ''}</div>
+      ${first && !arc ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}Share your result</button>
-      <h4 class="home-h">Today's leaderboard</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
+      <h4 class="home-h">${arc ? `Leaderboard for #${d.no}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
-      <p class="hint" style="text-align:center">${d.no ? `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.` : ''}</p>
+      <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
+      ${dailyNo() > 1 ? '<button class="link" id="dyArc">Past challenges</button>' : ''}
       <button class="btn" id="dyDone">Done</button>`);
+    if ($('#dyArc')) $('#dyArc').onclick = () => { clearInterval(timer); state.daily = false; state.scope = prevScope; refreshLayer(); updateTop(); setRound(false); archiveSheet(); };
     requestAnimationFrame(() => sheet.scrollTo({ top: 0 }));
     if (first) celebrate(score >= 800);
     bindRemind();
     $('#dyDone').onclick = leave;
     $('#dyShare').onclick = () => {
       buzz(8);
-      const text = `${APP_NAME} · ${K.title} #${d.no} ${K.emoji}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\n${SHARE_URL}`;
+      const text = `${APP_NAME} · ${K.title} #${d.no}${arc ? ' (archive)' : ''} ${K.emoji}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\n${SHARE_URL}`;
       if (navigator.share) navigator.share({ text }).catch(() => {});
       else navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
     };
     // Count this run once, then fetch everyone's results (including it) for the curve and the board.
     const bin = Math.min(DQ_BINS, Math.floor(score / DQ_BIN));
-    const send = !d.sent && CLOUD && CLOUD.dailySubmit
+    const send = !arc && !d.sent && CLOUD && CLOUD.dailySubmit
       ? CLOUD.dailySubmit(K.doc(d.no), [`h${bin}`]).then(() => { d.sent = 1; save(); }, () => {})
       : Promise.resolve();
     send.then(() => Promise.all([ddStatsGet(K.doc(d.no)), ddPostPending()])).then(([s]) => {
       if (!$('#ddCurve')) return;
       paintCurve(s, score, bin);
-      const sv = $('#ddSave'); if (sv && !$('#remCard')) { sv.innerHTML = saveCard(d.pct != null && d.pct >= 75); bindSave(() => dailyChallenge(kind)); }
+      ddLogSet(kind, d); save();
+      const sv = $('#ddSave'); if (sv && !arc && !$('#remCard')) { sv.innerHTML = saveCard(d.pct != null && d.pct >= 75); bindSave(() => dailyChallenge(kind)); }
       return ddBoardGet(K.doc(d.no)).then(paintBoard);
     });
   };
@@ -3573,7 +3649,7 @@ function dailyChallenge(kind = 'geo') {
     const el = $('#ddCurve'), h = Array.from({ length: DQ_BINS + 1 }, (_, b) => (s && s[`h${b}`]) || 0);
     if (!d.sent) h[mine]++;
     const total = h.reduce((x, y) => x + y, 0), below = h.slice(0, mine).reduce((x, y) => x + y, 0) + (h[mine] - 1) / 2;
-    if (total >= 5) { d.pct = Math.max(0, Math.min(99, Math.round(below / Math.max(1, total - 1) * 100))); save(); }
+    if (total >= 5 && !(arc && d.pct != null && d.pctAt === total)) { d.pctAt = total; d.pct = Math.max(0, Math.min(99, Math.round(below / Math.max(1, total - 1) * 100))); save(); }
     // A smoothed histogram of today's scores, with you on it. With only a few players so far the shape leans
     // on a typical bell curve, and says so.
     const prior = b => Math.exp(-((b - 30) ** 2) / (2 * 9 ** 2)), pw = Math.max(0, 40 - total) / 40;
@@ -3582,8 +3658,8 @@ function dailyChallenge(kind = 'geo') {
     const X = b => 12 + b / DQ_BINS * 316, Y = v => 112 - v / top * 96;
     const path = sm.map((v, b) => `${b ? 'L' : 'M'}${X(b).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
     el.innerHTML = `<svg viewBox="0 0 340 140" role="img" aria-label="Your score on today's curve" style="--pc:${K.color}"><path d="${path}L328 112L12 112Z" class="dd-area"/><path d="${path}" class="dd-line"/><line x1="12" x2="328" y1="112" y2="112" class="dd-axis"/>${[0, 200, 400, 600, 800, 1000].map(v => `<text x="${X(v / DQ_BIN)}" y="128" text-anchor="middle">${v}</text>`).join('')}<line x1="${X(mine)}" x2="${X(mine)}" y1="${Y(sm[mine])}" y2="112" class="dd-you-l"/><circle cx="${X(mine)}" cy="${Y(sm[mine])}" r="6" class="dd-you"/><text x="${Math.min(306, Math.max(30, X(mine)))}" y="${Math.max(12, Y(sm[mine]) - 12)}" text-anchor="middle" class="dd-you-t">YOU</text></svg>
-      ${d.pct != null ? `<p class="dd-rank">Better than <b>${d.pct}%</b> of today's players</p><p class="hint" style="text-align:center">${total.toLocaleString()} players so far · ${topPct(d.pct)}</p>`
-        : `<p class="dd-rank">You're one of the first ${total > 1 ? total : ''} players today</p><p class="hint" style="text-align:center">Check back later to see where you finish.</p>`}`;
+      ${d.pct != null ? `<p class="dd-rank">Better than <b>${d.pct}%</b> of ${arc ? 'that day\'s' : 'today\'s'} players</p><p class="hint" style="text-align:center">${total.toLocaleString()} players so far · ${topPct(d.pct)}</p>`
+        : arc ? `<p class="dd-rank">Only ${total - 1 || 'a few'} ${total - 1 === 1 ? 'person' : 'people'} played that day</p>` : `<p class="dd-rank">You're one of the first ${total > 1 ? total : ''} players today</p><p class="hint" style="text-align:center">Check back later to see where you finish.</p>`}`;
   };
   const paintBoard = v => {
     const el = $('#ddBoard'); if (!el) return;
@@ -3591,7 +3667,7 @@ function dailyChallenge(kind = 'geo') {
     const me = ME && v && v.me;
     el.innerHTML = (rows.length ? `<ol class="dd-lb">${rows.map((r, k) => `<li class="${ME && r.uid === ME.uid ? 'me' : ''}"><span class="dl-r">${k + 1}</span><span class="dl-n">${esc(r.name)}<i>#${esc(r.tag || '')}</i></span><b>${r.score}</b></li>`).join('')}</ol>` : '<p class="hint">No names on today\'s board yet. Be the first.</p>')
       + (me && me.rank > rows.length ? `<ol class="dd-lb" start="${me.rank}"><li class="me"><span class="dl-r">${me.rank}</span><span class="dl-n">You</span><b>${me.score}</b></li></ol>` : '')
-      + (!ME && CLOUD ? `<button class="btn" id="ddIn">${IC.trophy}Put your name on the board</button>` : '');
+      + (!ME && CLOUD && !arc ? `<button class="btn" id="ddIn">${IC.trophy}Put your name on the board</button>` : '');
     if ($('#ddIn')) $('#ddIn').onclick = () => signInSheet({ then: () => dailyChallenge(kind) });
   };
   if (d.done) { setRound(true); return finish(); }
@@ -3641,7 +3717,7 @@ function onboarding(step = 0) {
     const home = homeScope();
     const rows = [['new', '🌱', `Just starting${home.id !== 'world' ? `: begin with ${home.name}` : ''}`], ['some', '🗺️', 'I know the big countries'], ['most', '🌐', 'I know most of the map']];
     setSheet(`${top(2)}<div class="ob"><h3>How well do you know the map?</h3>${choice(rows, 'data-lvl')}<p class="hint">We'll start you in the right place. Change it any time.</p></div>`);
-    sheet.querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { buzz(5); store.level = b.dataset.lvl; setScope(b.dataset.lvl === 'new' ? home : SCOPES[0]); onboarding(3); });
+    sheet.querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { buzz(5); store.level = b.dataset.lvl; setScope(b.dataset.lvl === 'new' ? home : SCOPES[0]); if (!store.goal) store.goal = 20; save(); onboarding(4); });  // the daily goal now defaults; Today's three are the habit
   } else if (step === 3) {
     setSheet(`${top(3)}<div class="ob"><h3>Pick a daily goal</h3>
       <div class="ob-opts">${GOALS.map(([n, name, t]) => `<button class="opt ob-opt goal" data-goal="${n}"><span><b>${name}</b><small>${t}</small></span><em>${n} answers</em></button>`).join('')}</div>
@@ -3713,7 +3789,7 @@ function pushStatsSoon() {
 // With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
 // with this device's (the most recent answer per place wins, streak days and best scores combine), and
 // writes the result back. Settings like theme and the current map stay per device.
-const SYNC_KEYS = ['prog', 'days', 'td', 'frz', 'perfect', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
+const SYNC_KEYS = ['prog', 'days', 'td', 'frz', 'perfect', 'ddLog', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
 function mergeProgress(a, b) {
   const out = {};
   const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
@@ -3728,6 +3804,7 @@ function mergeProgress(a, b) {
   out.td = !a.td || !b.td ? a.td || b.td : a.td.d !== b.td.d ? (a.td.d > b.td.d ? a.td : b.td) : { ...a.td, ...b.td };
   if (a.frz || b.frz) { const x = a.frz || b.frz, y = b.frz || a.frz; out.frz = { wk: x.wk > y.wk ? x.wk : y.wk, n: x.wk === y.wk ? Math.min(x.n, y.n) : (x.wk > y.wk ? x : y).n, used: [...new Set([...(x.used || []), ...(y.used || [])])].sort().slice(-60) }; }
   out.perfect = Math.max(a.perfect || 0, b.perfect || 0) || undefined;
+  if (a.ddLog || b.ddLog) { out.ddLog = { ...(b.ddLog || {}) }; for (const [k, v] of Object.entries(a.ddLog || {})) out.ddLog[k] = { s: Math.max(v.s, (out.ddLog[k] || {}).s || 0), p: v.p != null ? v.p : (out.ddLog[k] || {}).p }; }
   const cq = { ...(a.cq || {}) };
   for (const k in b.cq || {}) { const x = cq[k], y = b.cq[k]; cq[k] = !x ? y : (y.due || 0) > (x.due || 0) ? y : x; }
   out.cq = cq;
