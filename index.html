@@ -1112,6 +1112,7 @@ const map = new maplibregl.Map({
   attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, fadeDuration: 0,
 });
 map.touchZoomRotate.disableRotation();
+if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__map = map;  // tests only
 map.keyboard.disableRotation();
 let ready = false;
 map.on('load', () => {
@@ -2744,6 +2745,7 @@ function askMC(item) {
     <div class="opts">${opts.map((o, i) => `<button class="opt" data-id="${o.id}"><kbd>${i + 1}</kbd><span>${esc(shown(o))}</span></button>`).join('')}</div>
     <div class="fb" id="fb"></div>`);
   bindQuit();
+  if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__mc = f.id;  // tests only
   const btns = [...sheet.querySelectorAll('.opt')];
   const pick = b => {
     if (b.disabled) return;
@@ -2766,6 +2768,7 @@ function askType(item) {
     <form class="typerow" id="tf" autocomplete="off"><input id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="go" data-form-type="other" name="quiz-guess" placeholder="${state.subj === 'cap' ? 'Type the capital' : 'Type your answer'}" aria-label="Your answer"><button class="btn primary" type="submit">Check</button></form>
     <div class="row"><button class="btn" id="hintBtn">First letter</button><button class="btn" id="idk">Show me</button></div>
     <div class="fb" id="fb"></div>`);
+  if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__ty = shown(f);  // tests only
   bindQuit();
   const input = $('#ans');
   setTimeout(() => input.focus({ preventScroll: true }), 50);
@@ -3519,7 +3522,8 @@ function todayCard() {
   </div>`;
 }
 function bindDaily() {
-  if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); startLearn(); };
+  // A lesson started from Today comes back to Today when it ends.
+  if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); const t = state.tab; startLearn(); roundFrom = t; };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
   if ($('#goDailyH')) $('#goDailyH').onclick = () => { buzz(8); dailyChallenge('hist'); };
   if ($('#goArc')) $('#goArc').onclick = () => { buzz(5); archiveSheet(); };
