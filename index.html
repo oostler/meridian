@@ -3604,7 +3604,7 @@ function dailyChallenge(kind = 'geo', no) {
     }, 50);
   };
   const finish = () => {
-    clearInterval(timer); keyHandler = null; state.target = null; draw();
+    clearInterval(timer); keyHandler = null; state.target = null; fitBox(G.views.world); draw();
     const first = !d.done, score = ddScore(d);
     if (first) { d.done = 1; if (!arc) { addPoints(Math.round(score / 10)); markDay(kind); } ddLogSet(kind, d); save(); }
     const day = arc ? 'that day\'s' : 'today\'s';
