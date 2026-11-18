@@ -50,35 +50,35 @@ window.__geo = fetch('geo-live.json').then(r => { if (!r.ok) throw new Error(r.s
 /* Globe Genius: a full-bleed globe, a header of chips, and a panel above a tab bar.
    Flat colour, chunky tactile buttons (a darker "edge" below each), a rounded bold typeface. */
 :root {
-  --bg: #ffffff; --surface: #f7f7f7; --ink: #3c3c3c; --ink-2: #777777; --ink-3: #afafaf; --line: #e5e5e5;
-  --green: #58cc02; --green-d: #58a700; --green-l: #d7ffb8;
-  --blue: #1cb0f6; --blue-d: #1899d6; --blue-l: #ddf4ff;
-  --red: #ff4b4b; --red-d: #ea2b2b; --red-l: #ffdfe0;
-  --gold: #ffc800; --gold-d: #e5a400; --gold-l: #fff5d3;
-  --orange: #ff9600; --purple: #ce82ff; --purple-d: #a560e8;
+  --bg: #ffffff; --surface: #f5f7fa; --ink: #1f2933; --ink-2: #5d6b78; --ink-3: #9aa5b1; --line: #e3e8ee;
+  --green: #1fae6a; --green-d: #168553; --green-l: #d3f3e2;
+  --blue: #2f6bff; --blue-d: #1f4fd1; --blue-l: #e4ebff;
+  --red: #f2545b; --red-d: #d63a42; --red-l: #fde2e3;
+  --gold: #f5b40b; --gold-d: #c98d00; --gold-l: #fff1cc;
+  --orange: #ff7a1a; --purple: #8b6bff; --purple-d: #6a4be0;
   --stars: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><circle cx='84' cy='39' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='19' cy='139' r='0.8' fill='%23fff' opacity='0.9'/><circle cx='15' cy='132' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='113' cy='18' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='110' cy='215' r='0.6' fill='%23fff' opacity='0.5'/><circle cx='164' cy='152' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='152' cy='13' r='0.8' fill='%23fff' opacity='0.35'/><circle cx='145' cy='35' r='1' fill='%23fff' opacity='0.5'/><circle cx='141' cy='148' r='1.2' fill='%23fff' opacity='0.5'/><circle cx='27' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='25' cy='185' r='1.2' fill='%23fff' opacity='0.35'/><circle cx='161' cy='129' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='202' cy='121' r='1' fill='%23fff' opacity='0.6'/><circle cx='78' cy='207' r='1.5' fill='%23fff' opacity='0.5'/><circle cx='21' cy='78' r='1' fill='%23fff' opacity='0.6'/><circle cx='190' cy='75' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='133' cy='43' r='0.8' fill='%23fff' opacity='0.5'/><circle cx='243' cy='110' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='199' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='181' cy='155' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='18' cy='24' r='0.8' fill='%23fff' opacity='0.8'/><circle cx='181' cy='17' r='1.5' fill='%23fff' opacity='0.6'/></svg>");
   /* by day a clear sky, lightest near the globe; the stars only come out at night */
   --space: radial-gradient(120% 90% at 50% 40%, #e3f2fd 0%, #a9d5f5 50%, #6db4e8 100%);
   /* read by the globe */
-  --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d7ffb8; --m2: #89e219; --target: #ffc800; --target-ink: #3c2a00;
-  --good: #58cc02; --bad: #ff4b4b; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
+  --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d3f3e2; --m2: #3ec07c; --target: #f5b40b; --target-ink: #3c2a00;
+  --good: #1fae6a; --bad: #f2545b; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
   --font: "Nunito", ui-rounded, "SF Pro Rounded", -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
   --ease: cubic-bezier(.2, .9, .25, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #131f24; --surface: #1a2a31; --ink: #f1f7fb; --ink-2: #a5b6bf; --ink-3: #52656d; --line: #37464f;
-    --green-l: #2b4a12; --blue-l: #13394d; --red-l: #4a1d20; --gold-l: #3d3315;
+    --green-l: #123d2a; --blue-l: #17254d; --red-l: #4a1d20; --gold-l: #3d3315;
     --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #1b3a52 0%, #0f2232 55%, #08111b 100%);
-    --land: #2b3b43; --m1: #2f5a3b; --m2: #4f9b2a; --veil: #000000; --label: #e3edf0; --halo: rgba(16, 41, 58, .85);
+    --land: #2b3b43; --m1: #1d4a37; --m2: #2f9c63; --veil: #000000; --label: #e3edf0; --halo: rgba(16, 41, 58, .85);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #131f24; --surface: #1a2a31; --ink: #f1f7fb; --ink-2: #a5b6bf; --ink-3: #52656d; --line: #37464f;
-  --green-l: #2b4a12; --blue-l: #13394d; --red-l: #4a1d20; --gold-l: #3d3315;
+  --green-l: #123d2a; --blue-l: #17254d; --red-l: #4a1d20; --gold-l: #3d3315;
   --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #1b3a52 0%, #0f2232 55%, #08111b 100%);
-  --land: #2b3b43; --m1: #2f5a3b; --m2: #4f9b2a; --veil: #000000; --label: #e3edf0; --halo: rgba(16, 41, 58, .85);
+  --land: #2b3b43; --m1: #1d4a37; --m2: #2f9c63; --veil: #000000; --label: #e3edf0; --halo: rgba(16, 41, 58, .85);
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -425,7 +425,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .rc-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .rc-opt { border: 0; border-radius: 16px; padding: 18px 10px; min-height: 76px; font: inherit; font-size: 17px; font-weight: 900; color: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .2); transition: transform .08s, opacity .2s; }
 .rc-opt:active { transform: translateY(3px); box-shadow: none; }
-.rc-opt.c-red { background: #ff4b4b; } .rc-opt.c-blue { background: #1cb0f6; } .rc-opt.c-gold { background: #e5a400; } .rc-opt.c-green { background: #58a700; }
+.rc-opt.c-red { background: #f2545b; } .rc-opt.c-blue { background: #2f6bff; } .rc-opt.c-gold { background: #c98d00; } .rc-opt.c-green { background: #168553; }
 .rc-opt:disabled { opacity: .45; }
 .rc-opt.picked { opacity: 1; outline: 4px solid var(--ink); outline-offset: 2px; }
 .podium { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: end; text-align: center; }
@@ -773,6 +773,8 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .today { padding-bottom: 4px; gap: 0; }
 .today .gb-top { margin-bottom: 6px; }
 .today .gb-c { margin-top: 6px; }
+.td-play { margin: 10px 0 2px; font-size: 18px; min-height: 56px; }
+.td-play .ic { width: 20px; height: 20px; }
 .td-row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; width: 100%; padding: 10px 0; margin-top: 8px; border-top: 2px solid var(--line); cursor: pointer; color: var(--ink); }
 .td-row:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 8px; }
 .td-row .td-ic { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, var(--bg)); color: var(--c); }
@@ -785,13 +787,13 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .go.daily.done small { line-height: 1.5; }
 .reward { position: relative; display: grid; gap: 10px; justify-items: center; width: 100%; }
 .rw-xp { display: flex; align-items: center; gap: 8px; padding: 8px 20px 8px 12px; border-radius: 999px; background: var(--gold-l, #fff4c2); color: var(--gold-d); font-weight: 900; animation: pop .5s .15s var(--ease) both; }
-.rw-xp .rw-bolt { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--gold, #ffc800); color: #fff; }
+.rw-xp .rw-bolt { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--gold, #f5b40b); color: #fff; }
 .rw-xp .rw-bolt .ic { width: 22px; height: 22px; }
 .rw-xp .rw-n { font-size: 34px; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
 .rw-xp .rw-u { font-size: 18px; }
 .reward.landed .rw-xp { animation: thump .35s var(--ease); }
 @keyframes thump { 40% { transform: scale(1.12); } }
-.rw-streak { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; color: var(--orange, #ff9600); font-weight: 900; animation: rise .5s .5s var(--ease) both; }
+.rw-streak { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; color: var(--orange, #ff7a1a); font-weight: 900; animation: rise .5s .5s var(--ease) both; }
 .rw-streak .ic { width: 22px; height: 22px; }
 .rw-streak span { width: 100%; text-align: center; color: var(--ink-2); font-weight: 800; font-size: 13px; }
 .rw-goal { width: 100%; animation: rise .5s .65s var(--ease) both; }
@@ -869,7 +871,7 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 </style>
 
 <div id="app">
-  <div id="brand" aria-hidden="true"><svg viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1899d6"/><circle cx="256" cy="256" r="166" fill="#fff" stroke="#e5e5e5" stroke-width="10"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#58cc02"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffc800" stroke-width="20"/><circle cx="330" cy="256" r="24" fill="#ffc800" stroke="#fff" stroke-width="8"/></svg><span><b>globe genius</b><small>Daily geography and history</small></span></div>
+  <div id="brand" aria-hidden="true"><svg viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1f4fd1"/><circle cx="256" cy="256" r="166" fill="#fff" stroke="#e3e8ee" stroke-width="10"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#1fae6a"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#f5b40b" stroke-width="20"/><circle cx="330" cy="256" r="24" fill="#f5b40b" stroke="#fff" stroke-width="8"/></svg><span><b>globe genius</b><small>Daily geography and history</small></span></div>
   <div id="mapwrap">
     <div id="map" aria-label="Globe. Drag to spin, pinch or scroll to zoom, tap a place to learn about it."></div>
     <header id="top">
@@ -903,18 +905,18 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
   </div>
   <section id="sheet" aria-live="polite"></section>
   <nav id="tabs" role="tablist" aria-label="Sections">
-    <button role="tab" data-tab="explore" aria-selected="true" style="--tc:var(--blue)"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#1cb0f6"/><path d="M8 9c3 1 4 4 3 6s1 4 3 4 2 3 1 6c-5-1-9-5-9.5-10.5C5.8 12.3 6.7 10.4 8 9zM18 4.3c3.6.7 6.6 3 8.2 6.2-2 .4-3.2-.6-4.2-1.8s-2.7-1-3.2.6c-.6 1.8-2.4 1.9-3.3.7-.9-1.3.4-4.3 2.5-5.7zM21 16c2-.6 4 .2 5.3 1.3-.6 3.7-2.9 6.8-6.1 8.4.6-2.5-.1-4.1-1-5.4-.9-1.4-.4-3.7 1.8-4.3z" fill="#58cc02"/><circle cx="16" cy="16" r="13" fill="none" stroke="#1899d6" stroke-width="2"/></svg>Explore</button>
-    <button role="tab" data-tab="learn" aria-selected="false" style="--tc:var(--green)"><svg viewBox="0 0 32 32"><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4v18c-3.8-2.4-7.5-2.8-11-1.4z" fill="#58cc02"/><path d="M27 7.5c-3.5-1.4-7.2-1-11 1.4v18c3.8-2.4 7.5-2.8 11-1.4z" fill="#89e219"/><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4 3.8-2.4 7.5-2.8 11-1.4v18c-3.5-1.4-7.2-1-11 1.4-3.8-2.4-7.5-2.8-11-1.4z" fill="none" stroke="#58a700" stroke-width="2" stroke-linejoin="round"/><path d="M9 12.5c1.7-.4 3.4-.2 5 .6M9 16.5c1.7-.4 3.4-.2 5 .6M18 13.1c1.6-.8 3.3-1 5-.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>Learn</button>
-    <button role="tab" data-tab="find" aria-selected="false" style="--tc:var(--red)"><svg viewBox="0 0 32 32"><path d="M16 29s-9.5-8.4-9.5-15.5a9.5 9.5 0 0119 0C25.5 20.6 16 29 16 29z" fill="#ff4b4b" stroke="#ea2b2b" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="13.5" r="4" fill="#fff"/></svg>Quiz</button>
-    <button role="tab" data-tab="history" aria-selected="false" style="--tc:var(--purple-d)"><svg viewBox="0 0 32 32"><rect x="5" y="4" width="22" height="25" rx="5" fill="#ce82ff" stroke="#a560e8" stroke-width="2"/><rect x="9" y="9" width="14" height="3" rx="1.5" fill="#fff"/><rect x="9" y="15" width="10" height="3" rx="1.5" fill="#fff" opacity=".8"/><rect x="9" y="21" width="12" height="3" rx="1.5" fill="#fff" opacity=".6"/></svg>Timeline</button>
-    <button role="tab" data-tab="compete" aria-selected="false" style="--tc:var(--orange)" class="cloud-only"><svg viewBox="0 0 32 32"><path d="M9 5h14v7a7 7 0 01-14 0z" fill="#ffc800" stroke="#e5a400" stroke-width="2"/><path d="M9 8H5.5a3.5 3.5 0 003.8 4.6M23 8h3.5a3.5 3.5 0 01-3.8 4.6" fill="none" stroke="#e5a400" stroke-width="2.2"/><path d="M14 19h4v4h-4z" fill="#e5a400"/><rect x="10" y="23" width="12" height="4" rx="1.5" fill="#ff9600"/></svg>Compete</button>
+    <button role="tab" data-tab="explore" aria-selected="true" style="--tc:var(--blue)"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#2f6bff"/><path d="M8 9c3 1 4 4 3 6s1 4 3 4 2 3 1 6c-5-1-9-5-9.5-10.5C5.8 12.3 6.7 10.4 8 9zM18 4.3c3.6.7 6.6 3 8.2 6.2-2 .4-3.2-.6-4.2-1.8s-2.7-1-3.2.6c-.6 1.8-2.4 1.9-3.3.7-.9-1.3.4-4.3 2.5-5.7zM21 16c2-.6 4 .2 5.3 1.3-.6 3.7-2.9 6.8-6.1 8.4.6-2.5-.1-4.1-1-5.4-.9-1.4-.4-3.7 1.8-4.3z" fill="#1fae6a"/><circle cx="16" cy="16" r="13" fill="none" stroke="#1f4fd1" stroke-width="2"/></svg>Explore</button>
+    <button role="tab" data-tab="learn" aria-selected="false" style="--tc:var(--green)"><svg viewBox="0 0 32 32"><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4v18c-3.8-2.4-7.5-2.8-11-1.4z" fill="#1fae6a"/><path d="M27 7.5c-3.5-1.4-7.2-1-11 1.4v18c3.8-2.4 7.5-2.8 11-1.4z" fill="#3ec07c"/><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4 3.8-2.4 7.5-2.8 11-1.4v18c-3.5-1.4-7.2-1-11 1.4-3.8-2.4-7.5-2.8-11-1.4z" fill="none" stroke="#168553" stroke-width="2" stroke-linejoin="round"/><path d="M9 12.5c1.7-.4 3.4-.2 5 .6M9 16.5c1.7-.4 3.4-.2 5 .6M18 13.1c1.6-.8 3.3-1 5-.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>Learn</button>
+    <button role="tab" data-tab="find" aria-selected="false" style="--tc:var(--red)"><svg viewBox="0 0 32 32"><path d="M16 29s-9.5-8.4-9.5-15.5a9.5 9.5 0 0119 0C25.5 20.6 16 29 16 29z" fill="#f2545b" stroke="#d63a42" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="13.5" r="4" fill="#fff"/></svg>Quiz</button>
+    <button role="tab" data-tab="history" aria-selected="false" style="--tc:var(--purple-d)"><svg viewBox="0 0 32 32"><rect x="5" y="4" width="22" height="25" rx="5" fill="#8b6bff" stroke="#6a4be0" stroke-width="2"/><rect x="9" y="9" width="14" height="3" rx="1.5" fill="#fff"/><rect x="9" y="15" width="10" height="3" rx="1.5" fill="#fff" opacity=".8"/><rect x="9" y="21" width="12" height="3" rx="1.5" fill="#fff" opacity=".6"/></svg>Timeline</button>
+    <button role="tab" data-tab="compete" aria-selected="false" style="--tc:var(--orange)" class="cloud-only"><svg viewBox="0 0 32 32"><path d="M9 5h14v7a7 7 0 01-14 0z" fill="#f5b40b" stroke="#c98d00" stroke-width="2"/><path d="M9 8H5.5a3.5 3.5 0 003.8 4.6M23 8h3.5a3.5 3.5 0 01-3.8 4.6" fill="none" stroke="#c98d00" stroke-width="2.2"/><path d="M14 19h4v4h-4z" fill="#c98d00"/><rect x="10" y="23" width="12" height="4" rx="1.5" fill="#ff7a1a"/></svg>Compete</button>
   </nav>
   <div id="picker" hidden role="dialog" aria-modal="true" aria-label="Choose what to learn">
     <div class="scrim"></div>
     <div class="pk" id="pk"></div>
   </div>
   <div id="splash" aria-hidden="true">
-    <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1899d6" opacity=".9"/><circle cx="256" cy="256" r="166" fill="#ffffff"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#58cc02"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffc800" stroke-width="18"/><circle cx="330" cy="256" r="22" fill="#ffc800" stroke="#ffffff" stroke-width="8"/></svg></div>
+    <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1f4fd1" opacity=".9"/><circle cx="256" cy="256" r="166" fill="#ffffff"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#1fae6a"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#f5b40b" stroke-width="18"/><circle cx="330" cy="256" r="22" fill="#f5b40b" stroke="#ffffff" stroke-width="8"/></svg></div>
     <div class="s-name">globe genius</div>
     <div class="s-tag">Learn the world</div>
   </div>
@@ -1586,7 +1588,7 @@ function celebrate(big) {
 // A short burst of colour for a great round. Pure CSS pieces, removed when they land.
 function confetti(host) {
   const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
-  const cols = ['#58cc02', '#1cb0f6', '#ffc800', '#ff4b4b', '#ce82ff', '#ff9600'];
+  const cols = ['#1fae6a', '#2f6bff', '#f5b40b', '#f2545b', '#8b6bff', '#ff7a1a'];
   box.innerHTML = Array.from({ length: 28 }, (_, i) => `<i style="--x:${Math.round((Math.random() - .5) * 340)}px;--y:${Math.round(-120 - Math.random() * 160)}px;--r:${Math.round(Math.random() * 720 - 360)}deg;--d:${(.9 + Math.random() * .6).toFixed(2)}s;background:${cols[i % cols.length]}"></i>`).join('');
   host.appendChild(box); setTimeout(() => box.remove(), 1800);
 }
@@ -1720,10 +1722,10 @@ const anchorById = Object.fromEntries(ANCHORS.map(a => [a.id, a]));
 // Section headings in the chapter list, at the first chapter of each.
 const SECTION = { cradles: 'The ancient world', americas: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
 // Each section has its own colour, carried by its chapters' year badges and the chapter view.
-const SEC_COLOR = { cradles: '#ff9600', americas: '#ce82ff', old: '#1cb0f6', ww1: '#ffc800', today: '#58cc02' };
-const ERA_COLOR = { ancient: '#ff9600', middle: '#ce82ff', empires: '#1cb0f6', c20: '#ffc800', today: '#58cc02' };
+const SEC_COLOR = { cradles: '#ff7a1a', americas: '#8b6bff', old: '#2f6bff', ww1: '#f5b40b', today: '#1fae6a' };
+const ERA_COLOR = { ancient: '#ff7a1a', middle: '#8b6bff', empires: '#2f6bff', c20: '#f5b40b', today: '#1fae6a' };
 const secColor = {};
-{ let c = '#afafaf'; for (const a of ANCHORS) { if (a.track) { secColor[a.id] = ERA_COLOR[a.sec] || '#afafaf'; continue; } if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
+{ let c = '#9aa5b1'; for (const a of ANCHORS) { if (a.track) { secColor[a.id] = ERA_COLOR[a.sec] || '#9aa5b1'; continue; } if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
 // The timeline has a world track and country tracks; each chapter belongs to one.
 const TRACKS = [{ id: 'world', name: 'World' }, { id: 'us', name: 'US' }, { id: 'cn', name: 'China' }, { id: 'ca', name: 'Canada' }];
 const trackOf = a => a.track || 'world';
@@ -1868,9 +1870,9 @@ const IC = {
 };
 // Bigger, colourful pictures for empty states and the end of a round.
 const ART = {
-  globe: '<svg viewBox="0 0 64 64"><circle cx="32" cy="35" r="26" fill="#1899d6"/><circle cx="32" cy="31" r="26" fill="#1cb0f6"/><path d="M15 19c5 1 7 5 6 9s2 6 5 7 4 5 2 10c-8-2-14-8-15-17 0-3 .7-6.3 2-9zM36 6.6c6 1.2 11 5 13.8 10.3-3.3.6-5.3-1-7-3s-4.4-1.6-5.3 1c-1 3-4 3.2-5.5 1.2-1.5-2.2.6-7.2 4-9.5zM41 28c3.6-1 6.8.3 9 2.2-1 6.2-4.9 11.4-10.2 14 1-4.2-.2-6.8-1.7-9-1.5-2.4-.7-6.2 2.9-7.2z" fill="#58cc02"/><circle cx="46" cy="14" r="6" fill="#ffc800" stroke="#fff" stroke-width="2.5"/></svg>',
-  trophy: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#fff5d3"/><path d="M30 18h36v20a18 18 0 01-36 0z" fill="#ffc800"/><path d="M30 18h36v6H30z" fill="#e5a400"/><path d="M30 24h-8a10 10 0 0010 12M66 24h8a10 10 0 01-10 12" fill="none" stroke="#ffc800" stroke-width="5" stroke-linecap="round"/><path d="M42 54h12v10H42z" fill="#e5a400"/><rect x="32" y="64" width="32" height="10" rx="4" fill="#ffc800"/><rect x="32" y="70" width="32" height="4" rx="2" fill="#e5a400"/><path d="M41 30l4 4 8-9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  medal: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#ddf4ff"/><path d="M34 14h12l6 22H40zM62 14H50l-6 22h12z" fill="#1cb0f6"/><circle cx="48" cy="56" r="22" fill="#1899d6"/><circle cx="48" cy="53" r="22" fill="#1cb0f6"/><path d="M48 41l4 8.2 9 1.3-6.5 6.3 1.5 9-8-4.2-8 4.2 1.5-9-6.5-6.3 9-1.3z" fill="#fff"/></svg>',
+  globe: '<svg viewBox="0 0 64 64"><circle cx="32" cy="35" r="26" fill="#1f4fd1"/><circle cx="32" cy="31" r="26" fill="#2f6bff"/><path d="M15 19c5 1 7 5 6 9s2 6 5 7 4 5 2 10c-8-2-14-8-15-17 0-3 .7-6.3 2-9zM36 6.6c6 1.2 11 5 13.8 10.3-3.3.6-5.3-1-7-3s-4.4-1.6-5.3 1c-1 3-4 3.2-5.5 1.2-1.5-2.2.6-7.2 4-9.5zM41 28c3.6-1 6.8.3 9 2.2-1 6.2-4.9 11.4-10.2 14 1-4.2-.2-6.8-1.7-9-1.5-2.4-.7-6.2 2.9-7.2z" fill="#1fae6a"/><circle cx="46" cy="14" r="6" fill="#f5b40b" stroke="#fff" stroke-width="2.5"/></svg>',
+  trophy: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#fff1cc"/><path d="M30 18h36v20a18 18 0 01-36 0z" fill="#f5b40b"/><path d="M30 18h36v6H30z" fill="#c98d00"/><path d="M30 24h-8a10 10 0 0010 12M66 24h8a10 10 0 01-10 12" fill="none" stroke="#f5b40b" stroke-width="5" stroke-linecap="round"/><path d="M42 54h12v10H42z" fill="#c98d00"/><rect x="32" y="64" width="32" height="10" rx="4" fill="#f5b40b"/><rect x="32" y="70" width="32" height="4" rx="2" fill="#c98d00"/><path d="M41 30l4 4 8-9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  medal: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#e4ebff"/><path d="M34 14h12l6 22H40zM62 14H50l-6 22h12z" fill="#2f6bff"/><circle cx="48" cy="56" r="22" fill="#1f4fd1"/><circle cx="48" cy="53" r="22" fill="#2f6bff"/><path d="M48 41l4 8.2 9 1.3-6.5 6.3 1.5 9-8-4.2-8 4.2 1.5-9-6.5-6.3 9-1.3z" fill="#fff"/></svg>',
 };
 
 // ---------- tabs ----------
@@ -1994,8 +1996,8 @@ function settingsSheet() {
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
-    <div class="setrow"><b>Globe Genius Plus</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Unlock the deep dives: longer stories with their own maps and quizzes.'}</p>
-      <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.lock}Unlock deep dives`}</button></div>
+    ${NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
+      <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.star}Coming soon`}</button></div>`}
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
       <button class="btn" data-report="General feedback">Send feedback</button></div>`);
   $('#setBack').onclick = homeSheet;
@@ -2020,7 +2022,7 @@ function settingsSheet() {
     });
     $('#accDelGo').onclick = () => { $('#accDelGo').disabled = true; del(); };
   };
-  $('#plusSet').onclick = () => { buzz(5); if (store.plus) { store.plus = false; save(); histIdx = null; toast('Deep dives locked'); settingsSheet(); } else { showTab('history'); unlockSheet(); } };
+  if ($('#plusSet')) $('#plusSet').onclick = () => { buzz(5); if (store.plus) { store.plus = false; save(); histIdx = null; toast('Deep dives locked'); settingsSheet(); } else { showTab('history'); unlockSheet(); } };
   sheet.querySelectorAll('[data-sound-set]').forEach(b => b.onclick = () => { store.sound = b.dataset.soundSet === 'on'; save(); if (store.sound) sfx('right'); settingsSheet(); });
   sheet.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { buzz(5); store.theme = b.dataset.themeSet; save(); applyTheme(); settingsSheet(); });
   $('#resetAsk').onclick = () => {
@@ -2124,7 +2126,7 @@ function historySheet() {
   setRound(false); setTab('history');
   if (!state.track) state.track = store.track || ({ us: 'us', usca: 'us', ca: 'ca', cn: 'cn' }[state.scope.id]) || 'world';
   const tracks = TRACKS.filter(t => t.id === 'world' || trackList(t.id).length);
-  if (trackList('plus').length) tracks.push({ id: 'plus', name: 'Deep dives' });
+  if (trackList('plus').length && (!NATIVE || store.plus)) tracks.push({ id: 'plus', name: 'Deep dives' });
   if (!tracks.some(t => t.id === state.track)) state.track = 'world';
   const plus = state.track === 'plus', locked = plus && !store.plus;
   const list = trackList(state.track);
@@ -2245,8 +2247,8 @@ function plusHero(list) {
     <h3>Go deeper into the stories that made the world</h3>
     <p>Religions, empires, wars and big ideas, each told in full with its own maps and quiz.</p>
     <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
-    <button class="btn pbtn" id="plusUnlock">${IC.lock}Unlock Plus · $4.99 once</button>
-    <p class="pfine">One payment, yours forever. No subscription.</p>
+    <button class="btn pbtn" id="plusUnlock">${IC.star}Coming soon</button>
+    <p class="pfine">Deep dives are on the way. Everything else is free.</p>
     ${free && free.maps ? `<button class="link plink" id="plusFree">Read a free deep dive: ${esc(free.title)}</button>` : ''}</div>`;
 }
 // The paywall itself. For now an access code opens it; in-app purchase replaces the form later.
@@ -2256,9 +2258,9 @@ function unlockSheet(id) {
   setSheet(`<button class="back" id="ulBack">${IC.back}Timeline</button>
     <div class="pwall"><span class="ptag">${IC.star}Globe Genius Plus</span>
       <h3>${want ? `Unlock ${esc(want.title)} and every deep dive` : 'Unlock everything in Plus'}</h3>
-      <p class="pprice"><b>$4.99</b> once · founder price<br><small>Pay once, keep it forever. No subscription, no ads.</small></p>
+      <p class="pprice"><b>Coming soon</b><br><small>Deep dives are on their way. Everything else in Globe Genius is free.</small></p>
       <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
-      ${NATIVE ? '<p class="hint" style="color:#fff;text-align:center">Coming soon to the iPhone app.</p>' : `<form class="unlock" id="ulForm" autocomplete="off">
+      ${NATIVE ? '' : `<button class="link" id="ulHave" style="color:#fff;opacity:.85">I have an access code</button><form class="unlock" id="ulForm" autocomplete="off" hidden>
         <input id="ulCode" type="password" inputmode="numeric" autocomplete="off" name="plus-code" data-form-type="other" placeholder="Access code" aria-label="Access code">
         <p class="err" id="ulErr" role="alert"></p>
         <button class="btn pbtn" type="submit">${IC.lock}Unlock</button></form>`}</div>
@@ -2266,11 +2268,10 @@ function unlockSheet(id) {
       <li>${IC.clock}<span><b>The full story</b>What happened, why, and what it changed, with the turning points most courses skip.</span></li>
       <li>${IC.globe}<span><b>Maps that show it</b>Empires, faiths and front lines lit up on today's globe, country by country.</span></li>
       <li>${IC.target}<span><b>Quizzes that make it stick</b>A quiz on every map, with your progress saved.</span></li>
-      <li>${IC.trophy}<span><b>Every past daily challenge</b>Missed a day? Play any Daily Geography or History from the archive and see how you'd have ranked.</span></li>
-      <li>${IC.flame}<span><b>Two streak freezes a week</b>Miss a day or two without losing your streak.</span></li>
     </ul>
     <div class="pcats">${cats.map(([c, l]) => `<details><summary><b>${PLUS_CAT[c]}</b><em>${l.length}</em></summary><p>${l.map(a => esc(a.title)).join(' · ')}</p></details>`).join('')}</div>
-    <p class="fine" style="text-align:center">The founder price is for early supporters and will go up later. Everything free today stays free: the daily challenges, streaks, leaderboards and every country.</p>`);
+    <p class="fine" style="text-align:center">Everything free today stays free: the daily challenges, streaks, leaderboards, races and every country.</p>`);
+  if ($('#ulHave')) $('#ulHave').onclick = () => { $('#ulHave').hidden = true; $('#ulForm').hidden = false; $('#ulCode').focus(); };
   $('#ulBack').onclick = () => { if (want) { state.track = 'plus'; } historySheet(); };
   if ($('#ulForm')) $('#ulForm').onsubmit = e => {
     e.preventDefault();
@@ -3456,18 +3457,19 @@ const archiveFree = no => no === dailyNo() - 1;
 // Past challenges: yesterday's are free for everyone; older days come with Plus.
 function archiveSheet() {
   const today = dailyNo(), from = state.tab;
-  const rows = Array.from({ length: Math.min(30, today - 1) }, (_, k) => today - 1 - k).map(no => {
+  // At launch only yesterday is open; older days say "coming soon" on the web and aren't listed in the app.
+  const rows = Array.from({ length: Math.min(NATIVE && !store.plus ? 1 : 30, today - 1) }, (_, k) => today - 1 - k).map(no => {
     const cell = kind => { const d = dailyState(kind, no), lk = !store.plus && !archiveFree(no); return `<button class="arc-b${d.done ? ' done' : ''}${lk ? ' locked' : ''}" data-arc="${kind}:${no}" style="--pc:${DD_KIND[kind].color}">${lk ? IC.lock : DD_KIND[kind].emoji}<span>${d.done ? ddScore(d) : DD_KIND[kind].short}</span></button>`; };
     return `<div class="arc-row"><span class="arc-no">#${no}<small>${archiveFree(no) ? 'Yesterday' : `${today - no} days ago`}</small></span>${cell('geo')}${cell('hist')}</div>`;
   }).join('');
   setSheet(`<button class="back" id="arcBack">${IC.back}Today</button>
     <div class="title">Past challenges</div>
-    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${store.plus ? '' : 'Yesterday\'s are free; every older day comes with Plus.'} Past days don't change your streak.</p>
+    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${store.plus ? '' : NATIVE ? '' : 'Older days are coming soon.'} Past days don't change your streak.</p>
     <div class="arc">${rows || '<p class="hint">The archive fills up from tomorrow.</p>'}</div>`);
   $('#arcBack').onclick = () => showTab(from === 'learn' ? 'learn' : 'explore');
   sheet.querySelectorAll('[data-arc]').forEach(b => b.onclick = () => {
     buzz(5); const [kind, no] = b.dataset.arc.split(':');
-    if (!store.plus && !archiveFree(+no)) { showTab('history'); return unlockSheet(); }
+    if (!store.plus && !archiveFree(+no)) return toast('Older days are coming soon');
     dailyChallenge(kind, +no);
   });
 }
@@ -3511,9 +3513,13 @@ function todayCard() {
   const n = (t.learn ? 1 : 0) + (dg.done ? 1 : 0) + (dh.done ? 1 : 0);
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
   const row = (id, color, icon, title, sub, done) => `<button class="td-row${done ? ' done' : ''}" id="${id}"><span class="td-ic" style="--c:${done ? 'var(--green)' : color}">${done ? IC.check : icon}</span><span><b>${title}</b><small>${sub}</small></span>${IC.next}</button>`;
+  const go = d => d.ans.length ? 'Continue' : 'Play';
+  const next = !dg.done ? ['geo', `${go(dg)} Daily Geography #${dg.no}`] : !dh.done ? ['hist', `${go(dh)} Daily History #${dh.no}`] : !t.learn ? ['learn', 'Start today\'s lesson'] : null;
+  const play = next ? `<button class="btn primary td-play" id="tdPlay" data-next="${next[0]}"><svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>${next[1]}</button>` : '';
   return `<div class="today goalbar${n === 3 ? ' done' : ''}">
     <div class="gb-top"><b>${n === 3 ? `${IC.crown}Perfect day` : 'Today'}</b><span class="td-st${st ? '' : ' off'}" title="Day streak">${IC.flame}${st}${fz ? `<em title="Streak freezes">❄️${fz}</em>` : ''}</span></div>
     <div class="td-segs">${[t.learn, dg.done, dh.done].map(x => `<i class="${x ? 'on' : ''}"></i>`).join('')}</div>
+    ${play}
     <p class="td-hint">${n === 3 ? `All three done. ${st > 1 ? `${st} days in a row.` : 'Come back tomorrow.'}` : n ? `${3 - n} more for a perfect day. Your streak is safe today.` : st ? `Do any one to keep your ${st}-day streak.` : 'Do any one to start a streak.'}</p>
     ${row('goToday', 'var(--green)', IC.target, 'Learn', t.learn ? 'Done. Keep going any time.' : `5 minutes · new ${esc(what)} and a quick review`, t.learn)}
     ${row('goDaily', DD_KIND.geo.color, DD_KIND.geo.icon, `${DD_KIND.geo.title} #${dg.no}`, dailyLine(dg), dg.done)}
@@ -3524,6 +3530,7 @@ function todayCard() {
 function bindDaily() {
   // A lesson started from Today comes back to Today when it ends.
   if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); const t = state.tab; startLearn(); roundFrom = t; };
+  if ($('#tdPlay')) $('#tdPlay').onclick = () => { buzz(8); const k = $('#tdPlay').dataset.next; if (k === 'learn') { const t = state.tab; startLearn(); roundFrom = t; } else dailyChallenge(k); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
   if ($('#goDailyH')) $('#goDailyH').onclick = () => { buzz(8); dailyChallenge('hist'); };
   if ($('#goArc')) $('#goArc').onclick = () => { buzz(5); archiveSheet(); };
@@ -4112,7 +4119,15 @@ window.visualViewport?.addEventListener('scroll', fitViewport);
 // First layout without animation, so the globe starts centred in the space above the panel.
 $('#app').classList.add('dragging');
 applyFreeze(); remindersSoon();
-if (needsOnboarding()) onboarding(); else homeSheet();
+// The web skips onboarding: a first-time visitor lands straight in today's Daily Geography (the globe frames
+// itself behind it), so they're playing within seconds. The iPhone app keeps its short onboarding.
+const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
+if (firstVisit && NATIVE) onboarding();
+else {
+  if (firstVisit) { store.onb = 1; save(); }
+  homeSheet();
+  if (firstVisit && !invited) setTimeout(() => { if (state.mode === 'explore' && !state.race) dailyChallenge('geo'); }, 900);
+}
 resize();
 map.resize();
 fitBox(G.views[state.scope.id], 0);
