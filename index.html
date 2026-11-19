@@ -50,28 +50,28 @@ window.__geo = fetch('geo-live.json').then(r => { if (!r.ok) throw new Error(r.s
 /* Globe Genius: a full-bleed globe, a header of chips, and a panel above a tab bar.
    Flat colour, chunky tactile buttons (a darker "edge" below each), a rounded bold typeface. */
 :root {
-  --bg: #ffffff; --surface: #f4f7fb; --ink: #1b2433; --ink-2: #5a6678; --ink-3: #a0aaba; --line: #e3e9f1;
-  --green: #22b35e; --green-d: #178a47; --green-l: #d8f6e3;
-  --blue: #1e7cf2; --blue-d: #155fc0; --blue-l: #e1eeff;
-  --red: #ff5a5f; --red-d: #e03e44; --red-l: #ffe1e2;
-  --gold: #ffbe1a; --gold-d: #d99a00; --gold-l: #fff3cc;
-  --orange: #ff8a1f; --purple: #9b6bff; --purple-d: #7a4ae0;
+  --bg: #ffffff; --surface: #f6f7f9; --ink: #3a3f47; --ink-2: #6f7681; --ink-3: #b2b8c2; --line: #e6e8ec;
+  --green: #2dbe60; --green-d: #1f9b4b; --green-l: #d9f7e4;
+  --blue: #2a9df4; --blue-d: #1b7fd0; --blue-l: #ddf0fe;
+  --red: #ff5b5b; --red-d: #e53e3e; --red-l: #ffe0e0;
+  --gold: #ffc51f; --gold-d: #e0a400; --gold-l: #fff4cf;
+  --orange: #ff9a1f; --purple: #a875ff; --purple-d: #8656e6;
   --stars: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><circle cx='84' cy='39' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='19' cy='139' r='0.8' fill='%23fff' opacity='0.9'/><circle cx='15' cy='132' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='113' cy='18' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='110' cy='215' r='0.6' fill='%23fff' opacity='0.5'/><circle cx='164' cy='152' r='0.6' fill='%23fff' opacity='0.9'/><circle cx='152' cy='13' r='0.8' fill='%23fff' opacity='0.35'/><circle cx='145' cy='35' r='1' fill='%23fff' opacity='0.5'/><circle cx='141' cy='148' r='1.2' fill='%23fff' opacity='0.5'/><circle cx='27' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='25' cy='185' r='1.2' fill='%23fff' opacity='0.35'/><circle cx='161' cy='129' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='202' cy='121' r='1' fill='%23fff' opacity='0.6'/><circle cx='78' cy='207' r='1.5' fill='%23fff' opacity='0.5'/><circle cx='21' cy='78' r='1' fill='%23fff' opacity='0.6'/><circle cx='190' cy='75' r='0.6' fill='%23fff' opacity='0.35'/><circle cx='133' cy='43' r='0.8' fill='%23fff' opacity='0.5'/><circle cx='243' cy='110' r='1.5' fill='%23fff' opacity='0.35'/><circle cx='199' cy='149' r='0.8' fill='%23fff' opacity='0.6'/><circle cx='181' cy='155' r='1.2' fill='%23fff' opacity='0.8'/><circle cx='18' cy='24' r='0.8' fill='%23fff' opacity='0.8'/><circle cx='181' cy='17' r='1.5' fill='%23fff' opacity='0.6'/></svg>");
   /* by day a clear sky, lightest near the globe; the stars only come out at night */
-  --space: radial-gradient(120% 90% at 50% 40%, #f2f8ff 0%, #d4e7fc 55%, #a9cbf3 100%);
+  --space: radial-gradient(120% 90% at 50% 40%, #e6f4ff 0%, #b3dcfa 50%, #78bdf0 100%);
   /* read by the globe */
-  --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d8f6e3; --m2: #3fca78; --target: #ffbe1a; --target-ink: #3c2a00;
-  --good: #22b35e; --bad: #ff5a5f; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
+  --ocean: #bcd6e2; --land: #f3f5ef; --border: #6f858e; --m1: #d9f7e4; --m2: #46cf72; --target: #ffc51f; --target-ink: #3c2a00;
+  --good: #2dbe60; --bad: #ff5b5b; --label: #1d3640; --halo: rgba(243, 245, 239, .9); --veil: #3d4f58;
   --font: "Nunito", ui-rounded, "SF Pro Rounded", -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
   --ease: cubic-bezier(.2, .9, .25, 1);
 }
 :root[data-theme="dark"] {
   --bg: #0f1829; --surface: #16223a; --ink: #eef3ff; --ink-2: #a3b2c9; --ink-3: #5d6e88; --line: #24324d;
-  --green: #2fcf8b; --green-d: #20a46d; --green-l: #143a2d; --blue: #5b8cff; --blue-d: #3f6fe6; --blue-l: #1a2a4d;
+  --green: #3ad37a; --green-d: #24a95c; --green-l: #143a2d; --blue: #4fb0ff; --blue-d: #2a8ae0; --blue-l: #17304d;
   --red: #ff6b6b; --red-d: #e04b4b; --red-l: #4a1f26; --gold: #ffc451; --gold-d: #e0a42c; --gold-l: #3d3315;
   --orange: #ff9d4d; --purple: #a58bff; --purple-d: #8a6cf0;
   --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #1b3a63 0%, #0f2240 55%, #070f1f 100%);
-  --land: #2b3b52; --m1: #1d4a3a; --m2: #2fae74; --good: #2fcf8b; --bad: #ff6b6b; --veil: #000000; --label: #e3edf0; --halo: rgba(15, 34, 64, .85);
+  --land: #2b3b52; --m1: #1d4a3a; --m2: #33b96b; --good: #3ad37a; --bad: #ff6b6b; --veil: #000000; --label: #e3edf0; --halo: rgba(15, 34, 64, .85);
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -160,7 +160,7 @@ h1, h2, h3 { margin: 0; }
 .btn { border: 2px solid var(--line); border-radius: 16px; min-height: 50px; padding: 10px 16px; font-weight: 900; font-size: 15px; letter-spacing: .07em; text-transform: uppercase;
   background: var(--bg); color: var(--blue); box-shadow: 0 4px 0 var(--line); display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; transition: transform .08s, box-shadow .08s, filter .15s; margin-bottom: 4px; }
 .btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent !important; }
-.btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 4px 0 var(--blue-d); }
+.btn.primary { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 4px 0 var(--green-d); }
 .btn.blue { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 4px 0 var(--blue-d); }
 .btn.red { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 4px 0 var(--red-d); }
 .btn.ghost { border-color: transparent; box-shadow: none; color: var(--ink-3); }
@@ -418,7 +418,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .rc-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .rc-opt { border: 0; border-radius: 16px; padding: 18px 10px; min-height: 76px; font: inherit; font-size: 17px; font-weight: 900; color: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .2); transition: transform .08s, opacity .2s; }
 .rc-opt:active { transform: translateY(3px); box-shadow: none; }
-.rc-opt.c-red { background: #ff5a5f; } .rc-opt.c-blue { background: #1e7cf2; } .rc-opt.c-gold { background: #d99a00; } .rc-opt.c-green { background: #178a47; }
+.rc-opt.c-red { background: #ff5b5b; } .rc-opt.c-blue { background: #2a9df4; } .rc-opt.c-gold { background: #e0a400; } .rc-opt.c-green { background: #1f9b4b; }
 .rc-opt:disabled { opacity: .45; }
 .rc-opt.picked { opacity: 1; outline: 4px solid var(--ink); outline-offset: 2px; }
 .podium { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: end; text-align: center; }
@@ -738,6 +738,37 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .arc-b.locked { color: var(--ink-3); }
 .arc-b .ic { width: 16px; height: 16px; }
 .arc-b:focus-visible { outline: 3px solid var(--blue); }
+.today.hm { display: grid; gap: 14px; padding-bottom: 0; }
+.hm-top { display: flex; justify-content: space-between; align-items: center; padding: 2px 2px 0; }
+.hm-hi { font-size: 22px; font-weight: 900; color: var(--ink); }
+.hm-top .td-st { font-size: 18px; }
+.hm-hero { all: unset; box-sizing: border-box; position: relative; overflow: hidden; display: grid; gap: 6px; align-content: start; padding: 18px 20px 20px; min-height: 176px; border-radius: 24px; color: #fff; cursor: pointer;
+  background: linear-gradient(140deg, var(--h1), var(--h2)); box-shadow: 0 6px 0 var(--h3); transition: transform .08s, box-shadow .08s; }
+.hm-hero:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--h3); }
+.hm-hero:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.hm-hero.done { cursor: default; }
+.hm-kick { font-size: 13px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; opacity: .92; position: relative; z-index: 1; }
+.hm-title { font-size: 30px; font-weight: 900; line-height: 1.05; position: relative; z-index: 1; }
+.hm-sub { font-size: 14.5px; font-weight: 700; line-height: 1.35; opacity: .95; max-width: 64%; position: relative; z-index: 1; }
+.hm-go { margin-top: 10px; justify-self: start; display: inline-flex; gap: 8px; align-items: center; padding: 12px 24px; border-radius: 999px; background: #fff; color: var(--h3);
+  font-size: 17px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0, 0, 0, .14); position: relative; z-index: 1; animation: hmPulse 2.4s ease-in-out infinite; }
+.hm-go .ic { width: 18px; height: 18px; }
+@keyframes hmPulse { 0%, 70%, 100% { transform: scale(1); } 80% { transform: scale(1.06); } 90% { transform: scale(.98); } }
+.hm-art { position: absolute; right: -26px; bottom: -30px; width: 158px; height: 158px; transform: rotate(-14deg); opacity: .97; }
+.hm-art svg { width: 100%; height: 100%; }
+.hm-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hm-tiles.three { grid-template-columns: 1fr 1fr 1fr; }
+.hm-tile { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 3px; align-content: start; padding: 14px; border: 2px solid var(--line); border-radius: 18px; background: var(--bg); box-shadow: 0 3px 0 var(--line); transition: transform .08s, box-shadow .08s; }
+.hm-tile:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
+.hm-tile:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.hm-ic { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 6px; color: var(--c); background: color-mix(in srgb, var(--c) 15%, var(--bg)); }
+.hm-ic .ic { width: 20px; height: 20px; }
+.hm-tile b { font-size: 16px; font-weight: 900; line-height: 1.2; color: var(--ink); }
+.hm-tile small { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.hm-tile.done .hm-ic { color: #fff; background: var(--green); }
+.hm-tile.done small { color: var(--green-d); }
+.hm .td-arc { margin: -2px 0 0; justify-self: center; }
+@media (prefers-reduced-motion: reduce) { .hm-go { animation: none; } }
 .hr-lives { display: flex; gap: 4px; color: var(--red); }
 .hr-lives i { display: grid; }
 .hr-lives .ic { width: 24px; height: 24px; }
@@ -780,13 +811,13 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .go.daily.done small { line-height: 1.5; }
 .reward { position: relative; display: grid; gap: 10px; justify-items: center; width: 100%; }
 .rw-xp { display: flex; align-items: center; gap: 8px; padding: 8px 20px 8px 12px; border-radius: 999px; background: var(--gold-l, #fff4c2); color: var(--gold-d); font-weight: 900; animation: pop .5s .15s var(--ease) both; }
-.rw-xp .rw-bolt { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--gold, #ffbe1a); color: #fff; }
+.rw-xp .rw-bolt { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--gold, #ffc51f); color: #fff; }
 .rw-xp .rw-bolt .ic { width: 22px; height: 22px; }
 .rw-xp .rw-n { font-size: 34px; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
 .rw-xp .rw-u { font-size: 18px; }
 .reward.landed .rw-xp { animation: thump .35s var(--ease); }
 @keyframes thump { 40% { transform: scale(1.12); } }
-.rw-streak { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; color: var(--orange, #ff8a1f); font-weight: 900; animation: rise .5s .5s var(--ease) both; }
+.rw-streak { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; color: var(--orange, #ff9a1f); font-weight: 900; animation: rise .5s .5s var(--ease) both; }
 .rw-streak .ic { width: 22px; height: 22px; }
 .rw-streak span { width: 100%; text-align: center; color: var(--ink-2); font-weight: 800; font-size: 13px; }
 .rw-goal { width: 100%; animation: rise .5s .65s var(--ease) both; }
@@ -870,7 +901,7 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 </style>
 
 <div id="app">
-  <div id="brand" aria-hidden="true"><svg viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#155fc0"/><circle cx="256" cy="256" r="166" fill="#fff" stroke="#e3e9f1" stroke-width="10"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#22b35e"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffbe1a" stroke-width="20"/><circle cx="330" cy="256" r="24" fill="#ffbe1a" stroke="#fff" stroke-width="8"/></svg><span><b>globe genius</b><small>Daily geography and history</small></span></div>
+  <div id="brand" aria-hidden="true"><svg viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1b7fd0"/><circle cx="256" cy="256" r="166" fill="#fff" stroke="#e6e8ec" stroke-width="10"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#2dbe60"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffc51f" stroke-width="20"/><circle cx="330" cy="256" r="24" fill="#ffc51f" stroke="#fff" stroke-width="8"/></svg><span><b>globe genius</b><small>Daily geography and history</small></span></div>
   <div id="mapwrap">
     <div id="map" aria-label="Globe. Drag to spin, pinch or scroll to zoom, tap a place to learn about it."></div>
     <header id="top">
@@ -904,18 +935,18 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
   </div>
   <section id="sheet" aria-live="polite"></section>
   <nav id="tabs" role="tablist" aria-label="Sections">
-    <button role="tab" data-tab="explore" aria-selected="true" style="--tc:var(--blue)"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#1e7cf2"/><path d="M8 9c3 1 4 4 3 6s1 4 3 4 2 3 1 6c-5-1-9-5-9.5-10.5C5.8 12.3 6.7 10.4 8 9zM18 4.3c3.6.7 6.6 3 8.2 6.2-2 .4-3.2-.6-4.2-1.8s-2.7-1-3.2.6c-.6 1.8-2.4 1.9-3.3.7-.9-1.3.4-4.3 2.5-5.7zM21 16c2-.6 4 .2 5.3 1.3-.6 3.7-2.9 6.8-6.1 8.4.6-2.5-.1-4.1-1-5.4-.9-1.4-.4-3.7 1.8-4.3z" fill="#22b35e"/><circle cx="16" cy="16" r="13" fill="none" stroke="#155fc0" stroke-width="2"/></svg>Explore</button>
-    <button role="tab" data-tab="learn" aria-selected="false" style="--tc:var(--green)"><svg viewBox="0 0 32 32"><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4v18c-3.8-2.4-7.5-2.8-11-1.4z" fill="#22b35e"/><path d="M27 7.5c-3.5-1.4-7.2-1-11 1.4v18c3.8-2.4 7.5-2.8 11-1.4z" fill="#3fca78"/><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4 3.8-2.4 7.5-2.8 11-1.4v18c-3.5-1.4-7.2-1-11 1.4-3.8-2.4-7.5-2.8-11-1.4z" fill="none" stroke="#178a47" stroke-width="2" stroke-linejoin="round"/><path d="M9 12.5c1.7-.4 3.4-.2 5 .6M9 16.5c1.7-.4 3.4-.2 5 .6M18 13.1c1.6-.8 3.3-1 5-.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>Learn</button>
-    <button role="tab" data-tab="find" aria-selected="false" style="--tc:var(--red)"><svg viewBox="0 0 32 32"><path d="M16 29s-9.5-8.4-9.5-15.5a9.5 9.5 0 0119 0C25.5 20.6 16 29 16 29z" fill="#ff5a5f" stroke="#e03e44" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="13.5" r="4" fill="#fff"/></svg>Quiz</button>
-    <button role="tab" data-tab="history" aria-selected="false" style="--tc:var(--purple-d)"><svg viewBox="0 0 32 32"><rect x="5" y="4" width="22" height="25" rx="5" fill="#9b6bff" stroke="#7a4ae0" stroke-width="2"/><rect x="9" y="9" width="14" height="3" rx="1.5" fill="#fff"/><rect x="9" y="15" width="10" height="3" rx="1.5" fill="#fff" opacity=".8"/><rect x="9" y="21" width="12" height="3" rx="1.5" fill="#fff" opacity=".6"/></svg>Timeline</button>
-    <button role="tab" data-tab="compete" aria-selected="false" style="--tc:var(--orange)" class="cloud-only"><svg viewBox="0 0 32 32"><path d="M9 5h14v7a7 7 0 01-14 0z" fill="#ffbe1a" stroke="#d99a00" stroke-width="2"/><path d="M9 8H5.5a3.5 3.5 0 003.8 4.6M23 8h3.5a3.5 3.5 0 01-3.8 4.6" fill="none" stroke="#d99a00" stroke-width="2.2"/><path d="M14 19h4v4h-4z" fill="#d99a00"/><rect x="10" y="23" width="12" height="4" rx="1.5" fill="#ff8a1f"/></svg>Compete</button>
+    <button role="tab" data-tab="explore" aria-selected="true" style="--tc:var(--blue)"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#2a9df4"/><path d="M8 9c3 1 4 4 3 6s1 4 3 4 2 3 1 6c-5-1-9-5-9.5-10.5C5.8 12.3 6.7 10.4 8 9zM18 4.3c3.6.7 6.6 3 8.2 6.2-2 .4-3.2-.6-4.2-1.8s-2.7-1-3.2.6c-.6 1.8-2.4 1.9-3.3.7-.9-1.3.4-4.3 2.5-5.7zM21 16c2-.6 4 .2 5.3 1.3-.6 3.7-2.9 6.8-6.1 8.4.6-2.5-.1-4.1-1-5.4-.9-1.4-.4-3.7 1.8-4.3z" fill="#2dbe60"/><circle cx="16" cy="16" r="13" fill="none" stroke="#1b7fd0" stroke-width="2"/></svg>Explore</button>
+    <button role="tab" data-tab="learn" aria-selected="false" style="--tc:var(--green)"><svg viewBox="0 0 32 32"><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4v18c-3.8-2.4-7.5-2.8-11-1.4z" fill="#2dbe60"/><path d="M27 7.5c-3.5-1.4-7.2-1-11 1.4v18c3.8-2.4 7.5-2.8 11-1.4z" fill="#46cf72"/><path d="M5 7.5c3.5-1.4 7.2-1 11 1.4 3.8-2.4 7.5-2.8 11-1.4v18c-3.5-1.4-7.2-1-11 1.4-3.8-2.4-7.5-2.8-11-1.4z" fill="none" stroke="#1f9b4b" stroke-width="2" stroke-linejoin="round"/><path d="M9 12.5c1.7-.4 3.4-.2 5 .6M9 16.5c1.7-.4 3.4-.2 5 .6M18 13.1c1.6-.8 3.3-1 5-.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>Learn</button>
+    <button role="tab" data-tab="find" aria-selected="false" style="--tc:var(--red)"><svg viewBox="0 0 32 32"><path d="M16 29s-9.5-8.4-9.5-15.5a9.5 9.5 0 0119 0C25.5 20.6 16 29 16 29z" fill="#ff5b5b" stroke="#e53e3e" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="13.5" r="4" fill="#fff"/></svg>Quiz</button>
+    <button role="tab" data-tab="history" aria-selected="false" style="--tc:var(--purple-d)"><svg viewBox="0 0 32 32"><rect x="5" y="4" width="22" height="25" rx="5" fill="#a875ff" stroke="#8656e6" stroke-width="2"/><rect x="9" y="9" width="14" height="3" rx="1.5" fill="#fff"/><rect x="9" y="15" width="10" height="3" rx="1.5" fill="#fff" opacity=".8"/><rect x="9" y="21" width="12" height="3" rx="1.5" fill="#fff" opacity=".6"/></svg>Timeline</button>
+    <button role="tab" data-tab="compete" aria-selected="false" style="--tc:var(--orange)" class="cloud-only"><svg viewBox="0 0 32 32"><path d="M9 5h14v7a7 7 0 01-14 0z" fill="#ffc51f" stroke="#e0a400" stroke-width="2"/><path d="M9 8H5.5a3.5 3.5 0 003.8 4.6M23 8h3.5a3.5 3.5 0 01-3.8 4.6" fill="none" stroke="#e0a400" stroke-width="2.2"/><path d="M14 19h4v4h-4z" fill="#e0a400"/><rect x="10" y="23" width="12" height="4" rx="1.5" fill="#ff9a1f"/></svg>Compete</button>
   </nav>
   <div id="picker" hidden role="dialog" aria-modal="true" aria-label="Choose what to learn">
     <div class="scrim"></div>
     <div class="pk" id="pk"></div>
   </div>
   <div id="splash" aria-hidden="true">
-    <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#155fc0" opacity=".9"/><circle cx="256" cy="256" r="166" fill="#ffffff"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#22b35e"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffbe1a" stroke-width="18"/><circle cx="330" cy="256" r="22" fill="#ffbe1a" stroke="#ffffff" stroke-width="8"/></svg></div>
+    <div class="s-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="274" r="166" fill="#1b7fd0" opacity=".9"/><circle cx="256" cy="256" r="166" fill="#ffffff"/><path d="M150 176c34-10 58 6 60 30s-20 30-14 52 32 26 30 54-20 38-34 44c-40-24-68-66-70-112-1-26 10-50 28-68zM292 102c42 8 80 34 102 70-24 8-44-2-58-16-14-14-34-10-38 8-6 20-28 22-38 8-10-16 10-50 32-70zM330 254c26-6 50 6 66 22-6 46-34 84-74 104 6-30-2-48-12-62-12-18-6-58 20-64z" fill="#2dbe60"/><path d="M256 90A74 166 0 0 1 256 422" fill="none" stroke="#ffc51f" stroke-width="18"/><circle cx="330" cy="256" r="22" fill="#ffc51f" stroke="#ffffff" stroke-width="8"/></svg></div>
     <div class="s-name">globe genius</div>
     <div class="s-tag">Learn the world</div>
   </div>
@@ -1591,7 +1622,7 @@ function celebrate(big) {
 // A short burst of colour for a great round. Pure CSS pieces, removed when they land.
 function confetti(host) {
   const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
-  const cols = ['#22b35e', '#1e7cf2', '#ffbe1a', '#ff5a5f', '#9b6bff', '#ff8a1f'];
+  const cols = ['#2dbe60', '#2a9df4', '#ffc51f', '#ff5b5b', '#a875ff', '#ff9a1f'];
   box.innerHTML = Array.from({ length: 28 }, (_, i) => `<i style="--x:${Math.round((Math.random() - .5) * 340)}px;--y:${Math.round(-120 - Math.random() * 160)}px;--r:${Math.round(Math.random() * 720 - 360)}deg;--d:${(.9 + Math.random() * .6).toFixed(2)}s;background:${cols[i % cols.length]}"></i>`).join('');
   host.appendChild(box); setTimeout(() => box.remove(), 1800);
 }
@@ -1645,7 +1676,7 @@ function measure() {
   const natural = 28 + wrap.offsetHeight + parseFloat(cs.paddingBottom);
   const peek = Math.min(natural, 98 + parseFloat(cs.paddingBottom));
   const top = $('#top').getBoundingClientRect().bottom + 8;
-  snaps = { peek, auto: Math.max(peek, Math.min(natural, H < 560 ? H - 110 : H * (state.mode === 'learn' || state.mode === 'locate' || state.mode === 'summary' ? 0.66 : state.tab === 'explore' && state.mode === 'explore' ? 0.5 : 0.6))), full: Math.max(peek, Math.min(natural, H - top)) };
+  snaps = { peek, auto: Math.max(peek, Math.min(natural, H < 560 ? H - 110 : H * (state.mode === 'learn' || state.mode === 'locate' || state.mode === 'summary' ? 0.66 : state.tab === 'explore' && state.mode === 'explore' ? 0.6 : 0.6))), full: Math.max(peek, Math.min(natural, H - top)) };
 }
 function setH(h) {
   sheetH = Math.round(h);
@@ -1725,10 +1756,10 @@ const anchorById = Object.fromEntries(ANCHORS.map(a => [a.id, a]));
 // Section headings in the chapter list, at the first chapter of each.
 const SECTION = { cradles: 'The ancient world', americas: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
 // Each section has its own colour, carried by its chapters' year badges and the chapter view.
-const SEC_COLOR = { cradles: '#ff8a1f', americas: '#9b6bff', old: '#1e7cf2', ww1: '#ffbe1a', today: '#22b35e' };
-const ERA_COLOR = { ancient: '#ff8a1f', middle: '#9b6bff', empires: '#1e7cf2', c20: '#ffbe1a', today: '#22b35e' };
+const SEC_COLOR = { cradles: '#ff9a1f', americas: '#a875ff', old: '#2a9df4', ww1: '#ffc51f', today: '#2dbe60' };
+const ERA_COLOR = { ancient: '#ff9a1f', middle: '#a875ff', empires: '#2a9df4', c20: '#ffc51f', today: '#2dbe60' };
 const secColor = {};
-{ let c = '#a0aaba'; for (const a of ANCHORS) { if (a.track) { secColor[a.id] = ERA_COLOR[a.sec] || '#a0aaba'; continue; } if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
+{ let c = '#b2b8c2'; for (const a of ANCHORS) { if (a.track) { secColor[a.id] = ERA_COLOR[a.sec] || '#b2b8c2'; continue; } if (SEC_COLOR[a.id]) c = SEC_COLOR[a.id]; secColor[a.id] = c; } }
 // The timeline has a world track and country tracks; each chapter belongs to one.
 const TRACKS = [{ id: 'world', name: 'World' }, { id: 'us', name: 'US' }, { id: 'cn', name: 'China' }, { id: 'ca', name: 'Canada' }];
 const trackOf = a => a.track || 'world';
@@ -1873,9 +1904,9 @@ const IC = {
 };
 // Bigger, colourful pictures for empty states and the end of a round.
 const ART = {
-  globe: '<svg viewBox="0 0 64 64"><circle cx="32" cy="35" r="26" fill="#155fc0"/><circle cx="32" cy="31" r="26" fill="#1e7cf2"/><path d="M15 19c5 1 7 5 6 9s2 6 5 7 4 5 2 10c-8-2-14-8-15-17 0-3 .7-6.3 2-9zM36 6.6c6 1.2 11 5 13.8 10.3-3.3.6-5.3-1-7-3s-4.4-1.6-5.3 1c-1 3-4 3.2-5.5 1.2-1.5-2.2.6-7.2 4-9.5zM41 28c3.6-1 6.8.3 9 2.2-1 6.2-4.9 11.4-10.2 14 1-4.2-.2-6.8-1.7-9-1.5-2.4-.7-6.2 2.9-7.2z" fill="#22b35e"/><circle cx="46" cy="14" r="6" fill="#ffbe1a" stroke="#fff" stroke-width="2.5"/></svg>',
-  trophy: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#fff3cc"/><path d="M30 18h36v20a18 18 0 01-36 0z" fill="#ffbe1a"/><path d="M30 18h36v6H30z" fill="#d99a00"/><path d="M30 24h-8a10 10 0 0010 12M66 24h8a10 10 0 01-10 12" fill="none" stroke="#ffbe1a" stroke-width="5" stroke-linecap="round"/><path d="M42 54h12v10H42z" fill="#d99a00"/><rect x="32" y="64" width="32" height="10" rx="4" fill="#ffbe1a"/><rect x="32" y="70" width="32" height="4" rx="2" fill="#d99a00"/><path d="M41 30l4 4 8-9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  medal: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#e1eeff"/><path d="M34 14h12l6 22H40zM62 14H50l-6 22h12z" fill="#1e7cf2"/><circle cx="48" cy="56" r="22" fill="#155fc0"/><circle cx="48" cy="53" r="22" fill="#1e7cf2"/><path d="M48 41l4 8.2 9 1.3-6.5 6.3 1.5 9-8-4.2-8 4.2 1.5-9-6.5-6.3 9-1.3z" fill="#fff"/></svg>',
+  globe: '<svg viewBox="0 0 64 64"><circle cx="32" cy="35" r="26" fill="#1b7fd0"/><circle cx="32" cy="31" r="26" fill="#2a9df4"/><path d="M15 19c5 1 7 5 6 9s2 6 5 7 4 5 2 10c-8-2-14-8-15-17 0-3 .7-6.3 2-9zM36 6.6c6 1.2 11 5 13.8 10.3-3.3.6-5.3-1-7-3s-4.4-1.6-5.3 1c-1 3-4 3.2-5.5 1.2-1.5-2.2.6-7.2 4-9.5zM41 28c3.6-1 6.8.3 9 2.2-1 6.2-4.9 11.4-10.2 14 1-4.2-.2-6.8-1.7-9-1.5-2.4-.7-6.2 2.9-7.2z" fill="#2dbe60"/><circle cx="46" cy="14" r="6" fill="#ffc51f" stroke="#fff" stroke-width="2.5"/></svg>',
+  trophy: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#fff4cf"/><path d="M30 18h36v20a18 18 0 01-36 0z" fill="#ffc51f"/><path d="M30 18h36v6H30z" fill="#e0a400"/><path d="M30 24h-8a10 10 0 0010 12M66 24h8a10 10 0 01-10 12" fill="none" stroke="#ffc51f" stroke-width="5" stroke-linecap="round"/><path d="M42 54h12v10H42z" fill="#e0a400"/><rect x="32" y="64" width="32" height="10" rx="4" fill="#ffc51f"/><rect x="32" y="70" width="32" height="4" rx="2" fill="#e0a400"/><path d="M41 30l4 4 8-9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  medal: '<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="40" fill="#ddf0fe"/><path d="M34 14h12l6 22H40zM62 14H50l-6 22h12z" fill="#2a9df4"/><circle cx="48" cy="56" r="22" fill="#1b7fd0"/><circle cx="48" cy="53" r="22" fill="#2a9df4"/><path d="M48 41l4 8.2 9 1.3-6.5 6.3 1.5 9-8-4.2-8 4.2 1.5-9-6.5-6.3 9-1.3z" fill="#fff"/></svg>',
 };
 
 // ---------- tabs ----------
@@ -1983,8 +2014,7 @@ function placeOfDay() {
 }
 function startHtml() {
   const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
-  return `${d ? `<h4 class="home-h">Place of the day</h4><button class="pod tile" data-pod="${d.id}"><span class="flag">${flagOf(d)}</span><span><b>${esc(d.n)}</b><small>${esc(first)}</small></span></button>` : ''}
-    <div class="foot"><button class="link" id="openSettings">Settings</button><span>·</span><button class="link" id="openAbout">About</button><span>·</span><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a></div>`;
+  return `<div class="foot"><button class="link" id="openSettings">Settings</button><span>·</span><button class="link" id="openAbout">About</button><span>·</span><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a></div>`;
 }
 // Settings and About open inside the Explore panel, with a back link.
 function settingsSheet() {
@@ -2050,10 +2080,10 @@ function homeSheet() {
   const sel = state.sel;
   // Home leads with today's three; search and the globe sit just below.
   setSheet(`${sel ? '' : todayCard()}
-    <div class="search" id="searchBox">${IC.search}<input id="q" type="search" placeholder="Search countries, states, oceans" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Search places"><button class="clear" id="qClear" aria-label="Clear search">${IC.x}</button></div>
+    <div class="search" id="searchBox">${IC.search}<input id="q" type="search" placeholder="Search any country or place" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Search places"><button class="clear" id="qClear" aria-label="Clear search">${IC.x}</button></div>
     <div class="results" id="results" hidden></div>
     <div id="exploreBody" style="display:grid;gap:14px">
-      ${sel ? placeCard(sel) : `<div class="tapline"><span class="em-ic">${ART.globe}</span><span><b>Tap any place on the globe</b><small>Green means you've learned it</small></span><button class="btn small" id="surprise" aria-label="Surprise me">${IC.shuffle}<span>Surprise me</span></button></div>${startHtml()}`}
+      ${sel ? placeCard(sel) : startHtml()}
     </div>`);
   const q = $('#q'), res = $('#results'), body = $('#exploreBody'), box = $('#searchBox');
   q.oninput = () => {
@@ -3463,7 +3493,7 @@ function archiveSheet() {
   // At launch only yesterday is open; older days say "coming soon" on the web and aren't listed in the app.
   const rows = Array.from({ length: Math.min(NATIVE && !store.plus ? 1 : 30, today - 1) }, (_, k) => today - 1 - k).map(no => {
     const cell = kind => { const d = dailyState(kind, no), lk = !store.plus && !archiveFree(no); return `<button class="arc-b${d.done ? ' done' : ''}${lk ? ' locked' : ''}" data-arc="${kind}:${no}" style="--pc:${DD_KIND[kind].color}">${lk ? IC.lock : DD_KIND[kind].emoji}<span>${d.done ? ddScore(d) : DD_KIND[kind].short}</span></button>`; };
-    return `<div class="arc-row"><span class="arc-no">#${no}<small>${archiveFree(no) ? 'Yesterday' : `${today - no} days ago`}</small></span>${cell('geo')}${cell('hist')}</div>`;
+    return `<div class="arc-row"><span class="arc-no">${ddDate(no)}<small>${archiveFree(no) ? 'Yesterday' : `${today - no} days ago`}</small></span>${cell('geo')}${cell('hist')}</div>`;
   }).join('');
   setSheet(`<button class="back" id="arcBack">${IC.back}Today</button>
     <div class="title">Past challenges</div>
@@ -3511,23 +3541,44 @@ function applyFreeze() {
   f.n -= gaps.length; f.used.push(...gaps); if (f.used.length > 60) f.used.splice(0, f.used.length - 60); save();
   setTimeout(() => toast(`❄️ A streak freeze saved your ${streak()}-day streak`, 3200), 1500);
 }
+// The home screen: a greeting and your streak, one big card for the next thing to play (Daily Geography
+// first), and small tiles for the other two. Nothing else competes for attention.
+const ddDate = no => new Date(DAILY_EPOCH + (no - 1) * DAY).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const greeting = () => { const h = new Date().getHours(); return h < 5 ? 'Good evening' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
+const PLAY_IC = '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>';
 function todayCard() {
   const t = todayDone(), st = streak(), fz = freezes().n, dg = dailyState('geo'), dh = dailyState('hist');
-  const n = (t.learn ? 1 : 0) + (dg.done ? 1 : 0) + (dh.done ? 1 : 0);
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
-  const row = (id, color, icon, title, sub, done) => `<button class="td-row${done ? ' done' : ''}" id="${id}"><span class="td-ic" style="--c:${done ? 'var(--green)' : color}">${done ? IC.check : icon}</span><span><b>${title}</b><small>${sub}</small></span>${IC.next}</button>`;
-  const go = d => d.ans.length ? 'Continue' : 'Play';
-  const next = !dg.done ? ['geo', `${go(dg)} Daily Geography #${dg.no}`] : !dh.done ? ['hist', `${go(dh)} Daily History #${dh.no}`] : !t.learn ? ['learn', 'Start today\'s lesson'] : null;
-  const play = next ? `<button class="btn primary td-play" id="tdPlay" data-next="${next[0]}"><svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>${next[1]}</button>` : '';
-  return `<div class="today goalbar${n === 3 ? ' done' : ''}">
-    <div class="gb-top"><b>${n === 3 ? `${IC.crown}Perfect day` : 'Today'}</b><span class="td-st${st ? '' : ' off'}" title="Day streak">${IC.flame}${st}${fz ? `<em title="Streak freezes">❄️${fz}</em>` : ''}</span></div>
-    <div class="td-segs">${[t.learn, dg.done, dh.done].map(x => `<i class="${x ? 'on' : ''}"></i>`).join('')}</div>
-    ${play}
-    <p class="td-hint">${n === 3 ? `All three done. ${st > 1 ? `${st} days in a row.` : 'Come back tomorrow.'}` : n ? `${3 - n} more for a perfect day. Your streak is safe today.` : st ? `Do any one to keep your ${st}-day streak.` : 'Do any one to start a streak.'}</p>
-    ${row('goToday', 'var(--green)', IC.target, 'Learn', t.learn ? 'Done. Keep going any time.' : `5 minutes · new ${esc(what)} and a quick review`, t.learn)}
-    ${row('goDaily', DD_KIND.geo.color, DD_KIND.geo.icon, `${DD_KIND.geo.title} #${dg.no}`, dailyLine(dg), dg.done)}
-    ${row('goDailyH', DD_KIND.hist.color, DD_KIND.hist.icon, `${DD_KIND.hist.title} #${dh.no}`, dailyLine(dh), dh.done)}
-    ${dg.no > 1 ? `<button class="link td-arc" id="goArc">Missed one? Play past challenges</button>` : ''}
+  const ITEMS = {
+    geo: { id: 'goDaily', title: 'Daily Geography', icon: IC.globe, c: 'var(--blue)', h: ['#38aaf8', '#1b7fd0', '#1566ad'], d: dg, sub: 'Ten questions on the map. The whole world gets the same ones.' },
+    hist: { id: 'goDailyH', title: 'Daily History', icon: IC.clock, c: 'var(--purple)', h: ['#b48aff', '#8656e6', '#6a3fc4'], d: dh, sub: 'Ten questions on empires, wars and big ideas.' },
+    learn: { id: 'goToday', title: 'Learn', icon: IC.target, c: 'var(--green)', h: ['#3fd072', '#1f9b4b', '#177d3b'], sub: `Five minutes of new ${esc(what)}, with a quick review.` },
+  };
+  const isDone = k => k === 'learn' ? !!t.learn : !!ITEMS[k].d.done;
+  const next = ['geo', 'hist', 'learn'].find(k => !isDone(k));
+  const status = k => {
+    if (k === 'learn') return t.learn ? 'Done today' : '5 minutes';
+    const d = ITEMS[k].d;
+    return d.done ? `${ddScore(d)} pts${d.pct != null ? ` · ${topPct(d.pct)}` : ''}` : d.ans.length ? `${d.ans.length} of ${DQ_N} answered` : '10 questions';
+  };
+  let hero;
+  if (next) {
+    const I = ITEMS[next], d = I.d, started = d && d.ans.length && !d.done;
+    hero = `<button class="hm-hero" id="tdPlay" data-next="${next}" style="--h1:${I.h[0]};--h2:${I.h[1]};--h3:${I.h[2]}">
+      <span class="hm-kick">${next === 'learn' ? 'Today\'s lesson' : 'Today\'s challenge'}</span>
+      <b class="hm-title">${I.title}</b><span class="hm-sub">${I.sub}</span>
+      <span class="hm-go">${PLAY_IC}${started ? 'Continue' : 'Play'}</span><span class="hm-art" aria-hidden="true">${ART.globe}</span></button>`;
+  } else {
+    hero = `<div class="hm-hero done" style="--h1:#ffd34d;--h2:#f5a800;--h3:#c98500"><span class="hm-kick">All done today</span><b class="hm-title">Perfect day!</b>
+      <span class="hm-sub">${st > 1 ? `${st} days in a row. ` : ''}New challenges in ${untilNextDaily()}.</span><span class="hm-art" aria-hidden="true">${ART.trophy}</span></div>`;
+  }
+  const tiles = ['geo', 'hist', 'learn'].filter(k => k !== next).map(k => { const I = ITEMS[k], dn = isDone(k);
+    return `<button class="hm-tile${dn ? ' done' : ''}" id="${I.id}" style="--c:${I.c}"><span class="hm-ic">${dn ? IC.check : I.icon}</span><b>${I.title}</b><small>${status(k)}</small></button>`; }).join('');
+  return `<div class="today hm">
+    <div class="hm-top"><b class="hm-hi">${greeting()}</b><span class="td-st${st ? '' : ' off'}" title="Day streak">${IC.flame}${st}${fz ? `<em title="Streak freezes">❄️${fz}</em>` : ''}</span></div>
+    ${hero}
+    <div class="hm-tiles${tiles.split('hm-tile').length > 3 ? ' three' : ''}">${tiles}</div>
+    ${dg.no > 1 ? `<button class="link td-arc" id="goArc">Missed a day? Play past challenges</button>` : ''}
   </div>`;
 }
 function bindDaily() {
@@ -3577,7 +3628,7 @@ function dailyChallenge(kind = 'geo', no) {
     state.scope = prevScope; refreshLayer(); updateTop(); draw(); showTab(from === 'learn' ? 'learn' : 'explore');
   };
   const head = i => `<div class="qhead"><button class="qx" id="dyX" aria-label="Stop for now">${IC.x}</button><div class="qbar"><i style="width:${i / DQ_N * 100}%"></i></div></div>
-    <div class="dd-top"><span class="pill daily" style="--pc:${K.color}">${K.title} #${d.no} · ${Math.min(i + 1, DQ_N)} of ${DQ_N}</span><span class="dd-score"><b id="ddPts">${ddScore(d)}</b> pts</span></div>`;
+    <div class="dd-top"><span class="pill daily" style="--pc:${K.color}">${K.title} · ${Math.min(i + 1, DQ_N)} of ${DQ_N}</span><span class="dd-score"><b id="ddPts">${ddScore(d)}</b> pts</span></div>`;
   const ask = () => {
     const i = d.ans.length;
     if (i >= DQ_N) return finish();
@@ -3624,13 +3675,13 @@ function dailyChallenge(kind = 'geo', no) {
     const day = arc ? 'that day\'s' : 'today\'s';
     const review = qs.map((q, i) => { const a = d.ans[i] || {}; return `<details class="dd-c"><summary><span class="dd-chip">${dqSquare(a)}</span><span><small>${esc(q.ctx)}</small><b>${q.q.replace(/<\/?em>/g, '')}</b></span><em class="dd-p">${a.p ? `+${a.p}` : '0'}</em></summary>
       <p class="hint">${a.k === q.c ? 'You said' : a.k >= 0 ? `You said ${esc(q.opts[a.k])}. Answer:` : 'Answer:'} <b>${esc(q.opts[q.c])}</b>${q.why ? `<br>${esc(q.why)}` : ''}</p></details>`; }).join('');
-    setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title} #${d.no}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
+    setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title}${arc ? ` · ${ddDate(d.no)}` : ''}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
       <div class="dd-curve" id="ddCurve"><p class="hint" style="text-align:center">Finding where you rank among ${day} players…</p></div>
       ${arc ? '' : ddStatsCard(kind)}
       <div id="ddSave">${first && !arc ? remindCard() : ''}</div>
       ${first && !arc ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}Share your result</button>
-      <h4 class="home-h">${arc ? `Leaderboard for #${d.no}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
+      <h4 class="home-h">${arc ? `Leaderboard for ${ddDate(d.no)}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
       ${dailyNo() > 1 ? '<button class="link" id="dyArc">Past challenges</button>' : ''}
@@ -3642,7 +3693,7 @@ function dailyChallenge(kind = 'geo', no) {
     $('#dyDone').onclick = leave;
     $('#dyShare').onclick = () => {
       buzz(8);
-      const text = `${APP_NAME} · ${K.title} #${d.no}${arc ? ' (archive)' : ''} ${K.emoji}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\n${SHARE_URL}`;
+      const text = `${APP_NAME} · ${K.title} ${K.emoji} ${ddDate(d.no)}${arc ? ' (played later)' : ''}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\n${SHARE_URL}`;
       if (navigator.share) navigator.share({ text }).catch(() => {});
       else navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
     };
@@ -4122,14 +4173,13 @@ window.visualViewport?.addEventListener('scroll', fitViewport);
 // First layout without animation, so the globe starts centred in the space above the panel.
 $('#app').classList.add('dragging');
 applyFreeze(); remindersSoon();
-// The web skips onboarding: a first-time visitor lands straight in today's Daily Geography (the globe frames
-// itself behind it), so they're playing within seconds. The iPhone app keeps its short onboarding.
+// The web skips onboarding: a first-time visitor lands on Explore, where the Daily Geography card is the
+// obvious first tap. The iPhone app keeps its short onboarding.
 const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
 if (firstVisit && NATIVE) onboarding();
 else {
   if (firstVisit) { store.onb = 1; save(); }
   homeSheet();
-  if (firstVisit && !invited) setTimeout(() => { if (state.mode === 'explore' && !state.race) dailyChallenge('geo'); }, 900);
 }
 resize();
 map.resize();
