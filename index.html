@@ -113,6 +113,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 #ctrls .grp { display: flex; flex-direction: column; gap: 10px; }
 #ctrls button { width: 46px; height: 46px; display: grid; place-items: center; color: var(--ink-2); padding: 0; }
 #ctrls button[hidden] { display: none; }
+#ctrls { transition: opacity .2s; }
+#ctrls.away { opacity: 0; pointer-events: none; }
 #ctrls #zbase[aria-pressed="true"] { color: var(--blue); border-color: var(--blue); box-shadow: 0 3px 0 var(--blue-d); }
 .maplibregl-ctrl-attrib { font-size: 10px; font-family: system-ui, sans-serif; font-weight: 400; }
 
@@ -322,6 +324,8 @@ h1, h2, h3 { margin: 0; }
 .kd { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 0; border-left: 3px solid var(--sc); }
 .kd li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 5px 0 5px 12px; position: relative; font-size: 15px; line-height: 1.35; }
 .kd li::before { content: ""; position: absolute; left: -7.5px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 3px solid var(--sc); }
+.kf { margin: 2px 0 0; padding: 0 0 0 20px; display: grid; gap: 6px; font-size: 15px; line-height: 1.4; }
+.kf li::marker { color: var(--sc); }
 .kd b { font-weight: 900; font-variant-numeric: tabular-nums; }
 .chapter .lk-ic { color: var(--gold-d); }
 .chapter .lk-ic .ic { color: var(--gold-d); }
@@ -827,7 +831,8 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .rw-streak { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; color: var(--orange, #ff9a1f); font-weight: 900; animation: rise .5s .5s var(--ease) both; }
 .rw-streak .ic { width: 22px; height: 22px; }
 .rw-streak span { width: 100%; text-align: center; color: var(--ink-2); font-weight: 800; font-size: 13px; }
-.rw-goal { width: 100%; animation: rise .5s .65s var(--ease) both; }
+.rw-goal { width: 100%; box-sizing: border-box; justify-items: stretch; text-align: left; animation: rise .5s .65s var(--ease) both; }
+.rw-goal .gb-top, .rw-goal .gb-bar { width: 100%; }
 .rw-goal .gb-bar i { transition: width .9s var(--ease); }
 .confetti { position: absolute; left: 50%; top: 24px; width: 0; height: 0; pointer-events: none; z-index: 5; }
 .confetti i { position: absolute; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: burst var(--d) cubic-bezier(.2, .7, .3, 1) forwards; }
@@ -1692,6 +1697,10 @@ function setH(h) {
   sheetH = Math.round(h);
   sheet.style.height = sheetH + 'px';
   $('#app').style.setProperty('--sheet-h', Math.max(0, sheetH + tabsH - 18) + 'px');
+  // The map buttons ride above the panel; when the panel is pulled up too far for them to fit below the top
+  // bar, fade them out instead of letting them climb over the top bar and the status bar.
+  const c = $('#ctrls'), room = innerHeight - (sheetH + tabsH - 18) - 14 - $('#top').getBoundingClientRect().bottom - 8;
+  if (c) c.classList.toggle('away', room < c.offsetHeight);
   // While dragging, slide the globe with the panel (camera padding only: no zoom, no resize).
   if (drag && drag.active) map.setPadding(pads());
 }
@@ -2455,6 +2464,11 @@ function chapterQuiz(id) {
   };
   show();
 }
+// Key facts: everything the Daily History asks about this chapter, so the Timeline teaches every answer.
+function keyFacts(id) {
+  const fs = (BANK.hist || []).filter(x => x.ch === id).sort((x, y) => x.lvl - y.lvl);
+  return fs.length ? `<h4>Key facts</h4><ul class="kf">${fs.map(x => `<li>${esc(x.why)}</li>`).join('')}</ul>` : '';
+}
 // A chapter's story: what happened, why, what it changed, and the key dates.
 function storyBlock(a) {
   const st = a.story, now = a.years === 'Today';
@@ -2465,6 +2479,7 @@ function storyBlock(a) {
     ${(st.sections || []).map(x => `<div class="dd"><h4>${esc(x.h)}</h4><p>${esc(x.t)}</p></div>`).join('')}
     <h4>${h3}</h4><p>${esc(st.after)}</p>
     <h4>Key dates</h4><ol class="kd">${st.dates.map(([y, t]) => `<li><b>${esc(y)}</b><span>${esc(t)}</span></li>`).join('')}</ol>
+    ${keyFacts(a.id)}
     ${a.maps ? `<p class="chs-go">${IC.globe}Explore it on the map below</p>` : ''}</div>`;
 }
 // Frame a chapter map: its countries, lines and pins, or the whole world if they span it.
@@ -2622,8 +2637,8 @@ function startReview() {
   nextQ();
 }
 function askHist(item) {
-  const { a, i } = item.h, Q = a.quiz[i], order = shuffle([0, 1, 2, 3]);
-  setSheet(`${qhead('hist')}<p class="hq-ch">${esc(a.title)} · ${esc(a.years)}</p><p class="prompt">${esc(Q.q)}</p>
+  const { a, i, x } = item.h, Q = x || a.quiz[i], order = shuffle([0, 1, 2, 3]);
+  setSheet(`${qhead('hist')}<p class="prompt">${esc(Q.q)}</p>
     <div class="opts col">${order.map((k, n) => `<button class="opt" data-k="${k}"><kbd>${n + 1}</kbd><span>${esc(Q.a[k])}</span></button>`).join('')}</div>
     <div class="fb inline" id="fb"></div>`);
   bindQuit();
@@ -2634,9 +2649,9 @@ function askHist(item) {
     const ok = +b.dataset.k === Q.c;
     btns.find(x => +x.dataset.k === Q.c).classList.add('good');
     if (!ok) b.classList.add('bad');
-    const key = a.id + '#' + i;
+    const key = x ? 'b:' + Q.q : a.id + '#' + i;
     if (!session.first.has(key)) session.first.set(key, ok);
-    rememberCQ(a.id, i, ok);
+    if (!x) rememberCQ(a.id, i, ok);
     if (!ok && session.review) requeue(item, 3);
     practisedToday(ok ? 10 : 0); updateTop();
     session.done++;
@@ -2653,25 +2668,46 @@ function askHist(item) {
 }
 // History quiz: the Learn tab's set (Asia, China, US states…) picks the questions. Map questions light a
 // place in the set and ask which side, empire or bloc it was in; chapter questions come from chapters about it.
+// Map questions: only maps that carry their own clear wording (M.ask, set in data/timeline) are asked about,
+// so every question makes sense on its own ("Which European power ruled what is now Kenya in 1914?").
+// A label that names the place gives the answer away ("German Empire" for Germany, "Indian Empire" for India).
+const giveaway = (label, f) => { const n = f.n.toLowerCase(); return label.toLowerCase().includes(n.slice(0, Math.max(4, n.length - 2))); };
+function askableMapQs(keep) {
+  const out = [];
+  for (const a of ANCHORS) {
+    if (plusLocked(a.id)) continue;
+    (a.maps || []).forEach((M, m) => {
+      if (!M.ask) return;
+      const skip = new Set(M.askSkip || []);
+      M.groups.forEach((g, gi) => {
+        if (skip.has(gi)) return;
+        for (const c of g.full || []) { const f = byId[c]; if (f && keep(f) && !giveaway(g.label, f)) out.push({ a, m, gi, f, lvl: M.askLvl || 2 }); }
+      });
+    });
+  }
+  return out;
+}
+const mapLabel = (M, k) => (M.askLabels && M.askLabels[k]) || M.groups[k].label;
+const mapAsk = (M, f) => esc(M.ask).replace('{c}', `<em>${esc(f.n)}</em>`);
+const mapOpts = (M, gi, shuf) => { const skip = new Set(M.askSkip || []); return shuf([gi, ...shuf(M.groups.map((_, k) => k).filter(k => k !== gi && !skip.has(k))).slice(0, 3)]); };
+// The hand-written question banks (data/daily): history questions name the chapter that teaches them.
+const BANK = G.daily || { hist: [], geo: [] };
+const bankQ = x => ({ q: x.q, a: x.a, c: 0, why: x.why });
 function histPool() {
   const inSet = new Set(state.scope.items.map(f => f.id));
   const ids = new Set(inSet); for (const f of state.scope.items) ids.add(parentId(f));
-  const mapQs = [], chQs = [];
+  const mapQs = askableMapQs(f => inSet.has(f.id)), chQs = [];
   for (const a of ANCHORS) {
     if (!a.maps || plusLocked(a.id)) continue;
     let rel = false;
-    a.maps.forEach((M, m) => {
-      M.groups.forEach((g, gi) => {
-        for (const c of [...(g.full || []), ...(g.part || [])]) {
-          if (ids.has(c)) rel = true;
-          // Skip giveaways, where the group is named after the place itself ("Japan and its conquests").
-          if (M.groups.length >= 2 && inSet.has(c) && byId[c] && !g.label.toLowerCase().includes(byId[c].n.toLowerCase())) mapQs.push({ a, m, gi, f: byId[c], part: (g.part || []).includes(c) });
-        }
-      });
+    a.maps.forEach(M => {
+      M.groups.forEach(g => { for (const c of [...(g.full || []), ...(g.part || [])]) if (ids.has(c)) rel = true; });
       for (const c of Object.keys(M.notes || {})) if (ids.has(c)) rel = true;
     });
     if (rel && a.quiz) a.quiz.forEach((q, i) => chQs.push({ a, i }));
   }
+  // On the world map, the hand-written world history questions join in too.
+  if (state.scope.id === 'world') for (const x of BANK.hist) { const a = anchorById[x.ch]; if (a && !plusLocked(a.id)) chQs.push({ a, x: bankQ(x) }); }
   // "Which country…?" clues, from each place's history and what it's like today.
   const clues = state.scope.items.filter(f => f.h && f.h.q);
   return { mapQs, chQs, clues };
@@ -2692,11 +2728,10 @@ function startHistQuiz() {
   nextQ();
 }
 function askMapQ(item) {
-  const { a, m, gi, f, part } = item.q, M = a.maps[m];
-  const opts = shuffle([gi, ...shuffle(M.groups.map((g, k) => k).filter(k => k !== gi)).slice(0, 3)]);
-  setSheet(`${qhead('hist')}<p class="hq-ch">${esc(a.title)} · ${esc(M.title)}</p>
-    <p class="prompt">${part ? `Part of today's <em>${esc(f.n)}</em> belonged to which?` : `Which was <em>${esc(f.n)}</em> part of?`}</p>
-    <div class="opts col">${opts.map((k, n) => `<button class="opt hopt" data-g="${k}"><kbd>${n + 1}</kbd><i style="background:${PAL[M.groups[k].color]}"></i><span>${esc(M.groups[k].label)}</span></button>`).join('')}</div>
+  const { a, m, gi, f } = item.q, M = a.maps[m];
+  const opts = mapOpts(M, gi, shuffle);
+  setSheet(`${qhead('hist')}<p class="prompt">${mapAsk(M, f)}</p>
+    <div class="opts col">${opts.map((k, n) => `<button class="opt" data-g="${k}"><kbd>${n + 1}</kbd><span>${esc(mapLabel(M, k))}</span></button>`).join('')}</div>
     <div class="fb inline" id="fb"></div>`);
   bindQuit();
   const btns = [...sheet.querySelectorAll('.opt')];
@@ -2712,7 +2747,7 @@ function askMapQ(item) {
     session.done++;
     const bar = sheet.querySelector('.qbar i'); if (bar) bar.style.width = (session.done / (session.done + session.queue.length) * 100) + '%';
     const note = M.notes && (M.notes[f.id] || M.notes[parentId(f)]);
-    const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : `Answer: ${esc(M.groups[gi].label)}`, esc(note || M.groups[gi].sub || ''));
+    const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : `Answer: ${esc(mapLabel(M, gi))}`, esc(note || M.groups[gi].sub || ''));
     buzz(ok ? 12 : [20, 40, 20]);
     requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
     const nb = document.createElement('button'); nb.className = 'btn primary'; nb.id = 'nextBtn'; nb.textContent = 'Continue';
@@ -3266,16 +3301,16 @@ function hrQuestions() {
   };
   const C = shuffle(clues).map(f => {
     const n = Math.random() * 3 | 0, opts = nearOpts(f, clues), other = (n === 2 ? f.h.t : f.h.c) || '';
-    return { ctx: n === 2 ? `Which ${state.scope.one || 'country'}? · Today` : `Which ${state.scope.one || 'country'}? · History`, q: esc(f.h.q[n]), opts: opts.map(o => esc(o.n)), c: opts.indexOf(f), why: esc((other.match(/^.{30,}?[.!?](?=\s+[A-Z]|$)/) || [other])[0]), after: f };
+    return { ctx: `Which ${state.scope.one || 'country'}?`, q: esc(f.h.q[n]), opts: opts.map(o => esc(o.n)), c: opts.indexOf(f), why: esc((other.match(/^.{30,}?[.!?](?=\s+[A-Z]|$)/) || [other])[0]), after: f };
   });
-  const M = shuffle(mapQs).filter(x => !seenMap.has(x.f.id) && seenMap.add(x.f.id)).map(({ a, m, gi, f, part }) => {
-    const Mp = a.maps[m], ks = shuffle([gi, ...shuffle(Mp.groups.map((g, k) => k).filter(k => k !== gi)).slice(0, 3)]);
+  const M = shuffle(mapQs).filter(x => !seenMap.has(x.f.id) && seenMap.add(x.f.id)).map(({ a, m, gi, f }) => {
+    const Mp = a.maps[m], ks = mapOpts(Mp, gi, shuffle);
     const note = Mp.notes && (Mp.notes[f.id] || Mp.notes[parentId(f)]);
-    return { ctx: `${a.title} · ${Mp.title}`, q: part ? `Part of today's <em>${esc(f.n)}</em> belonged to which?` : /today|now/i.test(a.years) || /20[12]\d/.test(Mp.title) ? `Which group is <em>${esc(f.n)}</em> in?` : `Which was <em>${esc(f.n)}</em> part of?`, opts: ks.map(k => esc(Mp.groups[k].label)), c: ks.indexOf(gi), why: esc(note || Mp.groups[gi].sub || ''), before: f };
+    return { ctx: '', q: mapAsk(Mp, f), opts: ks.map(k => esc(mapLabel(Mp, k))), c: ks.indexOf(gi), why: esc(note || Mp.groups[gi].sub || ''), before: f };
   });
-  const Q = shuffle(chQs).map(({ a, i }) => {
-    const x = a.quiz[i], order = shuffle([0, 1, 2, 3]);
-    return { ctx: `${a.title} · ${a.years}`, q: esc(x.q), opts: order.map(k => esc(x.a[k])), c: order.indexOf(x.c), why: esc(x.why), deep: true };
+  const Q = shuffle(chQs).map(({ a, i, x: b }) => {
+    const x = b || a.quiz[i], order = shuffle([0, 1, 2, 3]);
+    return { ctx: '', q: esc(x.q), opts: order.map(k => esc(x.a[k])), c: order.indexOf(x.c), why: esc(x.why), deep: true };
   });
   // Warm up on places, then lean on the why: two timeline questions for every clue and map question.
   const out = [...C.splice(0, 2), ...M.splice(0, 2), ...C.splice(0, 1)];
@@ -3304,7 +3339,7 @@ function startHistRun() {
     cur = qs[i];
     if (cur.before) { state.target = cur.before; fitBox(contextBox(cur.before)); } else state.target = null;
     state.flash = null; draw();
-    setSheet(`${hud()}<p class="hq-ch">${esc(cur.ctx)}</p><p class="prompt hr-q">${cur.q}</p>
+    setSheet(`${hud()}${cur.ctx ? `<p class="hq-ch">${esc(cur.ctx)}</p>` : ''}<p class="prompt hr-q">${cur.q}</p>
       <div class="opts col">${cur.opts.map((o, k) => `<button class="opt" data-k="${k}"><kbd>${k + 1}</kbd><span>${o}</span></button>`).join('')}</div>
       <div class="fb inline" id="fb"></div>`);
     $('#hrX').onclick = quit;
@@ -3342,7 +3377,7 @@ function startHistRun() {
       ${prev ? `<div class="pr-badge">${IC.trophy}<b>New personal record!</b><span>${prev.n == null ? 'Your first run on this map' : `Was ${prev.n} in a row`}</span></div>` : best ? `<p class="hint res-best">Your best: ${best} in a row</p>` : ''}
       <div id="resRank">${n && !ME && CLOUD ? `<button class="btn" id="resIn">${IC.trophy}Post your score</button>` : ''}</div>
       ${rewardBlock()}
-      ${missed.length ? `<h4 class="home-h">Brush up on</h4><div class="hr-miss">${missed.map(x => `<div><small>${esc(x.ctx)}</small><p>${x.q}</p><b>${IC.check}${x.opts[x.c]}</b>${repLink(`History run · ${clip(x.q.replace(/<[^>]+>/g, ''))} · answer given as ${x.opts[x.c]}`)}</div>`).join('')}</div>` : ''}
+      ${missed.length ? `<h4 class="home-h">Brush up on</h4><div class="hr-miss">${missed.map(x => `<div>${x.ctx ? `<small>${esc(x.ctx)}</small>` : ''}<p>${x.q}</p><b>${IC.check}${x.opts[x.c]}</b>${repLink(`History run · ${clip(x.q.replace(/<[^>]+>/g, ''))} · answer given as ${x.opts[x.c]}`)}</div>`).join('')}</div>` : ''}
       <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>
       ${repFoot(`History run · ${state.scope.name} · results`)}`);
     requestAnimationFrame(() => sheet.scrollTo({ top: 0 }));
@@ -3441,7 +3476,47 @@ const DD_KIND = {
 };
 const dqPts = (ok, left, ms) => ok ? 50 + Math.round(50 * Math.max(0, Math.min(1, left / ms))) : 0;
 // Everyone must get the same questions, so all choices come from a generator seeded by the day and kind.
+// From day 27 (20 November 2026) the dailies use the hand-written banks and the clearly worded map questions.
+// Earlier days keep the old mix, so past leaderboards still match the questions people answered.
+const DQ_V3 = 27;
+// A bank is dealt out in a fixed shuffled order, a few a day, so nothing repeats until the whole bank is used.
+function bankDeal(list, no, per, salt) {
+  if (!list.length) return [];
+  const r = seeded(salt), perm = list.map((_, i) => i);
+  for (let i = perm.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  return Array.from({ length: per }, (_, j) => list[perm[((no - DQ_V3) * per + j) % list.length]]);
+}
 function dailyQs(no, kind = 'geo') {
+  if (no >= DQ_V3) return dailyQs3(no, kind);
+  return dailyQsOld(no, kind);
+}
+function dailyQs3(no, kind) {
+  const r = seeded(no * 104729 + (kind === 'hist' ? 71 : 37));
+  const rs = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const fromBank = x => { const opts = rs(x.a); return { ctx: '', q: esc(x.q), opts, c: opts.indexOf(x.a[0]), why: x.why, lvl: x.lvl, after: x.at ? byId[x.at] : null }; };
+  if (kind === 'geo') {
+    // Seven from the map (spot it, capitals, borders, sizes), three on rivers, mountains, landmarks and records.
+    const quota = { 'On the globe': 2, Capitals: 2, Borders: 1, Population: 1, Size: 1 }, mine = [];
+    for (const q of dailyQsOld(no, 'geo')) if ((quota[q.ctx] || 0) > 0) { quota[q.ctx]--; mine.push({ ...q, ctx: '' }); }
+    const bank = [...bankDeal(BANK.geo, no, 3, 9001), ...bankDeal(BANK.geo, no + 9999, Math.max(0, 7 - mine.length), 9002)].map(fromBank);
+    return rs([...mine, ...bank]);
+  }
+  // History: six hand-written questions and four map questions, easiest first.
+  const W = new Set(SCOPES.find(s => s.id === 'world').items.filter(f => f.k === 'c').map(f => f.id));
+  const pool = askableMapQs(f => W.has(f.id)), used = new Set(), usedMap = new Set(), maps = [];
+  for (const want of [1, 2, 2, 3]) {
+    // Pick a map first, then a place on it, so big maps (religions: 190 countries) don't crowd out the rest.
+    const open = pool.filter(x => !used.has(x.f.id) && !usedMap.has(x.a.id + x.m)), lv = open.filter(x => x.lvl === want).length ? open.filter(x => x.lvl === want) : open;
+    const keys = rs([...new Set(lv.map(x => x.a.id + '|' + x.m))]); if (!keys.length) continue;
+    const x = rs(lv.filter(y => y.a.id + '|' + y.m === keys[0]))[0]; usedMap.add(x.a.id + x.m);
+    if (!x) continue; used.add(x.f.id);
+    const M = x.a.maps[x.m], ks = mapOpts(M, x.gi, rs), note = M.notes && M.notes[x.f.id];
+    maps.push({ ctx: '', q: mapAsk(M, x.f), opts: ks.map(k => mapLabel(M, k)), c: ks.indexOf(x.gi), show: x.f, why: note || M.groups[x.gi].sub || '', lvl: x.lvl });
+  }
+  const bank = bankDeal(BANK.hist, no, 10 - maps.length, 4242).map(fromBank);
+  return [...maps, ...bank].map((q, i) => ({ q, k: q.lvl * 10 + r() })).sort((a, b) => a.k - b.k).map(x => x.q);
+}
+function dailyQsOld(no, kind = 'geo') {
   const r = seeded(no * 7919 + (kind === 'hist' ? 17 : 3));
   const rs = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pick = a => a[Math.floor(r() * a.length)];
@@ -3689,7 +3764,7 @@ function dailyChallenge(kind = 'geo', no) {
     d.open = i; save();
     const q = qs[i];
     state.target = q.show || null; state.flash = null; fitBox(q.show ? contextBox(q.show) : G.views.world); draw();
-    setSheet(`${head(i)}<p class="hq-ch">${esc(q.ctx)}</p><p class="prompt dd-q">${q.q}</p>
+    setSheet(`${head(i)}${q.ctx ? `<p class="hq-ch">${esc(q.ctx)}</p>` : ''}<p class="prompt dd-q">${q.q}</p>
       <div class="dd-clock" style="--pc:${K.color}"><i id="ddBar"></i></div>
       <div class="opts col">${q.opts.map((o, k) => `<button class="opt" data-k="${k}"><kbd>${k + 1}</kbd><span>${esc(o)}</span></button>`).join('')}</div>
       <div class="fb inline" id="fb"></div>`);
@@ -3725,7 +3800,7 @@ function dailyChallenge(kind = 'geo', no) {
     const first = !d.done, score = ddScore(d);
     if (first) { d.done = 1; if (!arc) { addPoints(Math.round(score / 10)); markDay(kind); } ddLogSet(kind, d); save(); }
     const day = arc ? 'that day\'s' : 'today\'s';
-    const review = qs.map((q, i) => { const a = d.ans[i] || {}; return `<details class="dd-c"><summary><span class="dd-chip">${dqSquare(a)}</span><span><small>${esc(q.ctx)}</small><b>${q.q.replace(/<\/?em>/g, '')}</b></span><em class="dd-p">${a.p ? `+${a.p}` : '0'}</em></summary>
+    const review = qs.map((q, i) => { const a = d.ans[i] || {}; return `<details class="dd-c"><summary><span class="dd-chip">${dqSquare(a)}</span><span>${q.ctx ? `<small>${esc(q.ctx)}</small>` : ''}<b>${q.q.replace(/<\/?em>/g, '')}</b></span><em class="dd-p">${a.p ? `+${a.p}` : '0'}</em></summary>
       <p class="hint">${a.k === q.c ? 'You said' : a.k >= 0 ? `You said ${esc(q.opts[a.k])}. Answer:` : 'Answer:'} <b>${esc(q.opts[q.c])}</b>${q.why ? `<br>${esc(q.why)}` : ''}</p>${repLink(`${K.title} · ${ddDate(d.no)} · Q${i + 1}: ${clip(q.q.replace(/<[^>]+>/g, ''))} · answer given as ${q.opts[q.c]}`)}</details>`; }).join('');
     setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title}${arc ? ` · ${ddDate(d.no)}` : ''}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
       <div class="dd-curve" id="ddCurve"><p class="hint" style="text-align:center">Finding where you rank among ${day} players…</p></div>
