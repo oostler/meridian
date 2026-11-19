@@ -2052,7 +2052,7 @@ function settingsSheet() {
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
-    ${PLUS_OPEN ? `<div class="setrow"><b>Globe Genius Plus <span class="ptag">Free at launch</span></b><p class="hint">Deep dives, a month of past challenges and a second streak freeze each week are open to everyone while we launch. Enjoy them.</p></div>` : NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
+    ${PLUS_OPEN ? '' : NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.star}Coming soon`}</button></div>`}
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
       <button class="btn" data-report="General feedback">Send feedback</button></div>`);
@@ -2187,7 +2187,7 @@ function historySheet() {
   const plus = state.track === 'plus', locked = plus && !hasPlus();
   const list = trackList(state.track);
   const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : plus ? `${list.length} longer stories on religions, empires, wars and ideas, each with maps and a quiz.` : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
-  setSheet(`<div><div class="title">Timeline</div>${plus && !hasPlus() ? '' : `<p class="hint">${hint}</p>`}${plus && PLUS_OPEN ? `<p class="plaunch"><span class="ptag">${IC.star}Free at launch</span>Deep dives are part of Globe Genius Plus. For now they're open to everyone.</p>` : ''}</div>
+  setSheet(`<div><div class="title">Timeline</div>${plus && !hasPlus() ? '' : `<p class="hint">${hint}</p>`}</div>
     <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
     ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !hasPlus() ? ' class="faint"' : ''}>${t.id === 'plus' && !hasPlus() ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
     ${locked ? plusHero(list) : ''}
@@ -2288,8 +2288,8 @@ function stopPlay() { state.timePlay = false; clearTimeout(playT); }
 const PLUS_CODE = '1234';
 // One deep dive is free to read, so people can see what Plus is like before they unlock it.
 const PLUS_FREE = 'dd-vikings';
-// Launch offer: everything in Plus is open to everyone until in-app purchase arrives. Set to false to bring the
-// paywall back (store.plus then decides, as before). Don't call it a "beta" in the app: App Review rejects betas.
+// No paywall: the owner chose to keep everything free for good (deep dives, the full archive, two weekly freezes).
+// The paywall code stays in case that ever changes; false brings it back, with store.plus deciding.
 const PLUS_OPEN = true;
 const hasPlus = () => PLUS_OPEN || !!store.plus;
 const plusLocked = id => !hasPlus() && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
