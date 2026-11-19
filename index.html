@@ -323,6 +323,8 @@ h1, h2, h3 { margin: 0; }
 .chapter .lk-ic .ic { color: var(--gold-d); }
 .chapter.locked { opacity: .55; }
 .chapter.locked .yr { filter: grayscale(.6); }
+.plaunch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 6px 0 0; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.setrow b .ptag { margin-left: 6px; vertical-align: 2px; }
 .chapter .freeb { display: block; width: fit-content; font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--green); border-radius: 999px; padding: 1px 8px; margin-bottom: 3px; }
 .sec .sec-n { margin-left: 6px; font-size: 11px; color: var(--ink-3); }
 .pwall { display: grid; gap: 10px; padding: 18px; border-radius: 22px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #ffd84d 0%, var(--gold) 35%, var(--orange) 100%); box-shadow: 0 5px 0 var(--gold-d); }
@@ -2030,7 +2032,7 @@ function settingsSheet() {
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
-    ${NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
+    ${PLUS_OPEN ? `<div class="setrow"><b>Globe Genius Plus <span class="ptag">Free at launch</span></b><p class="hint">Deep dives, a month of past challenges and a second streak freeze each week are open to everyone while we launch. Enjoy them.</p></div>` : NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.star}Coming soon`}</button></div>`}
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
       <button class="btn" data-report="General feedback">Send feedback</button></div>`);
@@ -2160,20 +2162,20 @@ function historySheet() {
   setRound(false); setTab('history');
   if (!state.track) state.track = store.track || ({ us: 'us', usca: 'us', ca: 'ca', cn: 'cn' }[state.scope.id]) || 'world';
   const tracks = TRACKS.filter(t => t.id === 'world' || trackList(t.id).length);
-  if (trackList('plus').length && (!NATIVE || store.plus)) tracks.push({ id: 'plus', name: 'Deep dives' });
+  if (trackList('plus').length && (!NATIVE || hasPlus())) tracks.push({ id: 'plus', name: 'Deep dives' });
   if (!tracks.some(t => t.id === state.track)) state.track = 'world';
-  const plus = state.track === 'plus', locked = plus && !store.plus;
+  const plus = state.track === 'plus', locked = plus && !hasPlus();
   const list = trackList(state.track);
   const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : plus ? `${list.length} longer stories on religions, empires, wars and ideas, each with maps and a quiz.` : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
-  setSheet(`<div><div class="title">Timeline</div>${plus && !store.plus ? '' : `<p class="hint">${hint}</p>`}</div>
+  setSheet(`<div><div class="title">Timeline</div>${plus && !hasPlus() ? '' : `<p class="hint">${hint}</p>`}${plus && PLUS_OPEN ? `<p class="plaunch"><span class="ptag">${IC.star}Free at launch</span>Deep dives are part of Globe Genius Plus. For now they're open to everyone.</p>` : ''}</div>
     <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
-    ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !store.plus ? ' class="faint"' : ''}>${t.id === 'plus' && !store.plus ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
+    ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !hasPlus() ? ' class="faint"' : ''}>${t.id === 'plus' && !hasPlus() ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
     ${locked ? plusHero(list) : ''}
     <div class="chapters">${list.map((a, k) => {
       const sub = !a.maps ? '' : a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
       const n = plus && a.cat ? list.filter(x => x.cat === a.cat).length : 0;
       const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}<span class="sec-n">${n}</span></h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
-      const lk = plusLocked(a.id), free = plus && !store.plus && a.id === PLUS_FREE;
+      const lk = plusLocked(a.id), free = plus && !hasPlus() && a.id === PLUS_FREE;
       const qm = quizMaps(a), all = qm.length + (a.quiz ? 1 : 0), done = lk ? 0 : qm.filter(m => mapDone(a.id, m)).length + (understood(a.id) ? 1 : 0);
       const prog = done ? `<em class="mst${done === all ? ' all' : ''}">${IC.check}${done}/${all}</em>` : '';
       return `${hd}<button class="chapter tile${lk ? ' locked' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
@@ -2192,7 +2194,7 @@ function historySheet() {
 const fmtYear = y => y < -10000 ? `${(2000 - y).toLocaleString('en')} years ago` : y < 0 ? `${-y} BC` : y < 1000 ? `AD ${y}` : String(y);
 let timeline = null;
 function timeStops() {
-  if (timeline && timeline.plus === !!store.plus) return timeline;
+  if (timeline && timeline.plus === hasPlus()) return timeline;
   const maps = [];
   for (const a of ANCHORS) {
     if (plusLocked(a.id)) continue;
@@ -2200,7 +2202,7 @@ function timeStops() {
     ys.forEach(M => maps.push({ a, m: a.maps.indexOf(M), M, from: M.yr[0], to: M.yr[1], span, rank: trackOf(a) === 'world' ? 0 : trackOf(a) === 'plus' ? 2 : 1 }));
   }
   const years = [...new Set(maps.map(x => x.from))].sort((p, q) => p - q);
-  timeline = { plus: !!store.plus, maps, years };
+  timeline = { plus: hasPlus(), maps, years };
   return timeline;
 }
 // What was happening in a given year: maps whose span covers it. A map that starts that year comes first (so every
@@ -2266,7 +2268,11 @@ function stopPlay() { state.timePlay = false; clearTimeout(playT); }
 const PLUS_CODE = '1234';
 // One deep dive is free to read, so people can see what Plus is like before they unlock it.
 const PLUS_FREE = 'dd-vikings';
-const plusLocked = id => !store.plus && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
+// Launch offer: everything in Plus is open to everyone until in-app purchase arrives. Set to false to bring the
+// paywall back (store.plus then decides, as before). Don't call it a "beta" in the app: App Review rejects betas.
+const PLUS_OPEN = true;
+const hasPlus = () => PLUS_OPEN || !!store.plus;
+const plusLocked = id => !hasPlus() && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
 const PLUS_CAT = { faith: 'Religions and beliefs', empires: 'Empires and civilisations', wars: 'Wars and conflicts', ideas: 'Ideas, science and money', nations: 'Nations and regions' };
 function plusSheet() { state.track = 'plus'; historySheet(); }
 // What Plus holds, counted from the data so it stays true as dives are added.
@@ -3518,18 +3524,18 @@ const archiveFree = no => no === dailyNo() - 1;
 function archiveSheet() {
   const today = dailyNo(), from = state.tab;
   // At launch only yesterday is open; older days say "coming soon" on the web and aren't listed in the app.
-  const rows = Array.from({ length: Math.min(NATIVE && !store.plus ? 1 : 30, today - 1) }, (_, k) => today - 1 - k).map(no => {
-    const cell = kind => { const d = dailyState(kind, no), lk = !store.plus && !archiveFree(no); return `<button class="arc-b${d.done ? ' done' : ''}${lk ? ' locked' : ''}" data-arc="${kind}:${no}" style="--pc:${DD_KIND[kind].color}">${lk ? IC.lock : DD_KIND[kind].emoji}<span>${d.done ? ddScore(d) : DD_KIND[kind].short}</span></button>`; };
+  const rows = Array.from({ length: Math.min(NATIVE && !hasPlus() ? 1 : 30, today - 1) }, (_, k) => today - 1 - k).map(no => {
+    const cell = kind => { const d = dailyState(kind, no), lk = !hasPlus() && !archiveFree(no); return `<button class="arc-b${d.done ? ' done' : ''}${lk ? ' locked' : ''}" data-arc="${kind}:${no}" style="--pc:${DD_KIND[kind].color}">${lk ? IC.lock : DD_KIND[kind].emoji}<span>${d.done ? ddScore(d) : DD_KIND[kind].short}</span></button>`; };
     return `<div class="arc-row"><span class="arc-no">${ddDate(no)}<small>${archiveFree(no) ? 'Yesterday' : `${today - no} days ago`}</small></span>${cell('geo')}${cell('hist')}</div>`;
   }).join('');
   setSheet(`<button class="back" id="arcBack">${IC.back}Today</button>
     <div class="title">Past challenges</div>
-    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${store.plus ? '' : NATIVE ? '' : 'Older days are coming soon.'} Past days don't change your streak.</p>
+    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${hasPlus() ? '' : NATIVE ? '' : 'Older days are coming soon.'} Past days don't change your streak.</p>
     <div class="arc">${rows || '<p class="hint">The archive fills up from tomorrow.</p>'}</div>`);
   $('#arcBack').onclick = () => showTab(from === 'learn' ? 'learn' : 'explore');
   sheet.querySelectorAll('[data-arc]').forEach(b => b.onclick = () => {
     buzz(5); const [kind, no] = b.dataset.arc.split(':');
-    if (!store.plus && !archiveFree(+no)) return toast('Older days are coming soon');
+    if (!hasPlus() && !archiveFree(+no)) return toast('Older days are coming soon');
     dailyChallenge(kind, +no);
   });
 }
@@ -3556,7 +3562,7 @@ function markDay(kind) {
 }
 function freezes() {
   const f = store.frz || (store.frz = { n: 0, wk: '', used: [] }), wk = weekId();
-  if (f.wk !== wk) { f.wk = wk; f.n = Math.max(f.n, store.plus ? 2 : 1); }
+  if (f.wk !== wk) { f.wk = wk; f.n = Math.max(f.n, hasPlus() ? 2 : 1); }
   return f;
 }
 // On opening the app: if yesterday (or a couple of days) went by without playing, spend freezes to cover them.
