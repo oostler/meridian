@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Globe Genius: Learn World Geography and History</title>
 <meta name="description" content="Learn every country, capital, US state, Canadian province and Chinese province on a 3D globe, then see the history that shaped them: empires, wars and revolutions, from the first cities to today. Free, with quizzes and offline play.">
 <link rel="canonical" href="https://globegenius.io/">
@@ -77,6 +77,8 @@ window.__geo = fetch('geo-live.json').then(r => { if (!r.ok) throw new Error(r.s
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; margin: 0; }
+/* Like a native app: no double-tap or pinch zoom of the page itself (the globe keeps its own pinch and double-tap). */
+html, body, #sheet, #tabs, #top, button { touch-action: manipulation; }
 body { background: var(--space); color: var(--ink); font: 700 16px/1.4 var(--font); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
 button { font: inherit; color: inherit; cursor: pointer; -webkit-user-select: none; user-select: none; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
@@ -1469,6 +1471,8 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-repo
 // A light tap of feedback where the device supports it.
 // The iPhone app build sets MERIDIAN_NATIVE; App Store rules shape a few screens there (no access codes).
 const NATIVE = !!window.MERIDIAN_NATIVE;
+// Safari ignores user-scalable=no for pinches; stop the page zooming (the globe handles its own gestures).
+for (const t of ['gesturestart', 'gesturechange']) document.addEventListener(t, e => e.preventDefault(), { passive: false });
 const APP_NAME = 'Globe Genius';
 // Where shared results link to: this page on the web, the live site from the app.
 const SHARE_URL = NATIVE || !/^https?:/.test(location.protocol) ? 'https://globegenius.io/' : location.origin + location.pathname;
