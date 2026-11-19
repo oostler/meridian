@@ -333,6 +333,24 @@ h1, h2, h3 { margin: 0; }
 .chapter .lk-ic .ic { color: var(--gold-d); }
 .chapter.locked { opacity: .55; }
 .chapter.locked .yr { filter: grayscale(.6); }
+.st-tbl { display: grid; font-size: 13px; font-variant-numeric: tabular-nums; border: 2px solid var(--line); border-radius: 14px; overflow: hidden; }
+.st-tbl > div { display: grid; grid-template-columns: 1.6fr repeat(6, 1fr); gap: 4px; padding: 6px 10px; border-top: 1px solid var(--line); }
+.st-tbl > div span:not(:first-child) { text-align: right; }
+.st-tbl .st-h { border-top: 0; font-weight: 900; background: var(--surface); font-size: 11px; }
+.vs-card { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 16px; border-radius: 22px; border: 3px solid var(--pc); background: var(--surface); margin-bottom: 4px; }
+.vs-card .vs-kick { display: inline-flex; gap: 6px; align-items: center; font-weight: 900; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--pc); }
+.vs-card .vs-kick .ic { width: 18px; height: 18px; }
+.vs-card > b { font-size: 22px; font-weight: 900; }
+.vs-card .vs-sq { font-size: 20px; letter-spacing: 2px; }
+.vs-card .vs-to { font-weight: 800; color: var(--ink-2); }
+.vs-card .vs-to b { color: var(--ink); font-size: 20px; }
+.vs-card .btn { width: 100%; margin-top: 6px; }
+.vs-res { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: var(--gold-l); border: 2px solid var(--gold); margin-bottom: 6px; }
+.vs-res .vs-verdict { text-align: center; font-size: 19px; font-weight: 900; }
+.vs-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; font-weight: 800; padding: 6px 10px; border-radius: 12px; }
+.vs-row.win { background: var(--bg); }
+.vs-row em { font-style: normal; font-size: 13px; letter-spacing: 1px; }
+.vs-row b { font-size: 20px; font-variant-numeric: tabular-nums; }
 .plaunch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 6px 0 0; font-size: 14px; font-weight: 700; color: var(--ink-2); }
 .setrow b .ptag { margin-left: 6px; vertical-align: 2px; }
 .chapter .freeb { display: block; width: fit-content; font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--green); border-radius: 999px; padding: 1px 8px; margin-bottom: 3px; }
@@ -2102,7 +2120,7 @@ function homeSheet() {
   setRound(false); setTab('explore');
   const sel = state.sel;
   // Home leads with today's three; search and the globe sit just below.
-  setSheet(`${sel ? '' : todayCard()}
+  setSheet(`${sel ? '' : vsCard() + todayCard()}
     <div class="search" id="searchBox">${IC.search}<input id="q" type="search" placeholder="Search any country or place" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Search places"><button class="clear" id="qClear" aria-label="Clear search">${IC.x}</button></div>
     <div class="results" id="results" hidden></div>
     <div id="exploreBody" style="display:grid;gap:14px">
@@ -3713,6 +3731,7 @@ function todayCard() {
   </div>`;
 }
 function bindDaily() {
+  bindVs();
   // A lesson started from Today comes back to Today when it ends.
   if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); const t = state.tab; startLearn(); roundFrom = t; };
   if ($('#tdPlay')) $('#tdPlay').onclick = () => { buzz(8); const k = $('#tdPlay').dataset.next; if (k === 'learn') { const t = state.tab; startLearn(); roundFrom = t; } else dailyChallenge(k); };
@@ -3744,6 +3763,107 @@ function ddPostPending() {
     if (!d.done || d.posted || d.no !== dailyNo()) return null;
     return CLOUD.dailyPost(K.doc(d.no), ddScore(d)).then(() => { d.posted = 1; store[K.key] = d; save(); }, () => {});
   }));
+}
+// ---------- sharing and "beat my score" ----------
+// A shared result carries a challenge link: ?vs=G27-762-ggyrgggyrg-Owen (kind+day, score, one letter per answer,
+// optional first name). A friend who opens it lands on a challenge card, plays the same ten questions, and sees
+// both results side by side.
+const sqCode = d => d.ans.map(a => !a || !a.p ? 'r' : a.p >= 80 ? 'g' : 'y').join('').padEnd(DQ_N, 'r').slice(0, DQ_N);
+const sqEmoji = c => [...c].map(x => x === 'g' ? '🟩' : x === 'y' ? '🟨' : '🟥').join('');
+const vsLink = (kind, d) => `https://globegenius.io/?vs=${DD_KIND[kind].doc(d.no)}-${ddScore(d)}-${sqCode(d)}${ME && ME.name ? '-' + encodeURIComponent(ME.name.slice(0, 20)) : ''}`;
+function readVs() {
+  const q = new URLSearchParams(location.search), v = q.get('vs'); if (!v) return;
+  const m = v.match(/^([GH])(\d{1,5})-(\d{1,4})-([gyr]{10})(?:-(.{1,20}))?$/);
+  if (m) { store.vs = { kind: m[1] === 'G' ? 'geo' : 'hist', no: +m[2], s: Math.min(1000, +m[3]), sq: m[4], name: (m[5] || '').replace(/[<>&"]/g, '').trim(), at: Date.now() }; save(); }
+  q.delete('vs'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+}
+// A challenge is live for its day's archive window (the last 30 days) and until it has been shown after playing.
+const vsLive = () => { const v = store.vs; return v && v.no >= Math.max(1, dailyNo() - 30) && v.no <= dailyNo() && !v.seen ? v : null; };
+const vsWho = v => v.name || 'Your friend';
+function vsCard() {
+  const v = vsLive(); if (!v) return '';
+  const K = DD_KIND[v.kind], mine = dailyState(v.kind, v.no);
+  return `<div class="vs-card" style="--pc:${K.color}"><span class="vs-kick">${IC.trophy}${esc(vsWho(v))} challenged you</span>
+    <b>${K.title}${v.no === dailyNo() ? '' : ` · ${ddDate(v.no)}`}</b>
+    <span class="vs-sq">${sqEmoji(v.sq)}</span><span class="vs-to">Score to beat: <b>${v.s}</b></span>
+    <button class="btn primary" id="vsPlay">${PLAY_IC}${mine.done ? 'See how you compare' : 'Take the challenge'}</button>
+    <button class="link quiet" id="vsNo">Not now</button></div>`;
+}
+function bindVs() {
+  const v = vsLive(); if (!v) return;
+  if ($('#vsPlay')) $('#vsPlay').onclick = () => { buzz(8); dailyChallenge(v.kind, v.no === dailyNo() ? undefined : v.no); };
+  if ($('#vsNo')) $('#vsNo').onclick = () => { buzz(5); v.seen = 1; save(); homeSheet(); };
+}
+// After playing the same day: you and them, side by side.
+function vsCompare(kind, d) {
+  const v = store.vs; if (!v || v.kind !== kind || v.no !== d.no) return '';
+  const me = ddScore(d), them = v.s, who = esc(v.name || 'your friend'), diff = Math.abs(me - them);
+  v.seen = 1; save();
+  return `<div class="vs-res"><b class="vs-verdict">${me > them ? `You beat ${who} by ${diff}! 🎉` : me < them ? `${v.name ? who : 'Your friend'} wins by ${diff}. Rematch tomorrow?` : 'A dead heat! 🤝'}</b>
+    <div class="vs-row${me >= them ? ' win' : ''}"><span>You</span><em>${sqEmoji(sqCode(d))}</em><b>${me}</b></div>
+    <div class="vs-row${them >= me ? ' win' : ''}"><span>${v.name ? who : 'Friend'}</span><em>${sqEmoji(v.sq)}</em><b>${them}</b></div></div>`;
+}
+// The shared image: a 1080×1350 card with the result, spoiler-free, in the challenge's colours.
+async function shareImage(kind, d) {
+  const K = DD_KIND[kind], score = ddScore(d), W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), font = getComputedStyle(document.body).fontFamily;
+  try { await document.fonts.ready; } catch (e) {}
+  const [c1, c2] = kind === 'geo' ? ['#38aaf8', '#1566ad'] : ['#b48aff', '#6a3fc4'];
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, c1); g.addColorStop(1, c2); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.globalAlpha = .1; x.fillStyle = '#fff'; x.beginPath(); x.arc(W * .85, H * .12, 300, 0, 7); x.fill(); x.beginPath(); x.arc(W * .1, H * .95, 260, 0, 7); x.fill(); x.globalAlpha = 1;
+  x.textAlign = 'center'; x.fillStyle = '#fff';
+  x.font = `900 46px ${font}`; x.fillText('GLOBE GENIUS', W / 2, 150);
+  x.font = `900 70px ${font}`; x.fillText(`${K.emoji} ${K.title}`, W / 2, 270);
+  x.font = `800 44px ${font}`; x.globalAlpha = .85; x.fillText(ddDate(d.no), W / 2, 335); x.globalAlpha = 1;
+  x.font = `900 260px ${font}`; x.fillText(String(score), W / 2, 600);
+  x.font = `800 48px ${font}`; x.globalAlpha = .85; x.fillText('out of 1,000', W / 2, 670); x.globalAlpha = 1;
+  const code = sqCode(d), sz = 120, gap = 24, x0 = (W - (5 * sz + 4 * gap)) / 2, col = { g: '#2dbe60', y: '#ffc51f', r: '#ff5b5b' };
+  [...code].forEach((ch, i) => { const cx = x0 + (i % 5) * (sz + gap), cy = 730 + Math.floor(i / 5) * (sz + gap);
+    x.fillStyle = 'rgba(0,0,0,.18)'; x.beginPath(); x.roundRect(cx, cy + 8, sz, sz, 26); x.fill();
+    x.fillStyle = col[ch]; x.beginPath(); x.roundRect(cx, cy, sz, sz, 26); x.fill(); });
+  x.fillStyle = '#fff'; x.font = `900 58px ${font}`;
+  const line = [d.pct != null ? topPct(d.pct) : '', streak() > 1 ? `🔥 ${streak()}-day streak` : ''].filter(Boolean).join('  ·  ');
+  if (line) x.fillText(line, W / 2, 1110);
+  x.font = `900 50px ${font}`; x.fillText('Can you beat me?', W / 2, 1225);
+  x.font = `800 40px ${font}`; x.globalAlpha = .85; x.fillText('globegenius.io', W / 2, 1290);
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
+async function shareResult(kind, d) {
+  const K = DD_KIND[kind], score = ddScore(d), link = vsLink(kind, d);
+  const text = `${APP_NAME} · ${K.title} ${K.emoji} ${ddDate(d.no)}${d.arc ? ' (played later)' : ''}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\nCan you beat me? ${link}`;
+  try {
+    const blob = await shareImage(kind, d), file = blob && new File([blob], 'globe-genius.png', { type: 'image/png' });
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  if (navigator.share) return navigator.share({ text }).catch(() => {});
+  navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
+}
+// ---------- the owner's dashboard (globegenius.io/?stats) ----------
+// Read-only, from the anonymous daily counts everyone's app already sends: players per day, plays, challenge-link
+// arrivals, and how many new players come back after 1, 7 and 30 days.
+async function statsSheet() {
+  setRound(false);
+  setSheet(`<div class="title">Dashboard</div><p class="hint">Loading the last 35 days…</p>`);
+  const today = dailyNo(), from = Math.max(1, today - 34), days = [];
+  for (let no = from; no <= today; no++) days.push(no);
+  const get = no => Promise.all(['G', 'H'].map(k => CLOUD.dailyStats(k + no).catch(() => ({})))).then(([g, h]) => {
+    const t = {}; for (const o of [g, h]) for (const [k, v] of Object.entries(o)) if (!/^h\d/.test(k)) t[k] = (t[k] || 0) + v;
+    return { no, plays: (g.n || 0) + (h.n || 0), geo: g.n || 0, hist: h.n || 0, ...t };
+  });
+  const rows = await Promise.all(days.map(get)), by = Object.fromEntries(rows.map(x => [x.no, x]));
+  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '–';
+  const ret = (no, k, n) => by[no + n] ? pct(by[no + n]['r' + n] || 0, by[no].r0 || 0) : '';
+  const last7 = rows.filter(x => x.no >= 26).slice(-7), avg = k => Math.round(last7.reduce((t, x) => t + (x[k] || 0), 0) / Math.max(1, last7.length));
+  const cohort = (n) => { const c = rows.filter(x => by[x.no + n] && x.r0); const a = c.reduce((t, x) => t + (by[x.no + n]['r' + n] || 0), 0), b = c.reduce((t, x) => t + x.r0, 0); return pct(a, b); };
+  setSheet(`<div class="title">Dashboard</div>
+    <p class="hint">Anonymous daily counts from everyone's app. Player and return counts began on 19 Nov 2026.</p>
+    <div class="sum two"><div style="--c:var(--blue)"><span>Players a day (7-day avg)</span><b>${avg('u')}</b></div><div style="--c:var(--green)"><span>Plays a day (7-day avg)</span><b>${avg('plays')}</b></div></div>
+    <div class="sum two"><div style="--c:var(--orange)"><span>Back the next day</span><b>${cohort(1)}</b></div><div style="--c:var(--purple)"><span>Back after a week</span><b>${cohort(7)}</b></div></div>
+    <p class="hint">Back after a month: <b>${cohort(30)}</b>. Targets: next day 40%+, a week 15–20%+.</p>
+    <div class="st-tbl"><div class="st-h"><span>Day</span><span>Players</span><span>New</span><span>Plays</span><span>From links</span><span>Day 1</span><span>Day 7</span></div>
+    ${rows.slice().reverse().map(x => `<div><span>${ddDate(x.no)}</span><span>${x.u || 0}</span><span>${x.r0 || 0}</span><span>${x.plays}</span><span>${x.vs || 0}</span><span>${ret(x.no, 'r1', 1)}</span><span>${ret(x.no, 'r7', 7)}</span></div>`).join('')}</div>
+    <button class="btn" id="stHome">Back to the app</button>`);
+  $('#stHome').onclick = () => { history.replaceState(null, '', location.pathname); homeSheet(); };
 }
 function dailyChallenge(kind = 'geo', no) {
   const K = DD_KIND[kind], d = dailyState(kind, no), qs = dailyQs(d.no, kind), from = state.tab, prevScope = state.scope, arc = !!d.arc;
@@ -3802,16 +3922,25 @@ function dailyChallenge(kind = 'geo', no) {
   const finish = () => {
     clearInterval(timer); keyHandler = null; state.target = null; fitBox(G.views.world); draw();
     const first = !d.done, score = ddScore(d);
+    // Anonymous counts for the owner's dashboard (no IDs): one "player" per person per day, whether this is their
+    // first daily ever (r0) or they first played 1, 7 or 30 days ago, and whether they came from a challenge link.
+    const counts = [];
+    if (first && !arc) {
+      const fd = store.dd1 || (store.dd1 = Math.min(d.no, ...Object.keys(store.ddLog || {}).map(k => +k.slice(1)).filter(n => n > 0)));
+      if (!dailyState(kind === 'geo' ? 'hist' : 'geo').done) { counts.push('u'); const age = d.no - fd; if ([0, 1, 7, 30].includes(age)) counts.push('r' + age); }
+      if (store.vs && store.vs.kind === kind && store.vs.no === d.no) counts.push('vs');
+    }
     if (first) { d.done = 1; if (!arc) { addPoints(Math.round(score / 10)); markDay(kind); } ddLogSet(kind, d); save(); }
     const day = arc ? 'that day\'s' : 'today\'s';
     const review = qs.map((q, i) => { const a = d.ans[i] || {}; return `<details class="dd-c"><summary><span class="dd-chip">${dqSquare(a)}</span><span>${q.ctx ? `<small>${esc(q.ctx)}</small>` : ''}<b>${q.q.replace(/<\/?em>/g, '')}</b></span><em class="dd-p">${a.p ? `+${a.p}` : '0'}</em></summary>
       <p class="hint">${a.k === q.c ? 'You said' : a.k >= 0 ? `You said ${esc(q.opts[a.k])}. Answer:` : 'Answer:'} <b>${esc(q.opts[q.c])}</b>${q.why ? `<br>${esc(q.why)}` : ''}</p>${repLink(`${K.title} · ${ddDate(d.no)} · Q${i + 1}: ${clip(q.q.replace(/<[^>]+>/g, ''))} · answer given as ${q.opts[q.c]}`)}</details>`; }).join('');
-    setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title}${arc ? ` · ${ddDate(d.no)}` : ''}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
+    const vsBlock = vsCompare(kind, d);
+    setSheet(`${vsBlock}<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title}${arc ? ` · ${ddDate(d.no)}` : ''}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
       <div class="dd-curve" id="ddCurve"><p class="hint" style="text-align:center">Finding where you rank among ${day} players…</p></div>
       ${arc ? '' : ddStatsCard(kind)}
       <div id="ddSave">${first && !arc ? remindCard() : ''}</div>
       ${first && !arc ? rewardBlock() : ''}
-      <button class="btn primary" id="dyShare">${IC.share}Share your result</button>
+      <button class="btn primary" id="dyShare">${IC.share}${vsBlock ? 'Send them your result' : 'Challenge a friend'}</button>
       <h4 class="home-h">${arc ? `Leaderboard for ${ddDate(d.no)}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
@@ -3823,16 +3952,11 @@ function dailyChallenge(kind = 'geo', no) {
     if (first) celebrate(score >= 800);
     bindRemind();
     $('#dyDone').onclick = leave;
-    $('#dyShare').onclick = () => {
-      buzz(8);
-      const text = `${APP_NAME} · ${K.title} ${K.emoji} ${ddDate(d.no)}${arc ? ' (played later)' : ''}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\n${SHARE_URL}`;
-      if (navigator.share) navigator.share({ text }).catch(() => {});
-      else navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
-    };
+    $('#dyShare').onclick = () => { buzz(8); shareResult(kind, d); };
     // Count this run once, then fetch everyone's results (including it) for the curve and the board.
     const bin = Math.min(DQ_BINS, Math.floor(score / DQ_BIN));
     const send = !arc && !d.sent && CLOUD && CLOUD.dailySubmit
-      ? CLOUD.dailySubmit(K.doc(d.no), [`h${bin}`]).then(() => { d.sent = 1; save(); }, () => {})
+      ? CLOUD.dailySubmit(K.doc(d.no), [`h${bin}`, ...counts]).then(() => { d.sent = 1; save(); }, () => {})
       : Promise.resolve();
     send.then(() => Promise.all([ddStatsGet(K.doc(d.no)), ddPostPending()])).then(([s]) => {
       if (!$('#ddCurve')) return;
@@ -4310,11 +4434,12 @@ window.visualViewport?.addEventListener('resize', () => { resize(); window.scrol
 window.visualViewport?.addEventListener('scroll', fitViewport);
 // First layout without animation, so the globe starts centred in the space above the panel.
 $('#app').classList.add('dragging');
-applyFreeze(); remindersSoon();
+readVs(); applyFreeze(); remindersSoon();
 // The web skips onboarding: a first-time visitor lands on Explore, where the Daily Geography card is the
 // obvious first tap. The iPhone app keeps its short onboarding.
 const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
-if (firstVisit && NATIVE) onboarding();
+if (!NATIVE && new URLSearchParams(location.search).has('stats')) { const go = () => CLOUD ? statsSheet() : setTimeout(go, 300); go(); }
+else if (firstVisit && NATIVE) onboarding();
 else {
   if (firstVisit) { store.onb = 1; save(); }
   homeSheet();
