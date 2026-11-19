@@ -133,6 +133,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 #toast.wrap { white-space: normal; width: max-content; max-width: min(360px, calc(100% - 32px)); border-radius: 16px; text-align: center; line-height: 1.3; }
 
 /* ---- panel and tab bar ---- */
+body.in-round #sheet { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
 #sheet { background: var(--bg); border-radius: 24px 24px 0 0; padding: 0 16px 16px; box-shadow: 0 -2px 0 var(--line), 0 -10px 30px rgba(0, 0, 0, .06);
   position: absolute; left: 0; right: 0; bottom: var(--tabs-h, 0px); z-index: 4; max-height: 62%; overflow-y: auto; overscroll-behavior: contain;
   transition: height .32s var(--ease); -webkit-user-select: text; user-select: text; }
@@ -2025,7 +2026,7 @@ function settingsSheet() {
     <div class="setrow"><b>Appearance</b><div class="seg">${[['auto', 'Automatic'], ['light', 'Light'], ['dark', 'Dark']].map(([k, n]) => `<button data-theme-set="${k}" aria-pressed="${th === k}">${n}</button>`).join('')}</div>${th === 'auto' ? '<p class="hint" style="margin:0">Night mode from 7pm to 7am, or when your device is in dark mode.</p>' : ''}</div>
     <div class="setrow"><b>Progress</b><p class="hint">Your progress, streak and quiz scores are saved on this device only.</p>
       <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
-    ${NATIVE ? `<div class="setrow"><b>Reminders</b><div class="seg">${REMIND_TIMES.map(([k, n]) => `<button data-remind="${k}" aria-pressed="${(store.remind || '') === k}">${n}</button>`).join('')}</div><p class="hint" style="margin:0">${store.remind ? `A nudge at ${store.remind} if you haven't played, and a streak saver at 8:45 PM.` : 'No reminders.'}</p></div>` : ''}
+    ${NATIVE ? `<div class="setrow"><b>Reminders</b><div class="seg">${REMIND_TIMES.map(([k, n]) => `<button data-remind="${k}" aria-pressed="${(store.remind || '') === k}">${n}</button>`).join('')}</div><p class="hint" style="margin:0">${!store.remind ? 'No reminders.' : store.remind === 'smart' ? `Around ${((usualHour() + 11) % 12) + 1} ${usualHour() >= 12 ? 'PM' : 'AM'}, when you usually play, plus a streak saver in the evening.` : `A nudge at ${store.remind} if you haven't played, plus a streak saver in the evening.`}</p></div>` : ''}
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
@@ -3345,18 +3346,44 @@ function levelBanner(name) {
 // ---------- reminders (iPhone app) ----------
 // A nudge at the time you chose, and an evening streak saver, scheduled on the phone for the coming week.
 // They're rebuilt whenever something changes, so a day you've already played gets no nudges.
-const REMIND_TIMES = [['', 'Off'], ['08:00', 'Morning'], ['12:30', 'Lunch'], ['19:00', 'Evening']];
+const REMIND_TIMES = [['', 'Off'], ['smart', 'Smart'], ['08:00', 'Morning'], ['12:30', 'Lunch'], ['19:00', 'Evening']];
+// When you usually play, learned from the hours you finish things in (Smart reminders arrive then).
+function usualHour() {
+  const h = store.hours || [], n = h.reduce((a, b) => a + (b || 0), 0);
+  if (n < 3) return 19;
+  let best = 19, bv = -1; h.forEach((v, k) => { if ((v || 0) > bv) { bv = v; best = k; } });
+  return Math.max(8, Math.min(20, best));
+}
+// The plan is rebuilt every time the app opens or a day is finished, so it always assumes you haven't been back:
+// a nudge at your usual time, an evening streak saver, a last call if the streak is long, then a gentle
+// win-back series that stops after two weeks.
 function reminderPlan() {
   if (!store.remind) return [];
-  const [h, m] = store.remind.split(':').map(Number), played = !!(todayDone().learn || todayDone().geo || todayDone().hist), st = streak(), out = [], now = Date.now();
-  const lines = ['Ten questions, two minutes. Where will you rank today?', 'Today\'s Geography and History challenges are live.', 'Keep your streak going: one challenge is enough.', 'Same questions for everyone. Can you make the top 10%?'];
-  for (let k = 0; k < 7; k++) {
-    if (k === 0 && played) continue;
-    const at = new Date(); at.setDate(at.getDate() + k); at.setHours(h, m, 0, 0);
-    if (+at > now) out.push({ id: 100 + k, title: k === 0 && st ? `🔥 Day ${st + 1} is waiting` : '🌍 Today\'s challenges are live', body: lines[(dailyNo() + k) % lines.length], at: +at });
-    const ev = new Date(at); ev.setHours(20, 45, 0, 0);
-    if (+ev > now && h < 20) out.push({ id: 200 + k, title: k === 0 && st > 1 ? `Your ${st}-day streak ends at midnight` : 'Your streak ends at midnight', body: 'One daily challenge takes two minutes. Keep it alive.', at: +ev });
+  const [h, m] = store.remind === 'smart' ? [usualHour(), 0] : store.remind.split(':').map(Number);
+  const t = todayDone(), played = !!(t.learn || t.geo || t.hist), st = streak(), now = Date.now(), out = [];
+  const W = SCOPES.find(s => s.id === 'world').items.filter(f => f.k === 'c' && prog(f.id, 'name').s < 2 && (f.pop || 0) > 3e6);
+  const pickPlace = k => W.length ? W[(dailyNo() * 7 + k * 13) % W.length].n : 'Kyrgyzstan';
+  const left = 3 - (t.learn ? 1 : 0) - (dailyState('geo').done ? 1 : 0) - (dailyState('hist').done ? 1 : 0);
+  const at = (k, hh, mm = 0) => { const d = new Date(); d.setDate(d.getDate() + k); d.setHours(hh, mm, 0, 0); return +d; };
+  const add = (id, when, title, body) => { if (when > now + 60000) out.push({ id, title, body, at: when }); };
+  // today
+  if (!played) {
+    add(100, at(0, h, m), st ? `🔥 Keep your ${st}-day streak going` : '🌍 Today\'s challenges are live', st ? 'Today\'s Daily Geography is ready. Two minutes keeps the streak alive.' : 'Ten questions, the same for everyone. Where will you rank today?');
+    if (st) add(101, at(0, 20, 45), `Your ${st}-day streak ends at midnight`, 'One daily challenge takes two minutes.');
+    if (st >= 3) add(102, at(0, 22, 30), `⏰ Last chance for your ${st}-day streak`, 'Ninety minutes left. Play one quick challenge.');
+  } else if (left > 0 && h < 18) {
+    add(103, at(0, 18, 30), `${left === 1 ? 'One' : 'Two'} more for a perfect day 👑`, left === 1 ? 'Finish today\'s last challenge before midnight.' : 'Daily History and today\'s lesson are waiting.');
   }
+  // the next few days, then a win-back series that tails off
+  const lines = [
+    [1, '🌍 New questions are live', 'Ten new geography questions. Where will you rank today?'],
+    [2, '📜 Today\'s Daily History is ready', 'Empires, wars and big ideas, in two minutes.'],
+    [3, `Can you find ${pickPlace(3)} on a map?`, 'Find out in today\'s challenge.'],
+    [5, 'Your globe misses you', 'Two minutes is all it takes to start a new streak.'],
+    [7, 'A week away', `Pick up where you left off. ${pickPlace(7)} is still waiting to be learned.`],
+    [14, 'We\'ll stop sending reminders', 'They don\'t seem to be helping, so we\'ll pause them. Come back any time.'],
+  ];
+  for (const [k, title, body] of lines) add(110 + k, at(k, h, m), title, body);
   return out;
 }
 let remindT = null;
@@ -3366,10 +3393,10 @@ function remindersSoon() {
 }
 // Asked once, after the first day you finish: the moment a reminder obviously helps.
 const remindCard = () => NATIVE && store.remind == null && !store.remindAsked && streak() >= 1 ? `<div class="save-card rem-card" id="remCard"><span class="sv-ic">${IC.clock}</span><div><b>Want a daily reminder?</b>
-  <small>One nudge when today's challenges are live, and one in the evening if your streak needs saving. Nothing else.</small>
-  <div class="rbtns"><button class="btn primary small" id="remYes">Remind me at 7 PM</button><button class="link quiet" id="remNo">No thanks</button></div></div></div>` : '';
+  <small>A nudge around the time you usually play, and one in the evening if your streak needs saving.</small>
+  <div class="rbtns"><button class="btn primary small" id="remYes">Yes, remind me</button><button class="link quiet" id="remNo">No thanks</button></div></div></div>` : '';
 function bindRemind() {
-  if ($('#remYes')) $('#remYes').onclick = () => { buzz(5); store.remindAsked = 1; save(); window.MeridianNative.ask().then(ok => { if (ok) { store.remind = '19:00'; save(); remindersSoon(); toast('Reminder set for 7 PM. Change it in Settings'); } else toast('Notifications are off. You can turn them on in iPhone Settings'); $('#remCard') && $('#remCard').remove(); }, () => {}); };
+  if ($('#remYes')) $('#remYes').onclick = () => { buzz(5); store.remindAsked = 1; save(); window.MeridianNative.ask().then(ok => { if (ok) { store.remind = 'smart'; save(); remindersSoon(); toast('Reminders on. Change them in Settings'); } else toast('Notifications are off. You can turn them on in iPhone Settings'); $('#remCard') && $('#remCard').remove(); }, () => {}); };
   if ($('#remNo')) $('#remNo').onclick = () => { store.remindAsked = 1; save(); $('#remCard').remove(); };
 }
 // ---------- daily challenges ----------
@@ -3521,6 +3548,7 @@ const todayDone = () => store.td && store.td.d === dayKey() ? store.td : {};
 function markDay(kind) {
   const today = dayKey(), t = store.td && store.td.d === today ? store.td : (store.td = { d: today });
   t[kind] = 1;
+  const hrs = store.hours || (store.hours = Array(24).fill(0)); hrs[new Date().getHours()]++;
   const days = store.days || (store.days = []);
   if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); gain.streakUp = true; }
   if (t.learn && t.geo && t.hist && !t.perfect) { t.perfect = 1; store.perfect = (store.perfect || 0) + 1; gain.perfect = true; }
@@ -3975,7 +4003,13 @@ function signInSheet(opts = {}) {
         busy = false; render(); err(`That took too long. Try again. (step: ${CLOUD.phase ? CLOUD.phase() : '?'})`);
       }, 20000); })
       .catch(() => { gsiBroken = true; if ($('#gsiBtn')) render(); });
-    sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => { buzz(5); err(''); CLOUD.signIn(b.dataset.sso).catch(fail); });
+    // Show "Signing you in…" straight away (the provider's own sheet opens on top of it), and come back with a
+    // clear message if it's cancelled, fails or stalls, so there's never a silent wait.
+    sheet.querySelectorAll('[data-sso]').forEach(b => b.onclick = () => {
+      buzz(5); err(''); busy = true; render(); clearTimeout(busyT);
+      busyT = setTimeout(() => { if (!busy || !$('.si-busy')) return; if (ME && ME.name) { busy = false; const f = pendingAfterSignIn; pendingAfterSignIn = null; return f ? f() : homeSheet(); } busy = false; render(); err('That took too long. Check your connection and try again.'); }, 25000);
+      CLOUD.signIn(b.dataset.sso).catch(e => { clearTimeout(busyT); busy = false; render(); if (e && e.code === 'auth/popup-closed-by-user') return; fail(e); });
+    });
     if ($('#siEmailBtn')) $('#siEmailBtn').onclick = () => { email = true; render(); setTimeout(() => ($('#siName') || $('#siEmail')).focus(), 50); };
     if ($('#siBackBtns')) $('#siBackBtns').onclick = () => { email = false; render(); };
     $('#siMode').onclick = () => { mode = mode === 'in' ? 'new' : 'in'; render(); };
