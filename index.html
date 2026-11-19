@@ -932,7 +932,7 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
     <div id="report" class="report" hidden><form class="rcard" role="dialog" aria-modal="true" aria-labelledby="rTitle">
       <div class="rtitle" id="rTitle">Report an error</div><div class="rwhere" id="rWhere"></div>
       <textarea id="rText" rows="4" maxlength="2000" placeholder="What's wrong? A source helps." aria-label="What's wrong"></textarea>
-      <p class="rnote">Sent as a GitHub issue that the Globe Genius team reviews.</p>
+      <p class="rnote">Opens an email to the Globe Genius team, ready to send.</p>
       <div class="rbtns"><button type="button" class="btn" id="rCancel">Cancel</button><button type="submit" class="btn primary" id="rSend">Send</button></div>
     </form></div>
   </div>
@@ -1434,9 +1434,9 @@ else $('#zbase').hidden = true;
 // ---------- toast ----------
 let toastT;
 function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('wrap', msg.length > 40); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
-// Error reports: a short form whose text becomes a GitHub issue on the app's repository, with
-// where it was sent from filled in. Change REPORT_URL to point reports somewhere else.
-const REPORT_URL = 'https://github.com/oostler/meridian/issues/new';
+// Error reports: a short form whose text becomes an email to the support address (which forwards to the
+// owner), with where it was sent from filled in. The player's own mail app sends it.
+const SUPPORT_EMAIL = 'support@globegenius.io';
 function openReport(where) {
   const box = $('#report'), t = $('#rText');
   $('#rWhere').textContent = where; t.value = ''; box.hidden = false;
@@ -1449,8 +1449,10 @@ function openReport(where) {
     const text = t.value.trim(); if (!text) return t.focus();
     if (!navigator.onLine) return toast("You're offline. Try again when connected.", 2600);
     const body = `${text}\n\n---\nWhere: ${where}\nData as of: ${G.asOf || 'unknown'}`;
-    window.open(`${REPORT_URL}?title=${encodeURIComponent('Error report: ' + where)}&body=${encodeURIComponent(body)}`, '_blank', 'noopener');
-    close(); toast('Thanks! Your report helps.', 2200);
+    const a = document.createElement('a');
+    a.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Globe Genius: ' + where)}&body=${encodeURIComponent(body)}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    close(); toast('Opening your email. Tap Send there. Thank you!', 3200);
   };
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-report]'); if (b) { e.stopPropagation(); buzz(5); openReport(b.dataset.report); } });
