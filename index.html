@@ -3900,6 +3900,7 @@ function dailyChallenge(kind = 'geo', no) {
       if (over) return; over = true; clearInterval(timer);
       const left = K.ms - (performance.now() - t0), ok = k === q.c, p = dqPts(ok, left, K.ms);
       d.ans.push({ k, p }); d.open = null; save();
+      if (!arc) practisedToday(0);  // daily answers count towards the daily goal (their points come at the end)
       btns.forEach(b => b.disabled = true); btns[q.c].classList.add('good'); if (k >= 0 && !ok) btns[k].classList.add('bad');
       $('#ddPts').textContent = ddScore(d);
       if (q.after) { state.target = q.after; fitBox(contextBox(q.after)); draw(); }
