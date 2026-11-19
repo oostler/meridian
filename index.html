@@ -126,6 +126,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 #rText:focus { outline: none; border-color: var(--blue); }
 .rnote { margin: 0; font-size: 12px; color: var(--ink-3); font-weight: 800; }
 .rbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.v-rep { display: block; margin-top: 4px; color: inherit; opacity: .7; font-size: 12px; }
+.verdict .v-rep { font-size: 12px; color: inherit; opacity: .8; }
+.rep-foot { text-align: center; margin: 6px 0 0; font-size: 13px; font-weight: 700; color: var(--ink-3); }
+.rep-foot .flag { display: inline; margin: 0; }
 .flag { justify-self: start; border: 0; background: none; padding: 2px 0; font: 800 13px var(--font); color: var(--ink-3); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 @keyframes fade { from { opacity: 0; } }
 #brand { display: none; }
@@ -1438,6 +1442,7 @@ function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.c
 // owner), with where it was sent from filled in. The player's own mail app sends it.
 const SUPPORT_EMAIL = 'support@globegenius.io';
 function openReport(where) {
+  clearTimeout(advanceT);
   const box = $('#report'), t = $('#rText');
   $('#rWhere').textContent = where; t.value = ''; box.hidden = false;
   setTimeout(() => t.focus(), 50);
@@ -2413,7 +2418,7 @@ function chapterQuiz(id) {
         ${rewardBlock()}
         <p class="hint" style="text-align:center">${cq.right >= 4 ? 'You understand this chapter. ' : 'Reread the story and try again. '}These questions will come back in your daily review.</p>
         ${next && !plusLocked(next.id) ? `<button class="btn primary" id="cqNext">Next chapter: ${esc(next.title)}</button>` : ''}
-        <button class="btn" id="cqAgain">Try again</button><button class="btn" id="cqBack">Back to the chapter</button>`);
+        <button class="btn" id="cqAgain">Try again</button><button class="btn" id="cqBack">Back to the chapter</button>${repFoot(`Chapter quiz · ${a.title} · results`)}`);
       buzz(cq.right >= 4 ? [10, 60, 10] : 10); celebrate(cq.right >= 4);
       if ($('#cqNext')) $('#cqNext').onclick = () => { setRound(false); eraSheet(next.id); };
       $('#cqAgain').onclick = () => chapterQuiz(id);
@@ -2487,7 +2492,7 @@ function startHQ(M) {
 }
 function hquizHtml(hq) {
   const M = hq.M;
-  if (hq.i >= hq.q.length) return `<div class="hmap hq"><div class="done"><span class="badge">${hq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${hq.right} of ${hq.q.length} right</div><div class="sub">${esc(M.title)}</div></div>${rewardBlock()}
+  if (hq.i >= hq.q.length) return `<div class="hmap hq"><div class="done"><span class="badge">${hq.right >= 4 ? ART.trophy : ART.medal}</span><div class="title">${hq.right} of ${hq.q.length} right</div><div class="sub">${esc(M.title)}</div></div>${rewardBlock()}${repFoot(`Map quiz · ${M.tab} · results`)}
     <button class="btn primary" id="hqAgain">Quiz me again</button><button class="btn" id="hqEnd">Back to the map</button></div>`;
   const f = byId[hq.q[hq.i]], r = histRole(f);
   const opts = M.groups.map((g, gi) => {
@@ -2495,7 +2500,7 @@ function hquizHtml(hq) {
     return `<button class="opt hopt${cls}" data-g="${gi}" ${hq.picked == null ? '' : 'disabled'}><i style="background:${PAL[g.color]}"></i><span>${esc(g.label)}</span></button>`;
   }).join('');
   const note = M.notes && M.notes[f.id];
-  const after = hq.picked == null ? '' : `<div class="verdict ${hq.picked === r.gi ? 'good' : 'bad'}"><div class="v-head"><span class="v-ic">${hq.picked === r.gi ? IC.check : IC.cross}</span><div><b>${hq.picked === r.gi ? 'Right!' : `Answer: ${esc(M.groups[r.gi].label)}`}</b>${note ? `<span>${esc(note)}</span>` : ''}</div></div>
+  const after = hq.picked == null ? '' : `<div class="verdict ${hq.picked === r.gi ? 'good' : 'bad'}"><div class="v-head"><span class="v-ic">${hq.picked === r.gi ? IC.check : IC.cross}</span><div><b>${hq.picked === r.gi ? 'Right!' : `Answer: ${esc(M.groups[r.gi].label)}`}</b>${note ? `<span>${esc(note)}</span>` : ''}${repLink(`Map quiz · ${M.tab} · ${f.n} · answer given as ${M.groups[r.gi].label}`)}</div></div>
     <button class="btn primary" id="hqNext">${hq.i + 1 < hq.q.length ? 'Next' : 'See score'}</button></div>`;
   return `<div class="hmap hq"><div class="qhead"><button class="qx" id="hqEnd" aria-label="End quiz">${IC.x}</button><div class="qbar"><i style="width:${hq.i / hq.q.length * 100}%"></i></div></div>
     <span class="pill">Map quiz · ${esc(M.tab)}</span>
@@ -2841,8 +2846,17 @@ function verdict(ok, title, detail) {
   fb.className = 'verdict ' + (ok ? 'good' : 'bad') + (fb.classList.contains('inline') ? ' inline' : '');
   rewardTap(ok);
   fb.innerHTML = `<div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${title}</b>${detail ? `<span>${detail}</span>` : ''}</div></div>`;
+  // Every answer can be reported: the report names the question and what the app said.
+  const w = [qWhere(), clip([...fb.querySelector('.v-head > div').children].map(e => e.textContent).join(' '))].filter(Boolean).join(' · ');
+  fb.querySelector('.v-head > div').insertAdjacentHTML('beforeend', repLink(w));
   return fb;
 }
+// Where a report came from: the round's label and the question on screen.
+const clip = (t, n = 160) => { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+function qWhere() { const pill = sheet.querySelector('.pill'), pr = sheet.querySelector('.prompt'); return [pill && clip(pill.textContent, 60), pr && clip(pr.textContent)].filter(Boolean).join(' · '); }
+const repLink = (where, label = 'Report a problem') => `<button class="flag v-rep" data-report="${esc(where)}">${label}</button>`;
+// The foot of every results screen.
+const repFoot = where => `<p class="rep-foot">Something look wrong? ${repLink(where, 'Report it')}</p>`;
 function answered(item, ok, hinted, note, typed) {
   const f = item.f, p = { ...prog(f.id) };
   const firstTry = !session.first.has(f.id);
@@ -2895,7 +2909,7 @@ function answered(item, ok, hinted, note, typed) {
 }
 let advanceT = null, keyHandler = null;
 document.addEventListener('keydown', e => {
-  if (!keyHandler || e.target.tagName === 'INPUT' && !e.target.readOnly) return;
+  if (!keyHandler || e.target.tagName === 'INPUT' && !e.target.readOnly || e.target.tagName === 'TEXTAREA' || !$('#report').hidden) return;
   const h = keyHandler; if (e.key === 'Enter' || /^[1-4]$/.test(e.key)) { keyHandler = null; h(e); }
 });
 function summary() {
@@ -2917,7 +2931,7 @@ function summary() {
     ${remindCard() || saveCard(false)}
     <div class="sum two"><div style="--c:var(--green)"><span>First try</span><b>${IC.target}${n ? Math.round(firstRight / n * 100) : 0}%</b></div><div style="--c:var(--blue)"><span>${state.locate ? 'Found' : session.review ? 'Reviewed' : session.histq ? 'Right' : 'Mastered'}</span><b>${IC.crown}${session.review ? n : session.histq ? firstRight : session.mastered}</b></div></div>
     <button class="btn primary" id="again">${session.review ? 'Learn something new' : session.histq ? 'Another history quiz' : 'Keep going'}</button>
-    <button class="btn" id="home">Done</button>`);
+    <button class="btn" id="home">Done</button>${repFoot(`${session.review ? 'Review' : session.histq ? 'History quiz' : state.locate ? 'Find' : 'Lesson'} · ${scopeLine()} · results`)}`);
   buzz(great ? [10, 60, 10] : 10); celebrate(great);
   const histq = session.histq;
   $('#again').onclick = () => state.locate ? startFind() : histq ? startHistQuiz() : startLearn();
@@ -3217,7 +3231,8 @@ function results(mode, { n, total, ms, complete, missed = [] }) {
     <div id="resRank">${onBoard && !ME && CLOUD ? `<button class="btn" id="resIn">${IC.trophy}Post your time</button>` : ''}</div>
     ${rewardBlock()}
     ${missed.length ? `<h4 class="home-h">Missed ${missed.length}</h4><div class="wr-missed">${missed.slice().sort((a, b) => shown(a, subj).localeCompare(shown(b, subj))).map(f => `<button class="chip miss" data-miss="${f.id}">${esc(shown(f, subj))}</button>`).join('')}</div>` : ''}
-    <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>`);
+    <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>
+    ${repFoot(`${C.name} · ${scopeLine()} · results`)}`);
   buzz(prev || complete ? [10, 60, 10] : 10); celebrate(!!prev || complete);
   if (prev) sfx('combo');
   sheet.querySelectorAll('[data-miss]').forEach(b => b.onclick = () => { const f = byId[b.dataset.miss]; state.target = f; fitBox(contextBox(f)); draw(); });
@@ -3327,8 +3342,9 @@ function startHistRun() {
       ${prev ? `<div class="pr-badge">${IC.trophy}<b>New personal record!</b><span>${prev.n == null ? 'Your first run on this map' : `Was ${prev.n} in a row`}</span></div>` : best ? `<p class="hint res-best">Your best: ${best} in a row</p>` : ''}
       <div id="resRank">${n && !ME && CLOUD ? `<button class="btn" id="resIn">${IC.trophy}Post your score</button>` : ''}</div>
       ${rewardBlock()}
-      ${missed.length ? `<h4 class="home-h">Brush up on</h4><div class="hr-miss">${missed.map(x => `<div><small>${esc(x.ctx)}</small><p>${x.q}</p><b>${IC.check}${x.opts[x.c]}</b></div>`).join('')}</div>` : ''}
-      <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>`);
+      ${missed.length ? `<h4 class="home-h">Brush up on</h4><div class="hr-miss">${missed.map(x => `<div><small>${esc(x.ctx)}</small><p>${x.q}</p><b>${IC.check}${x.opts[x.c]}</b>${repLink(`History run · ${clip(x.q.replace(/<[^>]+>/g, ''))} · answer given as ${x.opts[x.c]}`)}</div>`).join('')}</div>` : ''}
+      <div class="res-btns"><button class="btn primary" id="resAgain">Go again</button><button class="btn" id="resDone">Done</button></div>
+      ${repFoot(`History run · ${state.scope.name} · results`)}`);
     requestAnimationFrame(() => sheet.scrollTo({ top: 0 }));
     buzz(prev ? [10, 60, 10] : 10); celebrate(!!prev || n >= 10);
     if (prev) sfx('combo');
@@ -3710,7 +3726,7 @@ function dailyChallenge(kind = 'geo', no) {
     if (first) { d.done = 1; if (!arc) { addPoints(Math.round(score / 10)); markDay(kind); } ddLogSet(kind, d); save(); }
     const day = arc ? 'that day\'s' : 'today\'s';
     const review = qs.map((q, i) => { const a = d.ans[i] || {}; return `<details class="dd-c"><summary><span class="dd-chip">${dqSquare(a)}</span><span><small>${esc(q.ctx)}</small><b>${q.q.replace(/<\/?em>/g, '')}</b></span><em class="dd-p">${a.p ? `+${a.p}` : '0'}</em></summary>
-      <p class="hint">${a.k === q.c ? 'You said' : a.k >= 0 ? `You said ${esc(q.opts[a.k])}. Answer:` : 'Answer:'} <b>${esc(q.opts[q.c])}</b>${q.why ? `<br>${esc(q.why)}` : ''}</p></details>`; }).join('');
+      <p class="hint">${a.k === q.c ? 'You said' : a.k >= 0 ? `You said ${esc(q.opts[a.k])}. Answer:` : 'Answer:'} <b>${esc(q.opts[q.c])}</b>${q.why ? `<br>${esc(q.why)}` : ''}</p>${repLink(`${K.title} · ${ddDate(d.no)} · Q${i + 1}: ${clip(q.q.replace(/<[^>]+>/g, ''))} · answer given as ${q.opts[q.c]}`)}</details>`; }).join('');
     setSheet(`<div class="dd-res"><span class="pill daily" style="--pc:${K.color}">${K.title}${arc ? ` · ${ddDate(d.no)}` : ''}</span><div class="res-big">${score}<small> / 1000</small></div><div class="dd-squares">${dailySquares(d)}</div></div>
       <div class="dd-curve" id="ddCurve"><p class="hint" style="text-align:center">Finding where you rank among ${day} players…</p></div>
       ${arc ? '' : ddStatsCard(kind)}
@@ -3721,7 +3737,8 @@ function dailyChallenge(kind = 'geo', no) {
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
       ${dailyNo() > 1 ? '<button class="link" id="dyArc">Past challenges</button>' : ''}
-      <button class="btn" id="dyDone">Done</button>`);
+      <button class="btn" id="dyDone">Done</button>
+      ${repFoot(`${K.title} · ${ddDate(d.no)} · results`)}`);
     if ($('#dyArc')) $('#dyArc').onclick = () => { clearInterval(timer); state.daily = false; state.scope = prevScope; refreshLayer(); updateTop(); setRound(false); archiveSheet(); };
     requestAnimationFrame(() => sheet.scrollTo({ top: 0 }));
     if (first) celebrate(score >= 800);
@@ -4176,7 +4193,7 @@ function raceRender() {
     if (race.answered !== qi) { race.answered = qi; practisedToday(ok ? 10 : 0); buzz(ok ? 12 : [20, 40, 20]); sfx(ok ? 'right' : 'wrong'); }
     state.solved.add(q.id); draw();
     setSheet(`<div class="qhead"><button class="qx" id="rcX" aria-label="Leave">${IC.x}</button><span class="pill">Question ${qi + 1} of ${room.qs.length}</span></div>
-      <div class="verdict ${ok ? 'good' : 'bad'} inline rc-verdict"><div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${ok ? (right[0] && right[0][0] === CLOUD.myId() ? 'First!' : 'Right!') : `It was ${esc(byId[q.id].n)}`}</b><span>${first ? `${esc(first)} got it first` : 'No one got this one'}</span></div></div></div>
+      <div class="verdict ${ok ? 'good' : 'bad'} inline rc-verdict"><div class="v-head"><span class="v-ic">${ok ? IC.check : IC.cross}</span><div><b>${ok ? (right[0] && right[0][0] === CLOUD.myId() ? 'First!' : 'Right!') : `It was ${esc(byId[q.id].n)}`}</b><span>${first ? `${esc(first)} got it first` : 'No one got this one'}</span>${repLink(`Race · question ${qi + 1} · answer given as ${byId[q.id].n}`)}</div></div></div>
       <div class="lb">${players.map((p, i) => `<div class="lb-row${p.uid === CLOUD.myId() ? ' me' : ''}"><span class="dl-n">${i + 1}</span>${avatar(p.name, p.uid)}<span class="lb-name">${who(p)}</span><b>${p.score}</b></div>`).join('')}</div>`);
     clearTimeout(race.next);
     const advance = () => { if (race && race.room && race.room.state === 'reveal' && race.room.qi === qi) (qi + 1 < room.qs.length ? CLOUD.startQuestion(race.code, qi + 1) : CLOUD.finish(race.code)).catch(() => {}); };
@@ -4186,7 +4203,7 @@ function raceRender() {
     if (race.ended !== true) { race.ended = true; buzz(meRank === 1 ? [10, 60, 10] : 10); }
     setSheet(`<div class="done"><span class="badge">${meRank === 1 ? ART.trophy : ART.medal}</span><div class="title">${meRank === 1 ? 'You won!' : `You came ${['', 'first', 'second', 'third'][meRank] || meRank + 'th'}`}</div><div class="sub">Race · ${esc(room.title || '')}</div></div>
       <div class="podium">${top.map((p, i) => `<div class="pod-${i + 1}">${avatar(p.name, p.uid)}<b>${esc(p.name)}</b><span>${p.score}</span></div>`).join('')}</div>
-      ${isHost ? '<button class="btn primary" id="rcAgain">Race again</button>' : ''}<button class="btn" id="rcDone">Done</button>`);
+      ${isHost ? '<button class="btn primary" id="rcAgain">Race again</button>' : ''}<button class="btn" id="rcDone">Done</button>${repFoot(`Race · ${room.title || ''} · results`)}`);
     if ($('#rcAgain')) $('#rcAgain').onclick = () => { const code = race.code; raceLeave(); raceHost(); };
     $('#rcDone').onclick = raceLeave;
   }
