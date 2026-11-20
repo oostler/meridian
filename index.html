@@ -339,6 +339,24 @@ h1, h2, h3 { margin: 0; }
 .st-tbl .st-h { border-top: 0; font-weight: 900; background: var(--surface); font-size: 11px; }
 .st-q { display: grid; gap: 4px; font-size: 13px; }
 .st-q > div { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.pw-plans { display: grid; gap: 10px; }
+.pw-plan { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 10px; text-align: left; padding: 14px 16px; border-radius: 16px; border: 2px solid rgba(255,255,255,.6); background: rgba(255,255,255,.16); color: #fff; font: inherit; cursor: pointer; }
+.pw-plan b { font-size: 18px; font-weight: 900; } .pw-plan span { font-size: 17px; font-weight: 800; text-align: right; }
+.pw-plan em { grid-column: 1 / -1; font-style: normal; font-size: 13px; font-weight: 800; opacity: .9; }
+.pw-plan.best { background: #fff; color: var(--ink); border-color: #fff; box-shadow: 0 4px 0 var(--gold-d); } .pw-plan.best em { color: var(--green-d); }
+.pw-plan.busy { opacity: .6; } .pw-plan:disabled { cursor: default; }
+.rep-card { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 18px; background: var(--red-l); color: var(--red-d); margin: 6px 0 10px; }
+.rep-card > span { font-size: 26px; } .rep-card b { display: block; font-weight: 900; } .rep-card small { font-weight: 700; }
+.rep-card .btn { margin: 0; padding: 8px 14px; } .rep-card .link { color: var(--red-d); }
+.ms-card { display: grid; gap: 10px; padding: 14px; border-radius: 18px; border: 2px solid var(--line); border-top: 5px solid var(--c); }
+.ms-card > b { font-size: 18px; font-weight: 900; }
+.ms-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; }
+.ms-row div { display: grid; gap: 2px; } .ms-row span { font-size: 12px; font-weight: 800; color: var(--ink-2); text-transform: uppercase; letter-spacing: .04em; } .ms-row b { font-size: 22px; font-weight: 900; }
+.ms-bars { display: flex; align-items: flex-end; gap: 4px; height: 70px; } .ms-bars i { flex: 1; border-radius: 4px 4px 0 0; background: var(--c); }
+.lg-card { display: grid; gap: 10px; padding: 14px; border-radius: 18px; border: 2px solid var(--line); }
+.lg-list { display: grid; gap: 8px; }
+.lg-row { display: grid; grid-template-columns: 26px 1fr auto auto auto; gap: 8px; align-items: center; font-weight: 800; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.lg-row small { color: var(--ink-3); font-weight: 700; } .lg-row.me { color: var(--blue-d); }
 .vs-card { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 16px; border-radius: 22px; border: 3px solid var(--pc); background: var(--surface); margin-bottom: 4px; }
 .vs-card .vs-kick { display: inline-flex; gap: 6px; align-items: center; font-weight: 900; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--pc); }
 .vs-card .vs-kick .ic { width: 18px; height: 18px; }
@@ -2074,9 +2092,16 @@ function settingsSheet() {
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
     ${PLUS_OPEN ? '' : NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.star}Coming soon`}</button></div>`}
+    ${PLUS_LIVE ? `<div class="setrow"><b>Globe Genius Plus</b><p class="hint">${store.founder ? 'You’re a founding member: Plus is yours, free, for good.' : hasPlus() ? 'Your Plus membership is active. Thank you.' : 'Deep dives, every past challenge, streak repair, your stats and private leagues.'}</p>
+      ${hasPlus() ? (store.manage || NATIVE) && !store.founder ? `<a class="btn" href="${store.manage || 'https://apps.apple.com/account/subscriptions'}" target="_blank" rel="noopener">Manage membership</a>` : '' : `<button class="btn primary" id="plusGet">${IC.star}See Plus</button>`}
+      ${!hasPlus() ? '<button class="link" id="plusRestore">Restore purchases</button>' : ''}</div>` : ''}
+    <div class="setrow"><b>Your stats</b><p class="hint">Scores, ranks and streaks over time.</p><button class="btn" id="setStats">Open your stats</button></div>
     <div class="setrow"><b>Spot a mistake?</b><p class="hint">Every map and story has a "Report an error" link. You can also write to us here.</p>
       <button class="btn" data-report="General feedback">Send feedback</button></div>`);
   $('#setBack').onclick = homeSheet;
+  if ($('#plusGet')) $('#plusGet').onclick = () => { buzz(5); paywallSheet(null, settingsSheet); };
+  if ($('#plusRestore')) $('#plusRestore').onclick = () => { buzz(5); billing().then(B => B.restore(myUid())).then(ok => { if (ok) { store.ent = { until: Date.now() + 3 * DAY }; save(); toast('Plus restored'); settingsSheet(); } else toast('No purchases to restore'); }, () => toast(NATIVE || myUid() ? 'Couldn’t restore. Try again.' : 'Sign in first, then restore.')); };
+  $('#setStats').onclick = () => { buzz(5); statsSheet2(settingsSheet); };
   sheet.querySelectorAll('[data-remind]').forEach(b => b.onclick = () => {
     buzz(5); const v = b.dataset.remind;
     const set = () => { store.remind = v; store.remindAsked = 1; save(); remindersSoon(); settingsSheet(); };
@@ -2122,7 +2147,7 @@ function homeSheet() {
   setRound(false); setTab('explore');
   const sel = state.sel;
   // Home leads with today's three; search and the globe sit just below.
-  setSheet(`${sel ? '' : vsCard() + todayCard()}
+  setSheet(`${sel ? '' : vsCard() + lgInviteCard() + todayCard()}
     <div class="search" id="searchBox">${IC.search}<input id="q" type="search" placeholder="Search any country or place" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Search places"><button class="clear" id="qClear" aria-label="Clear search">${IC.x}</button></div>
     <div class="results" id="results" hidden></div>
     <div id="exploreBody" style="display:grid;gap:14px">
@@ -2310,8 +2335,64 @@ const PLUS_CODE = '1234';
 const PLUS_FREE = 'dd-vikings';
 // No paywall: the owner chose to keep everything free for good (deep dives, the full archive, two weekly freezes).
 // The paywall code stays in case that ever changes; false brings it back, with store.plus deciding.
-const PLUS_OPEN = true;
-const hasPlus = () => PLUS_OPEN || !!store.plus;
+const PLUS_CFG = window.MERIDIAN_PLUS || {}, PLUS_LIVE = !!PLUS_CFG.live;
+const PLUS_OPEN = !PLUS_LIVE;
+// Everyone who plays before Plus launches is a founding member and keeps every Plus feature for free.
+const hasPlus = () => PLUS_OPEN || !!store.plus || !!store.founder || !!(store.ent && store.ent.until > Date.now());
+function markFounder() { if (!PLUS_LIVE && !store.founder && ((store.days || []).length || Object.keys(store.ddLog || {}).length)) { store.founder = Date.now(); save(); } }
+// Purchases load on demand (src/billing.js), only when the paywall opens or a membership needs checking.
+let billingP = null;
+const billing = () => billingP || (billingP = new Promise((res, rej) => {
+  if (window.GGBilling) return res(window.GGBilling);
+  addEventListener('gg-billing', () => res(window.GGBilling), { once: true });
+  const s = document.createElement('script'); s.type = 'module'; s.src = 'billing.js'; s.onerror = () => { billingP = null; rej(new Error('offline')); }; document.head.appendChild(s);
+}));
+const myUid = () => CLOUD && CLOUD.myId ? CLOUD.myId() : null;
+// Keep a paying member's Plus cached for three days, so it works offline; checked again whenever the app opens.
+async function refreshPlus() {
+  if (!PLUS_LIVE || store.founder || store.plus) return;
+  try {
+    const B = await billing(); if (!B.ready() || (!NATIVE && !myUid())) return;
+    const r = await B.isPlus(myUid()); store.ent = r.plus ? { until: Date.now() + 3 * DAY } : null; store.manage = r.manage || null; save();
+  } catch (e) {}
+}
+// The Plus offer. reason picks the headline; back() returns to where the player was.
+const PW = { dive: 'Unlock every deep dive', archive: 'Play every past challenge', repair: 'Repair your streak', stats: 'See your stats', league: 'Start a private league' };
+function paywallSheet(reason, back = homeSheet) {
+  if (hasPlus()) return back();
+  if (!PLUS_LIVE) { toast('Plus is coming soon'); return back(); }
+  const LIST = [[IC.clock, 'All 76 deep dives', 'Religions, empires, wars and big ideas, each with maps and a quiz.'], [IC.flame, 'Streak repair', 'Missed a day? Get your streak back within 48 hours, plus a second weekly freeze.'],
+    [IC.globe, 'Every past challenge', 'Play any day you missed and see how you’d have ranked.'], [IC.target, 'Your stats', 'Your scores, rank and strongest topics over time.'], [IC.trophy, 'Private leagues', 'A daily leaderboard for your friends, family or class.']];
+  setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
+    <div class="pwall"><span class="ptag">${IC.star}Globe Genius Plus</span><h3>${PW[reason] || 'Go deeper with Plus'}</h3>
+      <p>The daily challenges stay free forever. Plus is for going further.</p>
+      <div class="pw-plans" id="pwPlans"><p class="pfine">Loading prices…</p></div>
+      <button class="link plink" id="pwRestore">Restore purchases</button></div>
+    <ul class="pben">${LIST.map(([ic, b, t]) => `<li>${ic}<span><b>${b}</b>${t}</span></li>`).join('')}</ul>
+    <p class="fine" style="text-align:center" id="pwLegal">${NATIVE ? 'Payment is charged to your Apple ID. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period; manage them in your App Store settings.' : 'Cancel anytime from your account.'}
+      <a href="https://globegenius.io/terms.html" target="_blank" rel="noopener">Terms</a> · <a href="https://globegenius.io/privacy.html" target="_blank" rel="noopener">Privacy</a></p>`);
+  $('#pwBack').onclick = () => back();
+  const box = $('#pwPlans');
+  const done = ok => { if (!ok) return; store.ent = { until: Date.now() + 3 * DAY }; save(); buzz([10, 60, 10]); toast('Welcome to Globe Genius Plus'); histIdx = null; back(); };
+  if (!NATIVE && !myUid()) {
+    box.innerHTML = `<p class="pfine">Plus is linked to your profile, so it works on the web and in the iPhone app.</p><button class="btn pbtn" id="pwIn">Sign in to continue</button>`;
+    $('#pwIn').onclick = () => signInSheet({ then: () => paywallSheet(reason, back) });
+    $('#pwRestore').hidden = true; return;
+  }
+  billing().then(B => B.plans(myUid())).then(plans => {
+    if (!$('#pwPlans')) return;
+    const order = { annual: 0, monthly: 1, lifetime: 2 }, name = { annual: 'Yearly', monthly: 'Monthly', lifetime: 'Lifetime' };
+    plans.sort((a, b) => order[a.kind] - order[b.kind]);
+    if (!plans.length) { box.innerHTML = '<p class="pfine">Plus isn’t available right now. Try again later.</p>'; return; }
+    box.innerHTML = plans.map((p, i) => `<button class="pw-plan${p.kind === 'annual' ? ' best' : ''}" data-plan="${i}"><b>${name[p.kind]}</b><span>${esc(p.price)}${p.kind === 'annual' ? ' a year' : p.kind === 'monthly' ? ' a month' : ' once'}</span>${p.kind === 'annual' ? `<em>${p.trial ? esc(p.trial) : 'Best value'}</em>` : p.kind === 'lifetime' ? '<em>Founding price</em>' : ''}</button>`).join('');
+    box.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => {
+      buzz(8); box.querySelectorAll('button').forEach(x => x.disabled = true); b.classList.add('busy');
+      billing().then(B => B.buy(plans[+b.dataset.plan], myUid(), ME && ME.email)).then(done, e => { toast('That didn’t go through. Please try again.'); console.warn(e); })
+        .finally(() => { if ($('#pwPlans')) box.querySelectorAll('button').forEach(x => { x.disabled = false; x.classList.remove('busy'); }); });
+    });
+  }, () => { if ($('#pwPlans')) box.innerHTML = '<p class="pfine">Couldn’t load prices. Check your connection.</p>'; });
+  $('#pwRestore').onclick = () => { buzz(5); billing().then(B => B.restore(myUid())).then(ok => ok ? done(true) : toast('No purchases to restore'), () => toast('Couldn’t restore. Try again.')); };
+}
 const plusLocked = id => !hasPlus() && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
 const PLUS_CAT = { faith: 'Religions and beliefs', empires: 'Empires and civilisations', wars: 'Wars and conflicts', ideas: 'Ideas, science and money', nations: 'Nations and regions' };
 function plusSheet() { state.track = 'plus'; historySheet(); }
@@ -2333,6 +2414,7 @@ function plusHero(list) {
 }
 // The paywall itself. For now an access code opens it; in-app purchase replaces the form later.
 function unlockSheet(id) {
+  if (PLUS_LIVE) return paywallSheet(id ? 'dive' : null, () => { if (id && hasPlus()) eraSheet(id); else { state.track = 'plus'; historySheet(); } });
   const list = trackList('plus'), want = id && anchorById[id];
   const cats = Object.keys(PLUS_CAT).map(c => [c, list.filter(a => a.cat === c)]).filter(([, l]) => l.length);
   setSheet(`<button class="back" id="ulBack">${IC.back}Timeline</button>
@@ -3644,18 +3726,18 @@ const archiveFree = no => no === dailyNo() - 1;
 function archiveSheet() {
   const today = dailyNo(), from = state.tab;
   // At launch only yesterday is open; older days say "coming soon" on the web and aren't listed in the app.
-  const rows = Array.from({ length: Math.min(NATIVE && !hasPlus() ? 1 : 30, today - 1) }, (_, k) => today - 1 - k).map(no => {
+  const rows = Array.from({ length: Math.min(PLUS_LIVE || hasPlus() || !NATIVE ? 30 : 1, today - 1) }, (_, k) => today - 1 - k).map(no => {
     const cell = kind => { const d = dailyState(kind, no), lk = !hasPlus() && !archiveFree(no); return `<button class="arc-b${d.done ? ' done' : ''}${lk ? ' locked' : ''}" data-arc="${kind}:${no}" style="--pc:${DD_KIND[kind].color}">${lk ? IC.lock : DD_KIND[kind].emoji}<span>${d.done ? ddScore(d) : DD_KIND[kind].short}</span></button>`; };
     return `<div class="arc-row"><span class="arc-no">${ddDate(no)}<small>${archiveFree(no) ? 'Yesterday' : `${today - no} days ago`}</small></span>${cell('geo')}${cell('hist')}</div>`;
   }).join('');
   setSheet(`<button class="back" id="arcBack">${IC.back}Today</button>
     <div class="title">Past challenges</div>
-    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${hasPlus() ? '' : NATIVE ? '' : 'Older days are coming soon.'} Past days don't change your streak.</p>
+    <p class="hint">Missed a day? Play it now and see how you'd have ranked. ${hasPlus() ? '' : PLUS_LIVE ? 'Older days come with Plus.' : NATIVE ? '' : 'Older days are coming soon.'} Past days don't change your streak.</p>
     <div class="arc">${rows || '<p class="hint">The archive fills up from tomorrow.</p>'}</div>`);
   $('#arcBack').onclick = () => showTab(from === 'learn' ? 'learn' : 'explore');
   sheet.querySelectorAll('[data-arc]').forEach(b => b.onclick = () => {
     buzz(5); const [kind, no] = b.dataset.arc.split(':');
-    if (!hasPlus() && !archiveFree(+no)) return toast('Older days are coming soon');
+    if (!hasPlus() && !archiveFree(+no)) return PLUS_LIVE ? paywallSheet('archive', archiveSheet) : toast('Older days are coming soon');
     dailyChallenge(kind, +no);
   });
 }
@@ -3678,7 +3760,7 @@ function markDay(kind) {
   const days = store.days || (store.days = []);
   if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); gain.streakUp = true; }
   if (t.learn && t.geo && t.hist && !t.perfect) { t.perfect = 1; store.perfect = (store.perfect || 0) + 1; gain.perfect = true; }
-  save(); updateTop(); remindersSoon();
+  save(); updateTop(); remindersSoon(); markFounder();
 }
 function freezes() {
   const f = store.frz || (store.frz = { n: 0, wk: '', used: [] }), wk = weekId();
@@ -3700,6 +3782,52 @@ function applyFreeze() {
 const ddDate = no => new Date(DAILY_EPOCH + (no - 1) * DAY).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 const greeting = () => { const h = new Date().getHours(); return h < 5 ? 'Good evening' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
 const PLAY_IC = '<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>';
+// A streak that broke in the last two days (3+ days long) can be repaired with Plus.
+function brokenStreak() {
+  const have = new Set([...(store.days || []), ...((store.frz && store.frz.used) || [])]), d = new Date();
+  d.setDate(d.getDate() - 1);
+  const gaps = [];
+  while (!have.has(dayKey(d)) && gaps.length < 3) { gaps.push(dayKey(d)); d.setDate(d.getDate() - 1); }
+  if (!gaps.length || gaps.length > 2 || !have.has(dayKey(d))) return null;
+  let n = 0; while (have.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n >= 3 && store.repairSeen !== gaps[0] ? { gaps, n } : null;
+}
+function repairCard() {
+  const b = brokenStreak(); if (!b) return '';
+  return `<div class="rep-card"><span>💔</span><div><b>Your ${b.n}-day streak ended</b><small>Repair it and keep going${hasPlus() ? '' : ' with Plus'}.</small></div>
+    <button class="btn primary" id="repBtn">Repair</button><button class="link quiet" id="repNo" aria-label="Let it go">✕</button></div>`;
+}
+function bindRepair() {
+  const b = brokenStreak(); if (!b || !$('#repBtn')) return;
+  $('#repNo').onclick = () => { store.repairSeen = b.gaps[0]; save(); homeSheet(); };
+  $('#repBtn').onclick = () => {
+    buzz(8);
+    if (!hasPlus()) return paywallSheet('repair', homeSheet);
+    const f = freezes(); f.used.push(...b.gaps); save(); updateTop(); toast(`🔥 Streak repaired: ${streak()} days`, 2600); homeSheet();
+  };
+}
+// Your stats (Plus): from your daily results on this device and your account.
+function statsSheet2(back = homeSheet) {
+  if (!hasPlus()) return paywallSheet('stats', () => statsSheet2(back));
+  const log = store.ddLog || {}, today = dailyNo();
+  const part = k => Object.entries(log).filter(([d]) => d[0] === k).map(([d, v]) => ({ no: +d.slice(1), ...v })).sort((a, b) => a.no - b.no);
+  const days = [...new Set(store.days || [])].sort();
+  let best = 0, run = 0, prev = null;
+  for (const d of days) { const t = new Date(d + 'T12:00:00'); run = prev && (t - prev) / DAY < 1.5 ? run + 1 : 1; best = Math.max(best, run); prev = t; }
+  const card = (k, title, color) => {
+    const xs = part(k); if (!xs.length) return `<div class="ms-card" style="--c:${color}"><b>${title}</b><p class="hint">Play it to start your stats.</p></div>`;
+    const avg = Math.round(xs.reduce((t, x) => t + x.s, 0) / xs.length), ps = xs.filter(x => x.p != null), top = ps.length ? Math.round(ps.reduce((t, x) => t + x.p, 0) / ps.length) : null;
+    const last = Array.from({ length: 14 }, (_, i) => today - 13 + i).map(no => log[k + no]);
+    return `<div class="ms-card" style="--c:${color}"><b>${title}</b>
+      <div class="ms-row"><div><span>Played</span><b>${xs.length}</b></div><div><span>Average</span><b>${avg}</b></div><div><span>Best</span><b>${Math.max(...xs.map(x => x.s))}</b></div>${top != null ? `<div><span>Usually beat</span><b>${top}%</b></div>` : ''}</div>
+      <div class="ms-bars" aria-label="Last 14 days">${last.map(x => `<i style="height:${x ? Math.max(6, x.s / 10) : 3}%;opacity:${x ? 1 : .25}"></i>`).join('')}</div><small class="hint">Last 14 days</small></div>`;
+  };
+  setSheet(`<button class="back" id="msBack">${IC.back}Back</button><div class="title">Your stats</div>
+    <div class="sum two"><div style="--c:var(--orange)"><span>Current streak</span><b>${IC.flame}${streak()}</b></div><div style="--c:var(--gold-d)"><span>Longest streak</span><b>${IC.crown}${best}</b></div></div>
+    ${card('G', 'Daily Geography', 'var(--blue)')}${card('H', 'Daily History', 'var(--purple)')}
+    <div class="sum two"><div style="--c:var(--green)"><span>Countries mastered</span><b>${IC.target}${counts().m}</b></div><div style="--c:var(--blue)"><span>Perfect days</span><b>${IC.check}${store.perfect || 0}</b></div></div>`);
+  $('#msBack').onclick = () => back();
+}
 function todayCard() {
   const t = todayDone(), st = streak(), fz = freezes().n, dg = dailyState('geo'), dh = dailyState('hist');
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
@@ -3730,13 +3858,14 @@ function todayCard() {
     return `<button class="hm-tile${dn ? ' done' : ''}" id="${I.id}" style="--c:${I.c}"><span class="hm-ic">${dn ? IC.check : I.icon}</span><b>${I.title}</b><small>${status(k)}</small></button>`; }).join('');
   return `<div class="today hm">
     <div class="hm-top"><b class="hm-hi">${greeting()}</b><span class="td-st${st ? '' : ' off'}" title="Day streak">${IC.flame}${st}${fz ? `<em title="Streak freezes">❄️${fz}</em>` : ''}</span></div>
+    ${repairCard()}
     ${hero}
     <div class="hm-tiles${tiles.split('hm-tile').length > 3 ? ' three' : ''}">${tiles}</div>
     ${dg.no > 1 ? `<button class="link td-arc" id="goArc">Missed a day? Play past challenges</button>` : ''}
   </div>`;
 }
 function bindDaily() {
-  bindVs();
+  bindVs(); bindRepair();
   // A lesson started from Today comes back to Today when it ends.
   if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); const t = state.tab; startLearn(); roundFrom = t; };
   if ($('#tdPlay')) $('#tdPlay').onclick = () => { buzz(8); const k = $('#tdPlay').dataset.next; if (k === 'learn') { const t = state.tab; startLearn(); roundFrom = t; } else dailyChallenge(k); };
@@ -3785,6 +3914,13 @@ function readVs() {
 // A challenge is live for its day's archive window (the last 30 days) and until it has been shown after playing.
 const vsLive = () => { const v = store.vs; return v && v.no >= Math.max(1, dailyNo() - 30) && v.no <= dailyNo() && !v.seen ? v : null; };
 const vsWho = v => v.name || 'Your friend';
+// Someone shared a league invite and this player has no profile yet.
+function lgInviteCard() {
+  if (!store.lgInvite || (ME && ME.name) || !CLOUD) return '';
+  setTimeout(() => { if ($('#lgInvIn')) $('#lgInvIn').onclick = () => signInSheet({ then: leagueInvite }); if ($('#lgInvNo')) $('#lgInvNo').onclick = () => { store.lgInvite = null; save(); homeSheet(); }; });
+  return `<div class="vs-card" style="--pc:var(--orange)"><span class="vs-kick">${IC.trophy}You're invited to a league</span><b>Make a free profile to join</b>
+    <span class="vs-to">See today's scores side by side with everyone in it.</span><button class="btn primary" id="lgInvIn">Join the league</button><button class="link quiet" id="lgInvNo">Not now</button></div>`;
+}
 function vsCard() {
   const v = vsLive(); if (!v) return '';
   const K = DD_KIND[v.kind], mine = dailyState(v.kind, v.no);
@@ -3976,8 +4112,10 @@ function dailyChallenge(kind = 'geo', no) {
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
       ${dailyNo() > 1 ? '<button class="link" id="dyArc">Past challenges</button>' : ''}
+      <button class="link" id="dyStats">Your stats</button>
       <button class="btn" id="dyDone">Done</button>
       ${repFoot(`${K.title} · ${ddDate(d.no)} · results`)}`);
+    if ($('#dyStats')) $('#dyStats').onclick = () => { clearInterval(timer); state.daily = false; state.scope = prevScope; refreshLayer(); updateTop(); setRound(false); statsSheet2(); };
     if ($('#dyArc')) $('#dyArc').onclick = () => { clearInterval(timer); state.daily = false; state.scope = prevScope; refreshLayer(); updateTop(); setRound(false); archiveSheet(); };
     requestAnimationFrame(() => sheet.scrollTo({ top: 0 }));
     if (first) celebrate(score >= 800);
@@ -4098,7 +4236,7 @@ function cloudReady() {
   CLOUD = window.MeridianCloud;
   document.body.classList.add('cloud');
   CLOUD.onUser(p => {
-    const wasNamed = !!(ME && ME.name); ME = p; authKnown = true;
+    const wasNamed = !!(ME && ME.name); ME = p; authKnown = true; if (p && p.uid) setTimeout(refreshPlus, 500); if (p && p.name && store.lgInvite) setTimeout(leagueInvite, 300);
     if (ME && !ME.name) { if (!$('#nmForm') && !$('#siForm')) nameSheet(); return; }
     // Fully signed in (with a name) for the first time this visit: lift the gate and carry on.
     // Signing in on another device: carry this week's points over from the profile.
@@ -4141,7 +4279,7 @@ function pushStatsSoon() {
 // With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
 // with this device's (the most recent answer per place wins, streak days and best scores combine), and
 // writes the result back. Settings like theme and the current map stay per device.
-const SYNC_KEYS = ['prog', 'days', 'td', 'frz', 'perfect', 'ddLog', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
+const SYNC_KEYS = ['founder', 'leagues', 'prog', 'days', 'td', 'frz', 'perfect', 'ddLog', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
 function mergeProgress(a, b) {
   const out = {};
   const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
@@ -4166,6 +4304,7 @@ function mergeProgress(a, b) {
   out.today = newer(a.today, b.today, 'd', 'n'); out.wk = newer(a.wk, b.wk, 'id', 'pts');
   for (const k of ['goal', 'commit', 'onb', 'why', 'level']) out[k] = a[k] != null ? a[k] : b[k];
   out.plus = !!(a.plus || b.plus);
+  if (a.founder || b.founder) out.founder = Math.min(a.founder || Infinity, b.founder || Infinity);
   const prs = { ...(a.prs || {}) }; for (const k in b.prs || {}) if (prBetter(b.prs[k], prs[k])) prs[k] = b.prs[k]; out.prs = prs;
   // Today's challenge: the further-along attempt.
   const da = a.daily, db = b.daily, dn = x => (x.ans || x.marks || []).length + (x.done ? 1 : 0) + (x.sent ? 1 : 0); const pickD = (x, y) => !x || !y ? x || y : x.no !== y.no ? (x.no > y.no ? x : y) : dn(x) >= dn(y) ? x : y; out.daily = pickD(da, db); out.dailyH = pickD(a.dailyH, b.dailyH);
@@ -4321,11 +4460,17 @@ function competeSheet(kind = state.board === 'all' ? 'all' : 'week') {
       <div class="rbtns"><button class="btn primary" id="raceNew">Start a race</button><button class="btn" id="raceJoin">Join with a code</button></div>
       <form class="race-join" id="raceJoinForm" hidden><input id="raceCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Race code"><button class="btn primary" type="submit">Join</button></form>
       <p class="err" id="raceErr" role="alert"></p></div>
+    <div class="lg-card"><b>${IC.trophy}Private leagues</b><small class="hint">Today's scores for your friends, family or class, side by side.</small>
+      ${(store.leagues || []).length ? `<div class="lg-list">${store.leagues.map(l => `<button class="btn" data-lg="${esc(l.code)}">${esc(l.name)}</button>`).join('')}</div>` : ''}
+      <div class="rbtns"><button class="btn primary" id="lgNew">Start a league</button><button class="btn" id="lgJoin">Join with a code</button></div>
+      <form class="race-join" id="lgForm" hidden><input id="lgIn" maxlength="30" autocomplete="off" spellcheck="false" aria-label="League"><button class="btn primary" type="submit">Go</button></form>
+      <p class="err" id="lgErr" role="alert"></p></div>
     <div class="seg" role="tablist"><button data-board="week" aria-pressed="${kind === 'week'}">This week</button><button data-board="all" aria-pressed="${kind === 'all'}">World knowledge</button></div>
     <p class="hint lb-hint">${kind === 'week' ? '10 points for every right answer, 50 for reaching your daily goal. Resets every Monday.' : 'How much of the world you know: countries, capitals, states and provinces, and history chapters understood.'}</p>
     <div class="lb" id="lb"><p class="hint">Loading…</p></div>`);
   sheet.querySelectorAll('[data-board]').forEach(b => b.onclick = () => { buzz(5); competeSheet(b.dataset.board); });
   $('#raceNew').onclick = () => { buzz(8); raceHost(); };
+  bindLeagues();
   $('#raceJoin').onclick = () => { $('#raceJoinForm').hidden = false; $('#raceCode').focus(); };
   $('#raceJoinForm').onsubmit = e => { e.preventDefault(); raceJoin($('#raceCode').value.trim().toUpperCase()); };
   updateTop();
@@ -4336,6 +4481,47 @@ function competeSheet(kind = state.board === 'all' ? 'all' : 'week') {
   }, () => { if ($('#lb')) $('#lb').innerHTML = '<p class="hint">Couldn\'t load the leaderboard. Check your connection.</p>'; });
 }
 
+// ---------- private leagues (Plus to start one; anyone can join) ----------
+const lgKeep = l => { const ls = (store.leagues || []).filter(x => x.code !== l.code); ls.unshift({ code: l.code, name: l.name }); store.leagues = ls.slice(0, 12); save(); };
+const lgError = e => e && e.code === 'gg/noleague' ? 'No league with that code.' : e && e.code === 'meridian/name' ? 'Please choose a different name.' : 'That didn’t work. Check your connection.';
+function bindLeagues() {
+  sheet.querySelectorAll('[data-lg]').forEach(b => b.onclick = () => { buzz(5); leagueSheet(b.dataset.lg); });
+  let mode = null;
+  const open = m => { mode = m; $('#lgForm').hidden = false; const i = $('#lgIn'); i.value = ''; i.placeholder = m === 'new' ? 'League name, e.g. The Smiths' : 'Six-letter code'; i.maxLength = m === 'new' ? 30 : 6; i.focus(); };
+  $('#lgNew').onclick = () => { buzz(5); if (!hasPlus()) return paywallSheet('league', competeSheet); open('new'); };
+  $('#lgJoin').onclick = () => { buzz(5); open('join'); };
+  $('#lgForm').onsubmit = e => {
+    e.preventDefault(); const v = $('#lgIn').value.trim(); if (!v) return;
+    $('#lgErr').textContent = '';
+    (mode === 'new' ? CLOUD.leagueCreate(v) : CLOUD.leagueJoin(v.toUpperCase())).then(l => { lgKeep(l); leagueSheet(l.code); }, e => { $('#lgErr').textContent = lgError(e); });
+  };
+}
+function leagueSheet(code) {
+  setRound(false); setTab('compete');
+  const no = dailyNo(), days = ['G' + no, 'H' + no];
+  setSheet(`<button class="back" id="lgBack">${IC.back}Compete</button><div class="title" id="lgTitle">League</div><div id="lgBody"><p class="hint">Loading…</p></div>`);
+  $('#lgBack').onclick = () => competeSheet();
+  CLOUD.leagueBoard(code, days).then(L => {
+    if (!$('#lgBody')) return;
+    lgKeep(L); $('#lgTitle').textContent = L.name;
+    const me = CLOUD.myId(), rows = L.members.map(m => ({ ...m, g: m.scores[days[0]], h: m.scores[days[1]] })).map(m => ({ ...m, t: (m.g || 0) + (m.h || 0) })).sort((a, b) => b.t - a.t);
+    const link = `https://globegenius.io/?league=${L.code}`;
+    $('#lgBody').innerHTML = `<p class="hint">Today's Daily Geography and Daily History. Scores appear once each member has played.</p>
+      <div class="lg-list"><div class="lg-row"><span></span><small>Player</small><small>Geo</small><small>History</small><small>Total</small></div>
+      ${rows.map((m, i) => `<div class="lg-row${m.uid === me ? ' me' : ''}"><span>${i + 1}</span><span>${esc(m.name)}${m.tag ? ` <small>#${esc(m.tag)}</small>` : ''}</span><span>${m.g ?? '–'}</span><span>${m.h ?? '–'}</span><b>${m.g == null && m.h == null ? '–' : m.t}</b></div>`).join('')}</div>
+      <button class="btn primary" id="lgInvite">${IC.share}Invite people</button><p class="hint" style="text-align:center">Code: <b>${esc(L.code)}</b></p>
+      <button class="link quiet" id="lgLeave">Leave this league</button>`;
+    $('#lgInvite').onclick = () => { buzz(8); const t = `Join my Globe Genius league "${L.name}": two daily challenges, see who knows the world best. ${link}`; if (navigator.share) navigator.share({ text: t }).catch(() => {}); else navigator.clipboard?.writeText(t).then(() => toast('Invite copied')); };
+    $('#lgLeave').onclick = () => { CLOUD.leagueLeave(L.code).then(() => { store.leagues = (store.leagues || []).filter(x => x.code !== L.code); save(); competeSheet(); }); };
+  }, e => { if ($('#lgBody')) $('#lgBody').innerHTML = `<p class="hint">${lgError(e)}</p>`; });
+}
+// An invite link (?league=CODE): join once the player has a profile, then show the league.
+function leagueInvite() {
+  const code = store.lgInvite; if (!code || !CLOUD) return;
+  if (!(ME && ME.name)) return;
+  store.lgInvite = null; save();
+  CLOUD.leagueJoin(code).then(l => { lgKeep(l); leagueSheet(l.code); }, e => toast(lgError(e)));
+}
 // Races: a four-letter code, the same ten places for everyone, four choices each, 15 seconds a question.
 // A right answer earns 500 points plus up to 500 for speed, and the first right answer gets 250 more.
 const RACE_N = 10, RACE_T = 15000, RACE_COLORS = ['red', 'blue', 'gold', 'green'];
@@ -4465,7 +4651,8 @@ window.visualViewport?.addEventListener('resize', () => { resize(); window.scrol
 window.visualViewport?.addEventListener('scroll', fitViewport);
 // First layout without animation, so the globe starts centred in the space above the panel.
 $('#app').classList.add('dragging');
-readVs(); applyFreeze(); remindersSoon();
+{ const lg = new URLSearchParams(location.search).get('league'); if (lg && /^[A-Z2-9]{6}$/i.test(lg)) { store.lgInvite = lg.toUpperCase(); save(); const q = new URLSearchParams(location.search); q.delete('league'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')); } }
+readVs(); markFounder(); applyFreeze(); remindersSoon(); if (NATIVE) setTimeout(refreshPlus, 4000);
 // The web skips onboarding: a first-time visitor lands on Explore, where the Daily Geography card is the
 // obvious first tap. The iPhone app keeps its short onboarding.
 const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
@@ -4488,6 +4675,7 @@ else { map.once('idle', hideSplash); setTimeout(hideSplash, 4000); }
 };
 </script>
 
+<script>window.MERIDIAN_PLUS = {"live":false,"ios":"","web":"","entitlement":"plus"};</script>
 <script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com","gsi":true}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script>
 // Start once the map data has arrived and the deferred map library has run (it runs before DOMContentLoaded).
