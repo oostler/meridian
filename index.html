@@ -4005,7 +4005,7 @@ async function dailyJson(no) {
 async function statsSheet() {
   setRound(false);
   setSheet(`<div class="title">Dashboard</div><p class="hint">Loading the last 35 days…</p>`);
-  const today = dailyNo(), from = Math.max(1, today - 34), days = [];
+  const today = dailyNo(), from = 26, days = [];  // counting began on day 26 (19 Nov 2026)
   for (let no = from; no <= today; no++) days.push(no);
   const get = no => Promise.all(['G', 'H'].map(k => CLOUD.dailyStats(k + no).catch(() => ({})))).then(([g, h]) => {
     const t = {}; for (const o of [g, h]) for (const [k, v] of Object.entries(o)) if (!/^h\d/.test(k)) t[k] = (t[k] || 0) + v;
@@ -4018,11 +4018,12 @@ async function statsSheet() {
   const cohort = (n) => { const c = rows.filter(x => by[x.no + n] && x.r0); const a = c.reduce((t, x) => t + (by[x.no + n]['r' + n] || 0), 0), b = c.reduce((t, x) => t + x.r0, 0); return pct(a, b); };
   setSheet(`<div class="title">Dashboard</div>
     <p class="hint">Anonymous daily counts from everyone's app. Player and return counts began on 19 Nov 2026.</p>
+    ${(() => { const total = rows.reduce((t, x) => t + (x.r0 || 0), 0), pct = Math.min(100, total / 100); return `<div class="goalbar${total >= 10000 ? ' done' : ''}"><div class="gb-top"><b>Goal: 10,000 players by 30 June 2027</b><span>${total.toLocaleString('en')}</span></div><div class="gb-bar"><i style="width:${pct}%"></i></div><small class="hint">Everyone who has finished at least one daily challenge. Revenue goal ($5,000) is tracked in RevenueCat.</small></div>`; })()}
     <div class="sum two"><div style="--c:var(--blue)"><span>Players a day (7-day avg)</span><b>${avg('u')}</b></div><div style="--c:var(--green)"><span>Plays a day (7-day avg)</span><b>${avg('plays')}</b></div></div>
     <div class="sum two"><div style="--c:var(--orange)"><span>Back the next day</span><b>${cohort(1)}</b></div><div style="--c:var(--purple)"><span>Back after a week</span><b>${cohort(7)}</b></div></div>
     <p class="hint">Back after a month: <b>${cohort(30)}</b>. Targets: next day 40%+, a week 15–20%+.</p>
     <div class="st-tbl"><div class="st-h"><span>Day</span><span>Players</span><span>New</span><span>Plays</span><span>From links</span><span>Day 1</span><span>Day 7</span></div>
-    ${rows.slice().reverse().map(x => `<div><span>${ddDate(x.no)}</span><span>${x.u || 0}</span><span>${x.r0 || 0}</span><span>${x.plays}</span><span>${x.vs || 0}</span><span>${ret(x.no, 'r1', 1)}</span><span>${ret(x.no, 'r7', 7)}</span></div>`).join('')}</div>
+    ${rows.slice(-35).reverse().map(x => `<div><span>${ddDate(x.no)}</span><span>${x.u || 0}</span><span>${x.r0 || 0}</span><span>${x.plays}</span><span>${x.vs || 0}</span><span>${ret(x.no, 'r1', 1)}</span><span>${ret(x.no, 'r7', 7)}</span></div>`).join('')}</div>
     <div id="stQ"></div>
     <button class="btn" id="stHome">Back to the app</button>`);
   // Today's and yesterday's questions by how many got them right.
