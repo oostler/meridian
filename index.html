@@ -337,6 +337,8 @@ h1, h2, h3 { margin: 0; }
 .st-tbl > div { display: grid; grid-template-columns: 1.6fr repeat(6, 1fr); gap: 4px; padding: 6px 10px; border-top: 1px solid var(--line); }
 .st-tbl > div span:not(:first-child) { text-align: right; }
 .st-tbl .st-h { border-top: 0; font-weight: 900; background: var(--surface); font-size: 11px; }
+.st-q { display: grid; gap: 4px; font-size: 13px; }
+.st-q > div { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
 .vs-card { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 16px; border-radius: 22px; border: 3px solid var(--pc); background: var(--surface); margin-bottom: 4px; }
 .vs-card .vs-kick { display: inline-flex; gap: 6px; align-items: center; font-weight: 900; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--pc); }
 .vs-card .vs-kick .ic { width: 18px; height: 18px; }
@@ -3502,7 +3504,10 @@ const dqPts = (ok, left, ms) => ok ? 50 + Math.round(50 * Math.max(0, Math.min(1
 // Earlier days keep the old mix, so past leaderboards still match the questions people answered.
 const DQ_V3 = 27;
 // A bank is dealt out in a fixed shuffled order, a few a day, so nothing repeats until the whole bank is used.
+// Questions added later carry "from": the first day they may appear (always a future day), so adding questions never
+// changes a day that has already been played.
 function bankDeal(list, no, per, salt) {
+  list = list.filter(x => !x.from || x.from <= no);
   if (!list.length) return [];
   const r = seeded(salt), perm = list.map((_, i) => i);
   for (let i = perm.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
@@ -3838,6 +3843,24 @@ async function shareResult(kind, d) {
   if (navigator.share) return navigator.share({ text }).catch(() => {});
   navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
 }
+// Per-question share answered right, from the m-keys in a day's counts: [pct0, …, pct9] (null when no data).
+function qRight(stats) {
+  const right = Array(DQ_N).fill(0); let n = 0;
+  for (const [k, v] of Object.entries(stats || {})) if (/^m[01]{10}$/.test(k)) { n += v; for (let i = 0; i < DQ_N; i++) if (k[i + 1] === '1') right[i] += v; }
+  return { n, pct: right.map(x => n ? Math.round(x / n * 100) : null) };
+}
+// For the content automation: globegenius.io/?daily=<day> prints that day's questions, answers and % right as JSON.
+async function dailyJson(no) {
+  const out = { day: no, date: ddDate(no), link: 'https://globegenius.io', kinds: {} };
+  for (const kind of ['geo', 'hist']) {
+    const K = DD_KIND[kind], s = CLOUD ? await CLOUD.dailyStats(K.doc(no)).catch(() => ({})) : {}, qr = qRight(s);
+    out.kinds[kind] = { title: K.title, plays: s.n || 0, answered: qr.n, questions: dailyQs(no, kind).map((q, i) => ({
+      q: q.q.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'"), options: q.opts, answer: q.opts[q.c], why: q.why || '', pctRight: qr.pct[i], place: (q.show || q.after || {}).n || null })) };
+  }
+  const pre = document.createElement('pre'); pre.id = 'gg-json'; pre.textContent = JSON.stringify(out, null, 1);
+  pre.style.cssText = 'position:fixed;inset:0;z-index:99999;margin:0;overflow:auto;background:#fff;color:#111;white-space:pre-wrap;font:12px monospace;padding:12px';
+  document.body.appendChild(pre);
+}
 // ---------- the owner's dashboard (globegenius.io/?stats) ----------
 // Read-only, from the anonymous daily counts everyone's app already sends: players per day, plays, challenge-link
 // arrivals, and how many new players come back after 1, 7 and 30 days.
@@ -3862,7 +3885,12 @@ async function statsSheet() {
     <p class="hint">Back after a month: <b>${cohort(30)}</b>. Targets: next day 40%+, a week 15–20%+.</p>
     <div class="st-tbl"><div class="st-h"><span>Day</span><span>Players</span><span>New</span><span>Plays</span><span>From links</span><span>Day 1</span><span>Day 7</span></div>
     ${rows.slice().reverse().map(x => `<div><span>${ddDate(x.no)}</span><span>${x.u || 0}</span><span>${x.r0 || 0}</span><span>${x.plays}</span><span>${x.vs || 0}</span><span>${ret(x.no, 'r1', 1)}</span><span>${ret(x.no, 'r7', 7)}</span></div>`).join('')}</div>
+    <div id="stQ"></div>
     <button class="btn" id="stHome">Back to the app</button>`);
+  // Today's and yesterday's questions by how many got them right.
+  Promise.all([today, today - 1].map(no => Promise.all(['geo', 'hist'].map(kind => CLOUD.dailyStats(DD_KIND[kind].doc(no)).catch(() => ({})).then(s => ({ no, kind, qr: qRight(s), qs: dailyQs(no, kind) }))))))
+    .then(days => { const el = $('#stQ'); if (!el) return; el.innerHTML = days.flat().map(({ no, kind, qr, qs }) => `<h4 class="home-h">${DD_KIND[kind].title} · ${ddDate(no)} <small>(${qr.n} players)</small></h4>
+      <div class="st-q">${qs.map((q, i) => `<div><span>${q.q.replace(/<[^>]+>/g, '')}</span><b>${qr.pct[i] == null ? '–' : qr.pct[i] + '%'}</b></div>`).join('')}</div>`).join(''); });
   $('#stHome').onclick = () => { history.replaceState(null, '', location.pathname); homeSheet(); };
 }
 function dailyChallenge(kind = 'geo', no) {
@@ -3930,6 +3958,8 @@ function dailyChallenge(kind = 'geo', no) {
       const fd = store.dd1 || (store.dd1 = Math.min(d.no, ...Object.keys(store.ddLog || {}).map(k => +k.slice(1)).filter(n => n > 0)));
       if (!dailyState(kind === 'geo' ? 'hist' : 'geo').done) { counts.push('u'); const age = d.no - fd; if ([0, 1, 7, 30].includes(age)) counts.push('r' + age); }
       if (store.vs && store.vs.kind === kind && store.vs.no === d.no) counts.push('vs');
+      // Which of the ten were answered right, as one key (m0110…), so the dashboard can show each question's % right.
+      counts.push('m' + Array.from({ length: DQ_N }, (_, i) => d.ans[i] && d.ans[i].p ? '1' : '0').join(''));
     }
     if (first) { d.done = 1; if (!arc) { addPoints(Math.round(score / 10)); markDay(kind); } ddLogSet(kind, d); save(); }
     const day = arc ? 'that day\'s' : 'today\'s';
@@ -4439,7 +4469,8 @@ readVs(); applyFreeze(); remindersSoon();
 // The web skips onboarding: a first-time visitor lands on Explore, where the Daily Geography card is the
 // obvious first tap. The iPhone app keeps its short onboarding.
 const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
-if (!NATIVE && new URLSearchParams(location.search).has('stats')) { const go = () => CLOUD ? statsSheet() : setTimeout(go, 300); go(); }
+if (!NATIVE && new URLSearchParams(location.search).has('daily')) { const no = +new URLSearchParams(location.search).get('daily') || dailyNo(); const go = () => CLOUD || !window.MERIDIAN_FIREBASE ? dailyJson(no) : setTimeout(go, 300); go(); }
+else if (!NATIVE && new URLSearchParams(location.search).has('stats')) { const go = () => CLOUD ? statsSheet() : setTimeout(go, 300); go(); }
 else if (firstVisit && NATIVE) onboarding();
 else {
   if (firstVisit) { store.onb = 1; save(); }
