@@ -1328,10 +1328,10 @@ function paint() {
   for (const f of LAYER) {
     const st = styleFor(f);
     // Dots for places too small to see at this zoom.
-    const small = (f.k !== 't' || f.sub1) && pxSize(f) < 9 && !(z < 2.5 && f.nb.length && f.size > 0.6 && !f.sub1);
+    const small = (f.k !== 't' || f.sub1) && pxSize(f) < (TOUCH ? 16 : 9) && !(z < 2.5 && f.nb.length && f.size > 0.6 && !f.sub1);
     const era = state.mode === 'era';
     const showDot = small && (era ? !!(histRole(f) || state.sel === f) : inScope(f) || z >= 3.5);
-    const dot = showDot ? { r: inScope(f) ? 5 : 3.5, op: 1, fill: st.fo > 0.3 ? st.fill : '#ffffff' } : { r: 0, op: 0, fill: '#ffffff' };
+    const dot = showDot ? { r: inScope(f) ? (TOUCH ? 7 : 5) : (TOUCH ? 4.5 : 3.5), op: 1, fill: st.fo > 0.3 ? st.fill : '#ffffff' } : { r: 0, op: 0, fill: '#ffffff' };
     const key = JSON.stringify([st, dot]);
     if (f.styleKey === key) continue;
     f.styleKey = key;
@@ -1383,16 +1383,24 @@ function drawPulse(hi) {
 }
 
 // ---------- tapping ----------
+// Fingers are bigger than mouse pointers: phones get a wider reach around small islands' dots.
+const TOUCH = matchMedia('(pointer: coarse)').matches;
 map.on('click', e => {
   // Small places: generous radius around their dot, then whatever shape is under the finger.
-  const p = e.point, r = 16;
+  const p = e.point, r = TOUCH ? 26 : 16;
   const near = map.queryRenderedFeatures([[p.x - r, p.y - r], [p.x + r, p.y + r]], { layers: ['dots'] })
     .filter(x => (map.getFeatureState({ source: 'dots', id: x.properties.id }).op || 0) > 0)
     .map(x => ({ f: byId[x.properties.id], d: map.project(x.geometry.coordinates).dist(p) }))
     .sort((a, b) => a.d - b.d);
   const hit = map.queryRenderedFeatures(p, { layers: ['fill'] })[0];
+  // Several tiny places under the finger (the Caribbean, the Pacific): zoom in there instead of guessing.
+  if (near.length > 1 && near[1].d - near[0].d < (TOUCH ? 12 : 6) && map.getZoom() < 7) {
+    buzz(5); userMoved = true;
+    map.easeTo({ center: e.lngLat, zoom: Math.min(8, map.getZoom() + 2), duration: 450 });
+    return toast('Zoomed in. Tap again to choose', 1600);
+  }
   // A shape under the finger wins unless the tap is right on a small place's dot.
-  if (near.length && (!hit || near[0].d <= 8)) return onPick(near[0].f);
+  if (near.length && (!hit || near[0].d <= (TOUCH ? 14 : 8))) return onPick(near[0].f);
   if (hit || near.length) return onPick(hit ? byId[hit.properties.id] : near[0].f);
   // Open water: the smallest sea under the finger (a gulf before its ocean).
   const wet = map.queryRenderedFeatures(p, { layers: ['sea'] }).map(x => byId[x.properties.id]).filter(Boolean).sort((a, b) => a.size - b.size);
@@ -1463,7 +1471,7 @@ function fitBox(b, ms, smooth) {
 // Frame a target with enough of its surroundings to see how it fits.
 function contextBox(f) {
   const b = f.f, cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2, k = Math.cos(cy * Math.PI / 180);
-  const min = f.sub1 ? 7 : 9;
+  const min = f.sub1 ? 7 : f.size < 1 ? 6 : 9;  // tiny islands get a closer view
   const pad = Math.max(b[2] - b[0], (b[3] - b[1]) / k) > 8 ? 1.5 : 2.2; // big places need less margin
   const w = Math.max(min, Math.min(100, (b[2] - b[0]) * pad)), h = Math.max(min * k, Math.min(70, (b[3] - b[1]) * pad));
   return [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2];
@@ -2086,7 +2094,7 @@ function settingsSheet() {
     <div class="setrow"><b>Appearance</b><div class="seg">${[['auto', 'Automatic'], ['light', 'Light'], ['dark', 'Dark']].map(([k, n]) => `<button data-theme-set="${k}" aria-pressed="${th === k}">${n}</button>`).join('')}</div>${th === 'auto' ? '<p class="hint" style="margin:0">Night mode from 7pm to 7am, or when your device is in dark mode.</p>' : ''}</div>
     <div class="setrow"><b>Progress</b><p class="hint">Your progress, streak and quiz scores are saved on this device only.</p>
       <div id="resetAll"><button class="btn" id="resetAsk" style="color:var(--red)">Reset all progress</button></div></div>
-    ${NATIVE ? `<div class="setrow"><b>Reminders</b><div class="seg">${REMIND_TIMES.map(([k, n]) => `<button data-remind="${k}" aria-pressed="${(store.remind || '') === k}">${n}</button>`).join('')}</div><p class="hint" style="margin:0">${!store.remind ? 'No reminders.' : store.remind === 'smart' ? `Around ${((usualHour() + 11) % 12) + 1} ${usualHour() >= 12 ? 'PM' : 'AM'}, when you usually play, plus a streak saver in the evening.` : `A nudge at ${store.remind} if you haven't played, plus a streak saver in the evening.`}</p></div>` : ''}
+    ${NATIVE ? `<div class="setrow"><b>Reminders</b><div class="seg">${REMIND_TIMES.map(([k, n]) => `<button data-remind="${k}" aria-pressed="${(store.remind || '') === k}">${n}</button>`).join('')}</div><p class="hint" style="margin:0">${!store.remind ? 'No reminders.' : store.remind === 'smart' ? `Around ${((usualHour() + 11) % 12) + 1} ${usualHour() >= 12 ? 'PM' : 'AM'}, when you usually play, plus a streak saver in the evening.` : `A nudge at ${store.remind} if you haven't played, plus a streak saver in the evening.`}</p><button class="link" id="remTest">Send a test reminder</button><p class="hint" id="remState" style="margin:0"></p></div>` : ''}
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
@@ -2102,6 +2110,10 @@ function settingsSheet() {
   if ($('#plusGet')) $('#plusGet').onclick = () => { buzz(5); paywallSheet(null, settingsSheet); };
   if ($('#plusRestore')) $('#plusRestore').onclick = () => { buzz(5); billing().then(B => B.restore(myUid())).then(ok => { if (ok) { store.ent = { until: Date.now() + 3 * DAY }; save(); toast('Plus restored'); settingsSheet(); } else toast('No purchases to restore'); }, () => toast(NATIVE || myUid() ? 'Couldn’t restore. Try again.' : 'Sign in first, then restore.')); };
   $('#setStats').onclick = () => { buzz(5); statsSheet2(settingsSheet); };
+  if ($('#remTest')) {
+    window.MeridianNative.status().then(st => { if (st === 'denied' && $('#remState')) $('#remState').textContent = 'Notifications are turned off for Globe Genius. Turn them on in iPhone Settings → Notifications → Globe Genius.'; }, () => {});
+    $('#remTest').onclick = () => { buzz(5); window.MeridianNative.test().then(ok => toast(ok ? 'Test reminder in 6 seconds. Go to your home screen to see it' : 'Notifications are off. Turn them on in iPhone Settings', 3200), () => toast('Couldn’t schedule a test')); };
+  }
   sheet.querySelectorAll('[data-remind]').forEach(b => b.onclick = () => {
     buzz(5); const v = b.dataset.remind;
     const set = () => { store.remind = v; store.remindAsked = 1; save(); remindersSoon(); settingsSheet(); };
