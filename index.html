@@ -3940,7 +3940,7 @@ const dqPts = (ok, left, ms) => ok ? 50 + Math.round(50 * Math.max(0, Math.min(1
 // Everyone must get the same questions, so all choices come from a generator seeded by the day and kind.
 // From day 27 (20 November 2026) the dailies use the hand-written banks and the clearly worded map questions.
 // Earlier days keep the old mix, so past leaderboards still match the questions people answered.
-const DQ_V3 = 27;
+const DQ_V3 = 27, DQ_CORE = 29;
 // A bank is dealt out in a fixed shuffled order, a few a day, so nothing repeats until the whole bank is used.
 // Questions added later carry "from": the first day they may appear (always a future day), so adding questions never
 // changes a day that has already been played.
@@ -3967,8 +3967,11 @@ function dailyQs3(no, kind) {
     return rs([...mine, ...bank]);
   }
   // History: six hand-written questions and four map questions, easiest first.
+  // From day 29 (22 November 2026) only the main world timeline is asked about: the history a well-read person
+  // knows, not the US, China or Canada tracks, and not the present-day "World now" chapter.
   const W = new Set(SCOPES.find(s => s.id === 'world').items.filter(f => f.k === 'c').map(f => f.id));
-  const pool = askableMapQs(f => W.has(f.id)), used = new Set(), usedMap = new Set(), maps = [];
+  const core = a => no < DQ_CORE || (trackOf(a) === 'world' && a.id !== 'now');
+  const pool = askableMapQs(f => W.has(f.id)).filter(x => core(x.a)), used = new Set(), usedMap = new Set(), maps = [];
   for (const want of [1, 2, 2, 3]) {
     // Pick a map first, then a place on it, so big maps (religions: 190 countries) don't crowd out the rest.
     const open = pool.filter(x => !used.has(x.f.id) && !usedMap.has(x.a.id + x.m)), lv = open.filter(x => x.lvl === want).length ? open.filter(x => x.lvl === want) : open;
@@ -3978,7 +3981,7 @@ function dailyQs3(no, kind) {
     const M = x.a.maps[x.m], ks = mapOpts(M, x.gi, rs), note = M.notes && M.notes[x.f.id];
     maps.push({ ctx: '', q: mapAsk(M, x.f), opts: ks.map(k => mapLabel(M, k)), c: ks.indexOf(x.gi), show: x.f, why: note || M.groups[x.gi].sub || '', lvl: x.lvl });
   }
-  const bank = bankDeal(BANK.hist, no, 10 - maps.length, 4242).map(fromBank);
+  const bank = bankDeal(no < DQ_CORE ? BANK.hist : BANK.hist.filter(x => anchorById[x.ch] && core(anchorById[x.ch])), no, 10 - maps.length, 4242).map(fromBank);
   return [...maps, ...bank].map((q, i) => ({ q, k: q.lvl * 10 + r() })).sort((a, b) => a.k - b.k).map(x => x.q);
 }
 function dailyQsOld(no, kind = 'geo') {
