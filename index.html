@@ -4372,6 +4372,8 @@ function dailyQs3(no, kind) {
   const fromBank = x => { const opts = rs(x.a); return { ctx: '', q: esc(x.q), opts, c: opts.indexOf(x.a[0]), why: x.why, lvl: x.lvl, after: x.at ? byId[x.at] : null }; };
   if (kind === 'geo') {
     // Seven from the map (spot it, capitals, borders, sizes), three on rivers, mountains, landmarks and records.
+    // From day 30 (23 November 2026) all ten come from the map, with nothing on rivers, mountains or landmarks.
+    if (no >= DQ_CONCEPT) return dailyQsOld(no, 'geo').map(q => ({ ...q, ctx: '' }));
     const quota = { 'On the globe': 2, Capitals: 2, Borders: 1, Population: 1, Size: 1 }, mine = [];
     for (const q of dailyQsOld(no, 'geo')) if ((quota[q.ctx] || 0) > 0) { quota[q.ctx]--; mine.push({ ...q, ctx: '' }); }
     const bank = [...bankDeal(BANK.geo, no, 3, 9001), ...bankDeal(BANK.geo, no + 9999, Math.max(0, 7 - mine.length), 9002)].map(fromBank);
