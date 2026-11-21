@@ -462,6 +462,9 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .lb-name { font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-name small { color: var(--ink-3); font-weight: 800; }
 .lb-row b { font-weight: 900; font-variant-numeric: tabular-nums; }
+.pl { cursor: pointer; text-decoration: underline dotted color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+.pl-hid { color: var(--ink-3); font-style: italic; font-weight: 800; }
+#plMenu .btn { width: 100%; }
 .lb-gap { text-align: center; color: var(--ink-3); font-weight: 900; }
 .av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #fff; background: hsl(var(--h) 65% 52%); flex: none; }
 .rc-code { display: grid; gap: 6px; justify-items: center; padding: 14px; border-radius: 18px; background: var(--surface); }
@@ -1571,6 +1574,26 @@ else $('#zbase').hidden = true;
 // ---------- toast ----------
 let toastT;
 function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('wrap', msg.length > 40); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
+// Tapping another player's name: report it, or hide that player from every board on this device.
+document.addEventListener('click', e => {
+  const n = e.target.closest('[data-pl]'); if (!n) return;
+  e.stopPropagation(); buzz(5);
+  const uid = n.dataset.pl, name = n.dataset.pln;
+  const box = document.createElement('div'); box.className = 'report'; box.id = 'plMenu';
+  box.innerHTML = `<div class="rcard" role="dialog" aria-modal="true" aria-label="Player options"><div class="rtitle">${esc(name)}</div>
+    <p class="hint">See a name that shouldn't be here? Report it and we'll remove it, usually within a day.</p>
+    <button class="btn" id="plRep">Report this name</button><button class="btn" id="plHide">Hide this player</button><button class="btn ghost" id="plX">Cancel</button></div>`;
+  document.body.appendChild(box);
+  const close = () => box.remove();
+  box.onclick = ev => { if (ev.target === box) close(); };
+  $('#plX').onclick = close;
+  $('#plRep').onclick = () => { close(); openReport('Player name: ' + name + ' (id ' + uid + ')'); };
+  $('#plHide').onclick = () => {
+    store.blocked = [...new Set([...(store.blocked || []), uid])]; save(); close();
+    document.querySelectorAll(`[data-pl="${CSS.escape(uid)}"]`).forEach(x => { x.outerHTML = '<span class="pl-hid">Hidden player</span>'; });
+    toast('Hidden. You won\'t see this player\'s name again.', 2600);
+  };
+}, true);
 // Error reports: a short form whose text becomes an email to the support address (which forwards to the
 // owner), with where it was sent from filled in. The player's own mail app sends it.
 const SUPPORT_EMAIL = 'support@globegenius.io';
@@ -4547,7 +4570,7 @@ function dailyChallenge(kind = 'geo', no) {
     const el = $('#ddBoard'); if (!el) return;
     const rows = v && v.rows || [];
     const me = ME && v && v.me;
-    el.innerHTML = (rows.length ? `<ol class="dd-lb">${rows.map((r, k) => `<li class="${ME && r.uid === ME.uid ? 'me' : ''}"><span class="dl-r">${k + 1}</span><span class="dl-n">${esc(r.name)}<i>#${esc(r.tag || '')}</i></span><b>${r.score}</b></li>`).join('')}</ol>` : '<p class="hint">No names on today\'s board yet. Be the first.</p>')
+    el.innerHTML = (rows.length ? `<ol class="dd-lb">${rows.map((r, k) => `<li class="${ME && r.uid === ME.uid ? 'me' : ''}"><span class="dl-r">${k + 1}</span><span class="dl-n">${isHidden(r.uid) ? '<span class="pl-hid">Hidden player</span>' : ME && r.uid === ME.uid || !r.uid ? `${esc(r.name)}<i>#${esc(r.tag || '')}</i>` : `<span class="pl" data-pl="${esc(r.uid)}" data-pln="${esc(r.name + ' #' + (r.tag || ''))}">${esc(r.name)}<i>#${esc(r.tag || '')}</i></span>`}</span><b>${r.score}</b></li>`).join('')}</ol>` : '<p class="hint">No names on today\'s board yet. Be the first.</p>')
       + (me && me.rank > rows.length ? `<ol class="dd-lb" start="${me.rank}"><li class="me"><span class="dl-r">${me.rank}</span><span class="dl-n">You</span><b>${me.score}</b></li></ol>` : '')
       + (!ME && CLOUD && !arc ? `<button class="btn" id="ddIn">${IC.trophy}Put your name on the board</button>` : '');
     if ($('#ddIn')) $('#ddIn').onclick = () => signInSheet({ then: () => dailyChallenge(kind) });
@@ -4840,7 +4863,10 @@ function nameSheet() {
 
 // ---------- compete: leaderboard and races ----------
 const avatar = (name, uid) => `<span class="av" style="--h:${[...(uid || name || 'x')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360}">${esc((name || '?')[0].toUpperCase())}</span>`;
-const who = r => `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`;
+const isHidden = uid => !!uid && (store.blocked || []).includes(uid);
+const who = r => isHidden(r.uid) ? `<span class="pl-hid">Hidden player</span>`
+  : ME && r.uid === ME.uid || !r.uid ? `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`
+  : `<span class="pl" data-pl="${esc(r.uid)}" data-pln="${esc(r.name + ' #' + (r.tag || ''))}">${esc(r.name)} <small>#${esc(r.tag || '')}</small></span>`;
 function competeSheet(kind = state.board === 'all' ? 'all' : 'week') {
   state.mode = 'explore'; state.target = null; state.board = kind;
   setRound(false); setTab('compete');
