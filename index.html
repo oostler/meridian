@@ -3056,7 +3056,7 @@ function startUnit(a, k) {
     }
     setSheet(`<div class="qhead"><button class="qx" id="ulX" aria-label="Close">${IC.x}</button><div class="qbar"><i style="width:${i / n * 100}%"></i></div></div>
       <span class="pill hist">${esc(yrs ? yrs + ' · ' : '')}${esc(U.title)}</span>
-      <div class="lcard lc-${c.t}">${lessonCard(c)}${c.g && c.g.hl && c.g.hl.some(h => h[2]) ? `<div class="lc-key">${c.g.hl.filter(h => h[2]).map(([k, , l]) => `<span><i style="background:${PAL[k]}"></i>${esc(l)}</span>`).join('')}</div>` : ''}</div>
+      <div class="lcard k-${c.t}">${lessonCard(c)}${c.g && c.g.hl && c.g.hl.some(h => h[2]) ? `<div class="lc-key">${c.g.hl.filter(h => h[2]).map(([k, , l]) => `<span><i style="background:${PAL[k]}"></i>${esc(l)}</span>`).join('')}</div>` : ''}</div>
       <div class="ml-nav">${i ? `<button class="btn" id="mlBack" aria-label="Back">${IC.back}</button>` : ''}<button class="btn primary" id="mlNext"${check && !answered.has(i) ? ' disabled' : ''}>${i + 1 < n ? 'Continue' : 'Finish'}</button></div>
       <button class="flag" data-report="${esc(a.title + ' · ' + U.title + ' · card ' + (i + 1))}">Report an error</button>`);
     sheet.scrollTop = 0;
