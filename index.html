@@ -254,6 +254,8 @@ h1, h2, h3 { margin: 0; }
 .hq { gap: 12px; }
 .hq .opts { display: grid; gap: 8px; }
 .hq .verdict { position: static; margin: 0; border-radius: 14px; padding: 14px; }
+.lcard .verdict, .lcard .verdict.inline { position: static; margin: 4px 0 0; border-radius: 14px; padding: 14px; }
+.lcard .verdict.soft { background: var(--gold-l); color: var(--gold-d); }
 .hopt { display: flex; align-items: center; gap: 10px; text-align: left; }
 .hopt i { flex: none; width: 14px; height: 14px; border-radius: 4px; }
 .hopt.right { border-color: var(--green); background: var(--green-l); }
@@ -3126,9 +3128,9 @@ function startUnit(a, k) {
     const next = () => { if (nextB.disabled) return; buzz(5); if (i + 1 < n) { i++; show(); } else { state.histrun = false; keyHandler = null; state.focusG = null; state.mapI = Math.max(0, state.mapI); state.lmap = null; momentDone(a, k, right, asked); } };
     nextB.onclick = next;
     if ($('#mlBack')) $('#mlBack').onclick = () => { buzz(5); i--; show(); };
-    const done = (ok, title, why) => {
+    const done = (ok, title, why, soft) => {
       if (!answered.has(i)) { answered.add(i); asked++; if (ok) right++; practisedToday(ok ? 10 : 0); updateTop(); }
-      verdict(ok, title, esc(why || ''));
+      const fb = verdict(ok || soft, title, esc(why || '')); if (soft && !ok) fb.classList.add('soft');
       buzz(ok ? 12 : [20, 40, 20]);
       nextB.disabled = false; setTimeout(() => nextB.focus({ preventScroll: true }), 30);
       requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
@@ -3155,7 +3157,7 @@ function startUnit(a, k) {
         const kk = +b.dataset.k;
         if (kk !== at) { slips++; buzz([20, 40, 20]); b.classList.add('bad'); setTimeout(() => b.classList.remove('bad'), 450); return; }
         buzz(8); b.remove(); place(kk, true);
-        if (at === c.items.length) done(slips === 0, slips === 0 ? 'Perfect order!' : `In order, with ${slips} slip${slips > 1 ? 's' : ''}`, slips ? 'Each wrong tap shook. The list above is the right order.' : '');
+        if (at === c.items.length) done(slips === 0, slips === 0 ? 'Perfect order!' : `Done, with ${slips} slip${slips > 1 ? 's' : ''}`, slips ? 'The list above is the right order.' : '', slips <= 2);
       });
     }
     draw();
