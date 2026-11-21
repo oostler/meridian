@@ -3021,6 +3021,12 @@ function lessonCard(c) {
   }
   return '';
 }
+// A frame at least about 24° by 14°, so a lone pin shows its region rather than a street.
+function minBox(b) {
+  if (!b || b[2] - b[0] >= 300) return b;
+  const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2, w = Math.max(24, b[2] - b[0]) / 2, h = Math.max(14, b[3] - b[1]) / 2;
+  return [cx - w, Math.max(-80, cy - h), cx + w, Math.min(82, cy + h)];
+}
 // A card's own globe scene, shaped like a chapter map so the globe draws it the same way.
 function lessonScene(g) {
   return { groups: (g.hl || []).map(([color, full, label]) => ({ color, full, label: label || '' })),
@@ -3047,7 +3053,7 @@ function startUnit(a, k) {
     let fitTo = null;
     state.lmap = c.g ? lessonScene(c.g) : null;
     const [m, g] = c.map || (U.map == null ? [-1] : [U.map]);
-    if (state.lmap) { state.focusG = null; const bx = c.g.box || mapBox(state.lmap); fitTo = (bx === G.views.world && U.box ? U.box : bx); }
+    if (state.lmap) { state.focusG = null; const bx = c.g.box || minBox(mapBox(state.lmap)); fitTo = (bx === G.views.world && U.box ? U.box : bx); }
     else if (m === -1) { state.mapI = -1; state.focusG = null; fitTo = (U.box || (a.maps && a.maps[0] ? a.maps[0].box || mapBox(a.maps[0]) : G.views.world)); }
     else if (a.maps && a.maps[m]) {
       const M = a.maps[m]; state.mapI = m; state.focusG = g == null ? null : g;
