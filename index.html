@@ -606,7 +606,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .ct-mom small { display: flex; gap: 6px; align-items: center; }
 .ct-sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .ct-mom .ct-note { display: block; font-weight: 600; margin-top: 2px; line-height: 1.3; }
-.ct-full { width: 100%; }
+.ct-full { width: 100%; margin-top: 10px; }
 .ct-full small { display: inline-flex; gap: 3px; align-items: center; color: var(--gold-d); font-weight: 900; margin-left: 6px; }
 .ts-evs { display: grid; gap: 6px; }
 .ts-ev { display: grid; grid-template-columns: 64px 1fr; gap: 10px; text-align: left; padding: 10px 12px; border-radius: 14px; border: 2px solid var(--line); background: var(--bg); box-shadow: none; }
@@ -1663,7 +1663,7 @@ else $('#zbase').hidden = true;
 let toastT;
 function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('wrap', msg.length > 40); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
 // Tapping another player's name: report it, or hide that player from every board on this device.
-document.addEventListener('click', e => { const b = e.target.closest('[data-fullhist]'); if (!b) return; e.stopPropagation(); buzz(8); openCountry(b.dataset.fullhist); }, true);
+document.addEventListener('click', e => { const b = e.target.closest('[data-fullhist]'); if (!b) return; e.stopPropagation(); buzz(8); clearTimeout(advanceT); keyHandler = null; state.histrun = false; state.target = null; openCountry(b.dataset.fullhist); }, true);
 document.addEventListener('click', e => {
   const n = e.target.closest('[data-pl]'); if (!n) return;
   e.stopPropagation(); buzz(5);
@@ -2043,6 +2043,12 @@ function leadersHtml(f) {
   return `<dl class="leaders">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}${asOf ? `<small>As of ${esc(asOf)}</small>` : ''}</dl>`;
 }
 // A place's story: chapters, how it came to be, and a snapshot of it today.
+// "Learn its full history": opens the country's interactive lesson (its state, province or region opens the parent).
+function fullHistBtn(f) {
+  const id = f.k === 'c' ? f.id : parentId(f), c = byId[id];
+  if (!c || c.k !== 'c' || !c.h || !c.h.t || !(CTRACK_OF[id] || !NATIVE || hasPlus())) return '';
+  return `<button class="btn ct-full" data-fullhist="${id}">${IC.clock}Learn the full history of ${esc(ctryName(c))}${ctryLocked(id) ? ` <small>${IC.star}Plus</small>` : ''}</button>`;
+}
 function storyHtml(f, link = true) {
   if (!f || !f.h) return '';
   const h = f.h;
@@ -2050,7 +2056,7 @@ function storyHtml(f, link = true) {
   const tl = link ? onTimeline(f) : '';
   return `<div class="story">${tl ? '' : eraChips(f, link)}
     <h4>History</h4><p>${esc(h.t)}</p>${tl}
-    <h4>Today</h4><p>${esc(h.c)}</p>${h.p ? `<p>${esc(h.p)}</p>` : ''}${leadersHtml(f)}${link ? `<button class="flag" data-report="${esc(f.n + ' · story')}">Report an error</button>` : ''}</div>`;
+    <h4>Today</h4><p>${esc(h.c)}</p>${h.p ? `<p>${esc(h.p)}</p>` : ''}${leadersHtml(f)}${fullHistBtn(f)}${link ? `<button class="flag" data-report="${esc(f.n + ' · story')}">Report an error</button>` : ''}</div>`;
 }
 // Every chapter map a country is lit or noted on, oldest first: its whole history at a glance.
 let histIdx = null;
@@ -2278,8 +2284,7 @@ function placeCard(sel) {
   return `<div class="place"><span class="flag${sel.k === 'o' ? ' sea' : ''}" aria-hidden="true">${flagOf(sel)}</span><h2>${esc(sel.n)}</h2><button class="x" id="unsel" aria-label="Close">${IC.x}</button><span class="sub">${esc(kindLabel(sel))}</span></div>
     ${facts.length ? `<div class="facts">${facts.map(([k, v]) => `<div class="fact"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : ''}
     ${quizzable ? `<div class="status"><span class="${st(pn)}">Name · ${word(pn)}</span>${sel.cap[0] ? `<span class="${st(pc)}">Capital · ${word(pc)}</span>` : ''}</div>` : `<p class="hint">A territory: shown on the globe, not in the quiz.</p>`}
-    ${storyHtml(sel)}
-    ${sel.k === 'c' && sel.h && sel.h.t && (CTRACK_OF[sel.id] || !NATIVE || hasPlus()) ? `<button class="btn ct-full" data-fullhist="${sel.id}">${IC.clock}See full history${ctryLocked(sel.id) ? ` <small>${IC.star}Plus</small>` : ''}</button>` : ''}`;
+    ${storyHtml(sel)}`;
 }
 // The Explore home: a place of the day, and the three ways to learn.
 function placeOfDay() {
