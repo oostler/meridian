@@ -3334,9 +3334,9 @@ function bindMod(a) {
   if ($('#modQuiz')) $('#modQuiz').onclick = () => { buzz(8); startFinal(a.id); };
   if ($('#modRead')) $('#modRead').onclick = () => { const s = sheet.querySelector('.chs'); if (s) sheet.scrollTo({ top: sheet.scrollTop + s.getBoundingClientRect().top - sheet.getBoundingClientRect().top - 8, behavior: 'smooth' }); };
 }
-// Key facts: everything the Daily History asks about this chapter, so the Timeline teaches every answer.
+// Key facts: what the Daily History asks about this chapter, so the Timeline teaches the answers (the dozen most basic).
 function keyFacts(id) {
-  const fs = (BANK.hist || []).filter(x => x.ch === id).sort((x, y) => x.lvl - y.lvl);
+  const fs = (BANK.hist || []).filter(x => x.ch === id).sort((x, y) => x.lvl - y.lvl).slice(0, 12);
   return fs.length ? `<h4>Key facts</h4><ul class="kf">${fs.map(x => `<li>${esc(x.why)}</li>`).join('')}</ul>` : '';
 }
 // A chapter's story: what happened, why, what it changed, and the key dates.
@@ -3577,17 +3577,20 @@ function histPool() {
     if (rel && a.quiz) a.quiz.forEach((q, i) => chQs.push({ a, i }));
   }
   // On the world map, the hand-written world history questions join in too.
-  if (state.scope.id === 'world') for (const x of BANK.hist) { const a = anchorById[x.ch]; if (a && !plusLocked(a.id)) chQs.push({ a, x: bankQ(x) }); }
+  // The hand-written world history questions join in: all of them on the world map, otherwise those on chapters
+  // that involve this part of the world.
+  const relCh = new Set(chQs.map(q => q.a.id));
+  for (const x of BANK.hist) { const a = anchorById[x.ch]; if (a && !plusLocked(a.id) && (state.scope.id === 'world' || relCh.has(a.id))) chQs.push({ a, x: bankQ(x) }); }
   // "Which country…?" clues, from each place's history and what it's like today.
   const clues = state.scope.items.filter(f => f.h && f.h.q);
   return { mapQs, chQs, clues };
 }
 function startHistQuiz() {
-  // About half clues, then map questions, then chapter questions: ten in all.
+  // Mostly ideas, causes and turning points (six), with two place clues and two map questions: ten in all.
   const { mapQs, chQs, clues } = histPool(), seen = new Set(), maps = [];
-  const cs = shuffle(clues).slice(0, clues.length >= 4 ? 5 : 0);
+  const cs = shuffle(clues).slice(0, clues.length >= 4 ? 2 : 0), nMap = chQs.length >= 6 ? 2 : 5;
   for (const f of cs) seen.add(f.id);
-  for (const q of shuffle(mapQs)) { if (seen.has(q.f.id) || maps.length >= (cs.length ? 3 : 6)) continue; seen.add(q.f.id); maps.push(q); }
+  for (const q of shuffle(mapQs)) { if (seen.has(q.f.id) || maps.length >= nMap) continue; seen.add(q.f.id); maps.push(q); }
   const chs = shuffle(chQs).slice(0, 10 - cs.length - maps.length);
   const lists = [cs.map(f => ({ f, kind: 'clue', n: Math.random() * 3 | 0 })), maps.map(q => ({ q, kind: 'hmap' })), chs.map(h => ({ h, kind: 'hist' }))], queue = [];
   while (lists.some(l => l.length)) for (const l of lists) if (l.length) queue.push(l.shift());
@@ -4348,7 +4351,7 @@ const dqPts = (ok, left, ms) => ok ? 50 + Math.round(50 * Math.max(0, Math.min(1
 // Everyone must get the same questions, so all choices come from a generator seeded by the day and kind.
 // From day 27 (20 November 2026) the dailies use the hand-written banks and the clearly worded map questions.
 // Earlier days keep the old mix, so past leaderboards still match the questions people answered.
-const DQ_V3 = 27, DQ_CORE = 29;
+const DQ_V3 = 27, DQ_CORE = 29, DQ_CONCEPT = 30;
 // A bank is dealt out in a fixed shuffled order, a few a day, so nothing repeats until the whole bank is used.
 // Questions added later carry "from": the first day they may appear (always a future day), so adding questions never
 // changes a day that has already been played.
@@ -4379,8 +4382,12 @@ function dailyQs3(no, kind) {
   // knows, not the US, China or Canada tracks, and not the present-day "World now" chapter.
   const W = new Set(SCOPES.find(s => s.id === 'world').items.filter(f => f.k === 'c').map(f => f.id));
   const core = a => no < DQ_CORE || (trackOf(a) === 'world' && a.id !== 'now');
-  const pool = askableMapQs(f => W.has(f.id)).filter(x => core(x.a)), used = new Set(), usedMap = new Set(), maps = [];
-  for (const want of [1, 2, 2, 3]) {
+  // From day 30 (23 November 2026): eight questions on ideas, causes and turning points, and only two from the map,
+  // about big countries a well-read person would place (no 'when did Benin become independent?').
+  const KEY_C = new Set(['USA','CHN','IND','RUS','GBR','FRA','DEU','ITA','ESP','JPN','BRA','MEX','EGY','IRN','TUR','POL','KOR','ISR','SAU','IRQ','CAN','AUS','UKR','ARG','CUB','IDN','PAK','NGA','ZAF','VNM','GRC','PRT','NLD','ETH']);
+  const big = f => no < DQ_CONCEPT || KEY_C.has(f.id);
+  const pool = askableMapQs(f => W.has(f.id) && big(f)).filter(x => core(x.a) && (no < DQ_CONCEPT || x.lvl <= 2)), used = new Set(), usedMap = new Set(), maps = [];
+  for (const want of no < DQ_CONCEPT ? [1, 2, 2, 3] : [1, 2]) {
     // Pick a map first, then a place on it, so big maps (religions: 190 countries) don't crowd out the rest.
     const open = pool.filter(x => !used.has(x.f.id) && !usedMap.has(x.a.id + x.m)), lv = open.filter(x => x.lvl === want).length ? open.filter(x => x.lvl === want) : open;
     const keys = rs([...new Set(lv.map(x => x.a.id + '|' + x.m))]); if (!keys.length) continue;
