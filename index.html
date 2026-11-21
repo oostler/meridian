@@ -3987,15 +3987,27 @@ async function shareImage(kind, d) {
   x.font = `800 40px ${font}`; x.globalAlpha = .85; x.fillText('globegenius.io', W / 2, 1290);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
+// Shares text (and optionally an image) the best way the device allows: the iPhone share sheet in the app, the
+// browser's share sheet on phones, or copying to the clipboard on computers.
+async function shareOut({ text, url, blob }) {
+  if (NATIVE && window.MeridianNative && window.MeridianNative.share) {
+    const image = blob ? await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(null); r.readAsDataURL(blob); }) : null;
+    try { await window.MeridianNative.share({ text, url, image }); } catch (e) { if (!/cancel/i.test(String(e && e.message))) toast('Couldn’t open sharing'); }
+    return;
+  }
+  const file = blob && new File([blob], 'globe-genius.png', { type: 'image/png' });
+  try {
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) return await navigator.share({ files: [file], text });
+    if (navigator.share) return await navigator.share(url ? { text, url } : { text });
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const all = url && !text.includes(url) ? `${text} ${url}` : text;
+  navigator.clipboard?.writeText(all).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
+}
 async function shareResult(kind, d) {
   const K = DD_KIND[kind], score = ddScore(d), link = vsLink(kind, d);
   const text = `${APP_NAME} · ${K.title} ${K.emoji} ${ddDate(d.no)}${d.arc ? ' (played later)' : ''}\n${dailySquares(d)}\n${score}/1000${d.pct != null ? ` · ${topPct(d.pct)}` : ''}${streak() > 1 ? ` · 🔥${streak()}` : ''}\nCan you beat me? ${link}`;
-  try {
-    const blob = await shareImage(kind, d), file = blob && new File([blob], 'globe-genius.png', { type: 'image/png' });
-    if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
-  } catch (e) { if (e && e.name === 'AbortError') return; }
-  if (navigator.share) return navigator.share({ text }).catch(() => {});
-  navigator.clipboard?.writeText(text).then(() => toast('Copied. Paste it anywhere'), () => toast('Couldn\'t copy'));
+  let blob = null; try { blob = await shareImage(kind, d); } catch (e) {}
+  return shareOut({ text, blob });
 }
 // Per-question share answered right, from the m-keys in a day's counts: [pct0, …, pct9] (null when no data).
 function qRight(stats) {
@@ -4530,7 +4542,7 @@ function leagueSheet(code) {
       ${rows.map((m, i) => `<div class="lg-row${m.uid === me ? ' me' : ''}"><span>${i + 1}</span><span>${esc(m.name)}${m.tag ? ` <small>#${esc(m.tag)}</small>` : ''}</span><span>${m.g ?? '–'}</span><span>${m.h ?? '–'}</span><b>${m.g == null && m.h == null ? '–' : m.t}</b></div>`).join('')}</div>
       <button class="btn primary" id="lgInvite">${IC.share}Invite people</button><p class="hint" style="text-align:center">Code: <b>${esc(L.code)}</b></p>
       <button class="link quiet" id="lgLeave">Leave this league</button>`;
-    $('#lgInvite').onclick = () => { buzz(8); const t = `Join my Globe Genius league "${L.name}": two daily challenges, see who knows the world best. ${link}`; if (navigator.share) navigator.share({ text: t }).catch(() => {}); else navigator.clipboard?.writeText(t).then(() => toast('Invite copied')); };
+    $('#lgInvite').onclick = () => { buzz(8); shareOut({ text: `Join my Globe Genius league "${L.name}": two daily challenges, see who knows the world best.`, url: link }); };
     $('#lgLeave').onclick = () => { CLOUD.leagueLeave(L.code).then(() => { store.leagues = (store.leagues || []).filter(x => x.code !== L.code); save(); competeSheet(); }); };
   }, e => { if ($('#lgBody')) $('#lgBody').innerHTML = `<p class="hint">${lgError(e)}</p>`; });
 }
@@ -4603,7 +4615,7 @@ function raceRender() {
       <h4 class="home-h">${players.length} ${players.length === 1 ? 'player' : 'players'}</h4>
       <div class="lb">${players.map(p => `<div class="lb-row${p.uid === CLOUD.myId() ? ' me' : ''}">${avatar(p.name, p.uid)}<span class="lb-name">${who(p)}${p.uid === room.host ? ' · host' : ''}</span></div>`).join('')}</div>
 `);
-    $('#rcShare').onclick = () => { const t = `Race me on Globe Genius! Code ${race.code}`; if (navigator.share) navigator.share({ title: 'Globe Genius race', text: t, url: link }).catch(() => {}); else navigator.clipboard?.writeText(`${t}: ${link}`).then(() => toast('Invite link copied')); };
+    $('#rcShare').onclick = () => shareOut({ text: `Race me on Globe Genius! Code ${race.code}`, url: link });
     if ($('#rcGo')) $('#rcGo').onclick = () => { buzz(8); CLOUD.startQuestion(race.code, 0); };
   } else if (room.state === 'q') {
     const qi = room.qi, q = room.qs[qi], f = byId[q.id], mine = room.answers && room.answers[qi] && room.answers[qi][CLOUD.myId()];
