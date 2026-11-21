@@ -2593,6 +2593,9 @@ function ctryAnchor(id) {
   // Final-quiz questions on its part in history: which chapter saw it in a given role.
   const titles = [...new Set(trackList('world').map(x => x.title))];
   const xq = ms.map(x => ({ q: `In which chapter of history is ${nm} shown as "${x.g.label}"?`, a: [x.a.title, ...shuffle(titles.filter(t => t !== x.a.title && !ms.some(z => z.a.title === t))).slice(0, 3)], c: 0, why: x.note || `In ${x.a.title} (${x.a.years}).` }));
+  // A hand-written history replaces the generated one.
+  const hw = G.ctry && G.ctry[id];
+  if (hw) { const a = { id: key, ctry: id, track: 'country', xq: [], title: `The history of ${nm}`, years: '', maps: [], story: {}, lesson: hw }; anchorById[key] = a; return a; }
   const a = { id: key, ctry: id, track: 'country', xq, title: `The history of ${nm}`, years: '', maps: ms.map(x => x.M), story: {}, lesson: { units: units.filter(u => u.cards.length) } };
   anchorById[key] = a; return a;
 }
@@ -3314,7 +3317,7 @@ function modBlock(a) {
   const curI = cur ? ms.indexOf(cur) : n, onMap = a.lesson ? -9 : state.mapI || 0;
   const dl = doneList(a, r);
   const stop = (x, k) => { const s = dl.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
-    return `<button class="ms-stop ${s}${x.m === onMap ? ' on' : ''}" data-mstop="${x.m}" aria-label="${esc((momYears(x) || '') + ' ' + x.M.tab)}"><i></i><b>${esc(momYears(x) || x.M.tab)}</b><small>${esc(x.M.tab)}</small></button>`; };
+    return `<button class="ms-stop ${s}${x.m === onMap ? ' on' : ''}" data-mstop="${x.m}" aria-label="${esc((momYears(x) || '') + ' ' + x.M.tab)}"><i></i>${n > 5 ? `<b>${esc(x.M.tab)}</b>` : `<b>${esc(momYears(x) || x.M.tab)}</b><small>${esc(x.M.tab)}</small>`}</button>`; };
   const card = (x, k) => { const s = dl.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
     return `<button class="mom ${s}" data-mom="${x.m}"${s === 'lock' ? ' aria-disabled="true"' : ''}><b class="m-yr">${esc(momYears(x) || '•')}</b><span><b>${esc(x.M.title)}${s === 'done' ? ' ✓' : ''}</b><small>${s === 'done' ? 'Completed · tap to replay' : s === 'now' ? (x.U ? `Part ${k + 1} of ${n} · about ${Math.max(3, Math.round(x.U.cards.length * .4))} minutes` : `Moment ${k + 1} of ${n} · about 3 minutes`) : `Unlocks after ${esc(momYears(ms[k - 1]) || ms[k - 1].M.tab)}`}</small></span>${s === 'now' ? `<span class="m-go">${PLAY_IC}</span>` : s === 'lock' ? `<span class="m-lk">${IC.lock}</span>` : '<span></span>'}</button>`; };
   const NQ = a.lesson ? Math.min(HIST_N, finalQs(a).length) || HIST_N : HIST_N;
