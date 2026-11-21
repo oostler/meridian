@@ -79,6 +79,8 @@ window.__geo = fetch('geo-live.json').then(r => { if (!r.ok) throw new Error(r.s
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; margin: 0; }
 /* Like a native app: no double-tap or pinch zoom of the page itself (the globe keeps its own pinch and double-tap). */
 html, body, #sheet, #tabs, #top, button { touch-action: manipulation; }
+/* On phones, holding a finger on text shouldn't start text selection or the magnifier: it's an app, not a page. */
+@media (pointer: coarse) { body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; } input, textarea { -webkit-user-select: text; user-select: text; } }
 body { background: var(--space); color: var(--ink); font: 700 16px/1.4 var(--font); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
 button { font: inherit; color: inherit; cursor: pointer; -webkit-user-select: none; user-select: none; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
@@ -1781,6 +1783,8 @@ function dragEnd() {
   if (v > 0.35) pick = [...order].reverse().find(n => snaps[n] < sheetH - 4) || 'peek';
   else if (v < -0.35) pick = order.find(n => snaps[n] > sheetH + 4) || order[order.length - 1];
   else pick = order.reduce((a, n) => Math.abs(snaps[n] - sheetH) < Math.abs(snaps[a] - sheetH) ? n : a, order[0]);
+  // During a question the panel can't be swiped down out of the way: the question and its answer stay in view.
+  if (document.body.classList.contains('in-round') && pick === 'peek' && snaps.auto > snaps.peek + 4) pick = 'auto';
   setSnap(pick);
   refit(); // the padding moved with the finger; settle the globe into the new space
 }
