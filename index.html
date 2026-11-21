@@ -581,6 +581,32 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .lc-pool { display: grid; gap: 6px; }
 .lc-pool .opt.bad { animation: shake .4s; }
 .harrow { display: block; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 14px solid var(--ac); filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4)); pointer-events: none; }
+.ctry-dd { border: 2px solid var(--line); border-radius: 16px; padding: 6px; display: grid; gap: 2px; max-height: 340px; overflow: auto; background: var(--bg); }
+.ct-h { margin: 6px 8px 2px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); display: flex; gap: 6px; align-items: center; }
+.ct-h .ic { width: 14px; height: 14px; color: var(--gold-d); }
+.ct-q { margin: 2px 4px 4px; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 700; }
+.ct-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 12px; text-align: left; border: 0 !important; box-shadow: none !important; background: none !important; min-height: 0; }
+.ct-row:hover, .ct-row:focus-visible { background: var(--surface) !important; }
+.ct-row[hidden] { display: none; }
+.ct-row > span { font-size: 20px; width: 26px; text-align: center; }
+.ct-row b { flex: 1; font-weight: 800; }
+.ct-row small { color: var(--ink-3); font-weight: 800; font-size: 12px; }
+.ct-row i .ic { width: 15px; height: 15px; color: var(--gold-d); }
+.ct-head { display: flex; gap: 12px; align-items: center; }
+.ct-head .flag { font-size: 40px; line-height: 1; }
+.ct-head .yrs { font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.ct-head h2 { margin: 0; font-size: 26px; font-weight: 900; }
+.ct-mom small { display: flex; gap: 6px; align-items: center; }
+.ct-sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.ct-mom .ct-note { display: block; font-weight: 600; margin-top: 2px; line-height: 1.3; }
+.ct-full { width: 100%; }
+.ct-full small { display: inline-flex; gap: 3px; align-items: center; color: var(--gold-d); font-weight: 900; margin-left: 6px; }
+.ts-evs { display: grid; gap: 6px; }
+.ts-ev { display: grid; grid-template-columns: 64px 1fr; gap: 10px; text-align: left; padding: 10px 12px; border-radius: 14px; border: 2px solid var(--line); background: var(--bg); box-shadow: none; }
+.ts-ev > b { font-weight: 900; font-size: 13px; color: var(--sc, var(--blue)); line-height: 1.3; }
+.ts-ev > span { font-weight: 700; font-size: 14.5px; line-height: 1.35; display: grid; gap: 3px; }
+.ts-ev small { font-size: 11.5px; font-weight: 900; letter-spacing: .03em; color: var(--ink-3); text-transform: uppercase; }
+.ts-ev small.tag-us { color: var(--blue-d); } .ts-ev small.tag-cn { color: var(--red-d); } .ts-ev small.tag-ca { color: var(--red); } .ts-ev small.tag-plus { color: var(--gold-d); }
 .lc-key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .lc-key span { display: inline-flex; align-items: center; gap: 6px; }
 .lc-key i { width: 14px; height: 14px; border-radius: 4px; opacity: .8; }
@@ -1618,6 +1644,7 @@ else $('#zbase').hidden = true;
 let toastT;
 function toast(msg, ms = 1800) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('wrap', msg.length > 40); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
 // Tapping another player's name: report it, or hide that player from every board on this device.
+document.addEventListener('click', e => { const b = e.target.closest('[data-fullhist]'); if (!b) return; e.stopPropagation(); buzz(8); openCountry(b.dataset.fullhist); }, true);
 document.addEventListener('click', e => {
   const n = e.target.closest('[data-pl]'); if (!n) return;
   e.stopPropagation(); buzz(5);
@@ -2230,7 +2257,8 @@ function placeCard(sel) {
   return `<div class="place"><span class="flag${sel.k === 'o' ? ' sea' : ''}" aria-hidden="true">${flagOf(sel)}</span><h2>${esc(sel.n)}</h2><button class="x" id="unsel" aria-label="Close">${IC.x}</button><span class="sub">${esc(kindLabel(sel))}</span></div>
     ${facts.length ? `<div class="facts">${facts.map(([k, v]) => `<div class="fact"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : ''}
     ${quizzable ? `<div class="status"><span class="${st(pn)}">Name · ${word(pn)}</span>${sel.cap[0] ? `<span class="${st(pc)}">Capital · ${word(pc)}</span>` : ''}</div>` : `<p class="hint">A territory: shown on the globe, not in the quiz.</p>`}
-    ${storyHtml(sel)}`;
+    ${storyHtml(sel)}
+    ${sel.k === 'c' && sel.h && sel.h.t && (CTRACK_OF[sel.id] || !NATIVE || hasPlus()) ? `<button class="btn ct-full" data-fullhist="${sel.id}">${IC.clock}See full history${ctryLocked(sel.id) ? ` <small>${IC.star}Plus</small>` : ''}</button>` : ''}`;
 }
 // The Explore home: a place of the day, and the three ways to learn.
 function placeOfDay() {
@@ -2416,7 +2444,10 @@ function historySheet() {
   const hint = state.track === 'world' ? 'From the first cities to today, in five eras.' : plus ? `${list.length} longer stories on religions, empires, wars and ideas, each with maps and a quiz.` : `The story of ${({ us: 'the United States', cn: 'China', ca: 'Canada' })[state.track]}, state by state on the map.`;
   setSheet(`<div><div class="title">Timeline</div>${plus && !hasPlus() ? '' : `<p class="hint">${hint}</p>`}</div>
     <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
-    ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !hasPlus() ? ' class="faint"' : ''}>${t.id === 'plus' && !hasPlus() ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
+    ${(() => { const ct = CTRACK[state.track]; return `<div class="seg tracks" role="tablist"><button data-track="world" aria-pressed="${state.track === 'world'}">World</button>
+      <button id="ctryBtn" aria-pressed="${!!ct}" aria-expanded="false">${ct ? esc(byId[ct].n.replace('United States of America', 'United States')) : 'Countries'} ▾</button>
+      ${tracks.some(t => t.id === 'plus') ? `<button data-track="plus" aria-pressed="${plus}"${!hasPlus() ? ' class="faint"' : ''}>${!hasPlus() ? IC.lock : ''}Deep dives</button>` : ''}</div>
+      <div class="ctry-dd" id="ctryDD" hidden>${countryMenu()}</div>`; })()}
     ${locked ? plusHero(list) : ''}
     ${plus ? '' : (() => { const c = chCount(state.track); return `<div class="goalbar${c.k === c.n ? ' done' : ''}"><div class="gb-top"><b>${c.k ? IC.check : ''}${c.k} of ${c.n} chapters complete</b><span>Start anywhere</span></div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`; })()}
     <div class="chapters">${list.map((a, k) => {
@@ -2433,9 +2464,74 @@ function historySheet() {
   $('#goTime').onclick = () => { buzz(8); timeSheet(); fitTime(); };
   if ($('#plusUnlock')) $('#plusUnlock').onclick = () => { buzz(5); unlockSheet(); };
   if ($('#plusFree')) $('#plusFree').onclick = () => { buzz(5); eraSheet(PLUS_FREE); };
+  $('#ctryBtn').onclick = () => { buzz(5); const dd = $('#ctryDD'); dd.hidden = !dd.hidden; $('#ctryBtn').setAttribute('aria-expanded', String(!dd.hidden)); if (!dd.hidden && $('#ctryQ') && !matchMedia('(pointer: coarse)').matches) $('#ctryQ').focus(); };
+  bindCountryMenu();
   sheet.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { buzz(5); state.track = store.track = b.dataset.track; save(); historySheet(); sheet.scrollTop = 0; fitBox(G.views[{ us: 'us', cn: 'cn', ca: 'ca' }[state.track] || 'world']); });
   // The list reads as one journey from the first cities to today, so it opens at the top.
   updateTop(); draw();
+}
+// ---------- country histories ----------
+// Countries with their own full track are free; every other country's history is part of Plus.
+const CTRACK = { us: 'USA', cn: 'CHN', ca: 'CAN' }, CTRACK_OF = { USA: 'us', CHN: 'cn', CAN: 'ca' };
+const ctryName = f => f.n.replace('United States of America', 'United States');
+const ctryLocked = id => !CTRACK_OF[id] && !hasPlus();
+// Countries with a story, A to Z (the iPhone app lists only the ones a player can open).
+const histCountries = () => F.filter(f => f.k === 'c' && f.h && f.h.t && (!NATIVE || !ctryLocked(f.id))).sort((a, b) => ctryName(a).localeCompare(ctryName(b)));
+function countryMenu() {
+  const free = ['CAN', 'USA', 'CHN'].map(id => byId[id]).filter(Boolean), rest = histCountries().filter(f => !CTRACK_OF[f.id]);
+  const row = f => `<button class="ct-row" data-ctry="${f.id}" data-n="${esc(ctryName(f).toLowerCase())}"><span>${flagOf(f)}</span><b>${esc(ctryName(f))}</b>${ctryLocked(f.id) ? `<i>${IC.lock}</i>` : CTRACK_OF[f.id] ? `<small>${trackList(CTRACK_OF[f.id]).length} chapters</small>` : ''}</button>`;
+  return `<p class="ct-h">Free</p>${free.map(row).join('')}
+    ${rest.length ? `<p class="ct-h">${hasPlus() ? 'Every country' : `${IC.star}With Plus · ${rest.length} countries`}</p><input id="ctryQ" class="ct-q" type="search" placeholder="Find a country" autocomplete="off" aria-label="Find a country">${rest.map(row).join('')}` : ''}`;
+}
+function bindCountryMenu() {
+  sheet.querySelectorAll('[data-ctry]').forEach(b => b.onclick = () => { buzz(5); openCountry(b.dataset.ctry); });
+  const q = $('#ctryQ');
+  if (q) q.oninput = () => { const v = q.value.trim().toLowerCase(); sheet.querySelectorAll('#ctryDD [data-ctry]').forEach(b => { if (!CTRACK_OF[b.dataset.ctry]) b.hidden = !!v && !b.dataset.n.includes(v); }); };
+}
+// From anywhere (the country menu, or "See full history" on a country card).
+function openCountry(id) {
+  const t = CTRACK_OF[id];
+  if (t) { state.track = store.track = t; save(); state.sel = null; setTab('history'); historySheet(); sheet.scrollTop = 0; fitBox(G.views[t]); return; }
+  countrySheet(id);
+}
+// Where a country appears across the world timeline: each chapter map it's on, its part there, in time order.
+function countryMoments(f) {
+  const out = [], pid = parentId(f);
+  for (const a of trackList('world')) {
+    (a.maps || []).forEach((M, m) => {
+      const gi = M.groups.findIndex(g => (g.full || []).includes(f.id) || (g.part || []).includes(f.id));
+      if (gi < 0) return;
+      const note = M.notes && (M.notes[f.id] || M.notes[pid]);
+      out.push({ a, m, M, g: M.groups[gi], note, y: M.yr ? M.yr[0] : 0 });
+    });
+  }
+  // One line per chapter: the map with a note first, else its first map.
+  const by = new Map(); for (const x of out) { const o = by.get(x.a.id); if (!o || (!o.note && x.note)) by.set(x.a.id, x); }
+  return [...by.values()].sort((p, q) => trackList('world').indexOf(p.a) - trackList('world').indexOf(q.a));
+}
+function countrySheet(id) {
+  const f = byId[id]; if (!f || !f.h) return;
+  clearTimeout(advanceT); keyHandler = null;
+  state.mode = 'explore'; state.era = null; state.sel = f; state.target = null; state.solved.clear();
+  setRound(false); setTab('history');
+  const lk = ctryLocked(id), h = f.h, ms = countryMoments(f), first = h.t.split(/(?<=\.)\s/)[0];
+  setSheet(`<button class="back" id="ctBack">${IC.back}Timeline</button>
+    <div class="ct-head"><span class="flag">${flagOf(f)}</span><div><span class="yrs">Country history</span><h2>${esc(ctryName(f))}</h2></div></div>
+    ${lk ? `<p class="ml-t">${esc(first)}</p>
+      <div class="pwall"><span class="ptag">${IC.star}Globe Genius Plus</span><h3>The full history of ${esc(ctryName(f))}</h3>
+        <p>Its story from the first peoples to today, every chapter it played a part in (${ms.length} on the world timeline), and the picture today.</p>
+        <button class="btn pbtn" id="ctPlus">${IC.star}${PLUS_LIVE ? 'Unlock with Plus' : 'Coming soon'}</button>
+        <p class="pfine">Canada, the United States and China are free, each with its own full timeline.</p></div>`
+    : `<div class="chs"><h4>Its story</h4><p>${esc(h.t)}</p>
+      ${ms.length ? `<h4>Through the ages</h4><p class="hint">Every chapter of the world timeline it was part of. Tap one to see it on the map.</p>
+        <div class="chapters">${ms.map(x => `<button class="chapter tile ct-mom" style="--sc:${secColor[x.a.id]}" data-cm="${x.a.id}:${x.m}"><span class="yr">${esc(x.a.years.replace('–', '–\n'))}</span><span><b>${esc(x.a.title)}</b><small><i class="ct-sw" style="background:${PAL[x.g.color]}"></i>${esc(x.g.label)}</small>${x.note ? `<small class="ct-note">${esc(x.note)}</small>` : ''}</span>${IC.next}</button>`).join('')}</div>` : ''}
+      ${h.c ? `<h4>Culture</h4><p>${esc(h.c)}</p>` : ''}
+      ${h.p ? `<h4>Today</h4><p>${esc(h.p)}</p>` : ''}</div>`}
+    <button class="flag" data-report="${esc(ctryName(f) + ' · country history')}">Report an error</button>`);
+  $('#ctBack').onclick = () => { state.sel = null; historySheet(); fitBox(G.views.world); };
+  if ($('#ctPlus')) $('#ctPlus').onclick = () => { buzz(5); if (PLUS_LIVE) paywallSheet('country', () => countrySheet(id)); else toast('Plus is coming soon'); };
+  sheet.querySelectorAll('[data-cm]').forEach(b => b.onclick = () => { buzz(5); const [aid, m] = b.dataset.cm.split(':'); state.sel = null; eraSheet(aid, false, +m); state.sel = f; eraSheet(aid, true); showOnGlobe(f); });
+  sheet.scrollTop = 0; showOnGlobe(f); draw();
 }
 // ---------- time slider ----------
 // Every chapter map is dated from its title (built into M.yr). The slider steps through the years that have a
@@ -2450,10 +2546,23 @@ function timeStops() {
     const ys = (a.maps || []).filter(M => M.yr), span = a.yr ? a.yr[1] - a.yr[0] : ys.length ? Math.max(...ys.map(M => M.yr[1])) - Math.min(...ys.map(M => M.yr[0])) : 1e9;
     ys.forEach(M => maps.push({ a, m: a.maps.indexOf(M), M, from: M.yr[0], to: M.yr[1], span, rank: trackOf(a) === 'world' ? 0 : trackOf(a) === 'plus' ? 2 : 1 }));
   }
-  const years = [...new Set(maps.map(x => x.from))].sort((p, q) => p - q);
-  timeline = { plus: hasPlus(), maps, years };
+  // Every chapter's key dates, from every track, as events on the slider (only where a map covers the year).
+  const evs = [];
+  for (const a of ANCHORS) {
+    if (plusLocked(a.id) || !a.story || !a.story.dates) continue;
+    for (const [yt, t] of a.story.dates) { const y = evYear(yt); if (y != null && maps.some(x => x.from <= y && y <= x.to)) evs.push({ y, yt, t, a }); }
+  }
+  evs.sort((p, q) => p.y - q.y);
+  const years = [...new Set([...maps.map(x => x.from), ...evs.map(e => e.y)])].sort((p, q) => p - q);
+  timeline = { plus: hasPlus(), maps, years, evs };
   return timeline;
 }
+// "1942–43", "c. 3500 BC", "AD 632", "1500s" → a year (BC negative).
+function evYear(t) {
+  const s = String(t).replace(/,(\d{3})/g, '$1'), m = s.match(/\d+/); if (!m) return null;
+  const n = +m[0]; return /BC|BCE/.test(s) ? -n : /years ago/i.test(s) ? 2000 - n : n;
+}
+const TRACK_TAG = { world: 'World', us: 'US', cn: 'China', ca: 'Canada', plus: 'Deep dive' };
 // What was happening in a given year: maps whose span covers it. A map that starts that year comes first (so every
 // stop shows its own map), then the world story, then the chapter that is about that moment (the First World War
 // in 1914, not the Ottomans' six centuries).
@@ -2470,6 +2579,9 @@ function timeSheet(i, pick) {
   setRound(false); setTab('history');
   const M = cur.M, sc = ERA_COLOR[cur.a.sec] || secColor[cur.a.id] || 'var(--blue)';
   const others = here.filter(x => x !== cur).filter((x, k, arr) => arr.findIndex(z => z.a.id === x.a.id) === k).slice(0, 8);
+  // Events from this stop up to the next one, world first.
+  const nextY = years[i + 1] != null ? years[i + 1] : Infinity, tl = timeStops();
+  const evs = tl.evs.filter(e => e.y >= y && e.y < nextY).sort((p, q) => (trackOf(p.a) !== 'world') - (trackOf(q.a) !== 'world')).slice(0, 8);
   setSheet(`<button class="back" id="tsBack">${IC.back}Timeline</button>
     <div class="ts" style="--sc:${sc}">
       <div class="ts-year"><b>${fmtYear(y)}</b><button class="ts-play" id="tsPlay" aria-label="${state.timePlay ? 'Pause' : 'Play through history'}">${state.timePlay ? '❚❚' : '▶'}</button></div>
@@ -2477,6 +2589,7 @@ function timeSheet(i, pick) {
       <div class="ts-ends"><span>${fmtYear(years[0])}</span><span>${fmtYear(years[years.length - 1])}</span></div>
       <div class="ts-steps"><button class="btn" id="tsPrev" aria-label="Earlier" ${i ? '' : 'disabled'}>${IC.back}</button><button class="btn" id="tsNext" aria-label="Later" ${i < years.length - 1 ? '' : 'disabled'}>${IC.next}</button></div>
     </div>
+    ${evs.length ? `<div class="ts-evs">${evs.map(e => `<button class="ts-ev" data-tea="${e.a.id}"><b>${esc(e.yt)}</b><span>${esc(e.t)}<small class="tag-${trackOf(e.a)}">${TRACK_TAG[trackOf(e.a)]} · ${esc(e.a.title)}</small></span></button>`).join('')}</div>` : ''}
     <div class="hmap ts-map"><span class="yrs" style="color:${sc}">${esc(cur.a.title)}</span><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
       <div class="legend ts-legend">${M.groups.map(g => `<div class="lrow"><i style="--gc:${PAL[g.color]}"></i><b>${esc(g.label)}</b></div>`).join('')}</div>
       <button class="btn" id="tsOpen">Open the chapter</button></div>
@@ -2492,6 +2605,7 @@ function timeSheet(i, pick) {
   $('#tsPlay').onclick = () => { buzz(5); if (state.timePlay) { stopPlay(); timeSheet(); } else playTime(); };
   $('#tsOpen').onclick = () => { stopPlay(); eraSheet(cur.a.id, false, cur.m); };
   $('#tsBack').onclick = () => { stopPlay(); state.era = null; historySheet(); fitBox(G.views.world); };
+  sheet.querySelectorAll('[data-tea]').forEach(b => b.onclick = () => { buzz(5); stopPlay(); eraSheet(b.dataset.tea); });
   sheet.querySelectorAll('[data-tsa]').forEach(b => b.onclick = () => { buzz(5); stopPlay(); timeSheet(i, { a: b.dataset.tsa, m: +b.dataset.tsm }); fitTime(); });
   sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { const f = byId[b.dataset.id]; if (f) showOnGlobe(f); });
   keyHandler = null;
@@ -2543,7 +2657,7 @@ async function refreshPlus() {
   } catch (e) {}
 }
 // The Plus offer. reason picks the headline; back() returns to where the player was.
-const PW = { dive: 'Unlock every deep dive', archive: 'Play every past challenge', repair: 'Repair your streak', stats: 'See your stats', league: 'Start a private league' };
+const PW = { country: 'Every country’s full history', dive: 'Unlock every deep dive', archive: 'Play every past challenge', repair: 'Repair your streak', stats: 'See your stats', league: 'Start a private league' };
 function paywallSheet(reason, back = homeSheet) {
   if (hasPlus()) return back();
   if (!PLUS_LIVE) { toast('Plus is coming soon'); return back(); }
