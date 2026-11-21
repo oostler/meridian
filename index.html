@@ -579,6 +579,10 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .lc-ord li b { width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 13px; flex: none; }
 .lc-pool { display: grid; gap: 6px; }
 .lc-pool .opt.bad { animation: shake .4s; }
+.harrow { display: block; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 14px solid var(--ac); filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4)); pointer-events: none; }
+.lc-key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.lc-key span { display: inline-flex; align-items: center; gap: 6px; }
+.lc-key i { width: 14px; height: 14px; border-radius: 4px; opacity: .8; }
 .mod-lock { display: flex; gap: 6px; align-items: center; justify-content: center; margin: 0; font-size: 13px; font-weight: 800; color: var(--ink-3); }
 .mod-lock .ic { width: 14px; height: 14px; }
 .md-note { border-radius: 16px; padding: 12px 14px; background: var(--green-l); border: 2px solid var(--green); display: grid; gap: 3px; }
@@ -2041,7 +2045,7 @@ const eraMembers = id => LAYER.filter(f => f.h && f.h.a.includes(id));
 const PAL = { red: '#e03131', blue: '#2846c4', gold: '#f2a900', green: '#2f9e44', purple: '#8f3fe0', teal: '#0c9c9c', orange: '#f76707', pink: '#d6336c', brown: '#96693d', slate: '#5c7684', navy: '#283c8c', lime: '#82b81a' };
 const parentId = f => f.k === 's' ? 'USA' : f.k === 'p' ? 'CAN' : f.k === 'r' && !['HKG', 'MAC'].includes(f.id) ? 'CHN' : f.id;
 let roleCache = null, roleFor = null;
-const curMap = () => { const a = anchorById[state.era]; return a && a.maps && state.mapI !== -1 ? a.maps[Math.min(state.mapI || 0, a.maps.length - 1)] : null; };
+const curMap = () => { if (state.lmap && state.mode === 'era') return state.lmap; const a = anchorById[state.era]; return a && a.maps && state.mapI !== -1 ? a.maps[Math.min(state.mapI || 0, a.maps.length - 1)] : null; };
 function histRole(f) {
   const M = curMap(); if (!M) return null;
   if (roleFor !== M) {
@@ -2057,17 +2061,26 @@ function roleLine(f) {
   const g = M.groups[r.gi];
   return `<p class="role"><i style="background:${PAL[g.color]}"></i><span>${esc(g.label)}${r.part ? `<small> · part of today's ${esc(f.n)}</small>` : ''}</span></p>`;
 }
-let histPins = [], pinsFor = null;
+let histPins = [], histArrows = [], pinsFor = null;
 function drawHist() {
   const M = state.mode === 'era' ? curMap() : null;
   if (pinsFor === M) return;
   pinsFor = M;
-  for (const m of histPins) m.remove();
-  histPins = [];
+  for (const m of [...histPins, ...histArrows]) m.remove();
+  histPins = []; histArrows = [];
   // A route across the 180° line (a Pacific voyage) keeps going the short way instead of circling the globe.
   const unwrap = pts => { let prev; return pts.map(([x, y]) => { if (prev != null) x += Math.round((prev - x) / 360) * 360; prev = x; return [x, y]; }); };
   const lines = (M && M.lines || []).map(l => ({ type: 'Feature', properties: { c: PAL[l.color] || PAL.gold }, geometry: { type: 'LineString', coordinates: unwrap(l.pts) } }));
   map.getSource('hist')?.setData({ type: 'FeatureCollection', features: lines });
+  // Lesson routes end in an arrowhead pointing the way they go (borders, in slate, don't).
+  for (const l of M && M.lines || []) {
+    if (!l.arrow || l.pts.length < 2) continue;
+    const [p1, p2] = l.pts.slice(-2), dx = p2[0] - p1[0], dy = (p2[1] - p1[1]) * 1.3;
+    const el = document.createElement('i'); el.className = 'harrow'; el.style.setProperty('--ac', PAL[l.color] || PAL.gold);
+    el.style.transform = `rotate(${Math.atan2(-dy, dx) * 180 / Math.PI}deg)`;
+    const w = document.createElement('div'); w.append(el);
+    histArrows.push(new maplibregl.Marker({ element: w, anchor: 'center' }).setLngLat(p2).addTo(map));
+  }
   for (const p of M && M.pins || []) {
     const el = document.createElement('button'); el.className = 'hpin'; el.innerHTML = `<i></i><span>${esc(p.n)}</span>`;
     if (p.note) el.onclick = e => { e.stopPropagation(); buzz(5); toast(p.n + ': ' + p.note, 4200); };
@@ -2619,6 +2632,7 @@ function eraSheet(id, keepView, mapI) {
   clearTimeout(advanceT); keyHandler = null;
   const a0 = anchorById[id]; if (!a0) return;
   if (plusLocked(id)) return unlockSheet(id);
+  state.lmap = null;
   const TL = trackList(trackOf(a0)), i = TL.indexOf(a0), a = a0;
   state.track = trackOf(a);
   const fresh = state.mode !== 'era' || state.era !== id;
@@ -2892,6 +2906,12 @@ function lessonCard(c) {
   }
   return '';
 }
+// A card's own globe scene, shaped like a chapter map so the globe draws it the same way.
+function lessonScene(g) {
+  return { groups: (g.hl || []).map(([color, full, label]) => ({ color, full, label: label || '' })),
+    pins: (g.pins || []).map(([n, x, y, note]) => ({ n, l: [x, y], note })),
+    lines: (g.lines || []).map(([color, pts, label]) => ({ color, pts, label: label || '', arrow: color !== 'slate' && !/Line|line|Curtain/.test(label || '') })), box: g.box };
+}
 function startUnit(a, k) {
   if (plusLocked(a.id)) return unlockSheet(a.id);
   const U = a.lesson.units[k]; if (!U) return;
@@ -2899,7 +2919,7 @@ function startUnit(a, k) {
   clearTimeout(advanceT); stopPlay();
   state.mode = 'era'; state.era = a.id; state.sel = null; state.hq = null; state.target = null; state.flash = null; state.histrun = true;
   setRound(true); setTab('history'); gainStart();
-  const quit = () => { state.histrun = false; keyHandler = null; state.focusG = null; state.target = null; state.mapI = Math.max(0, U.map || 0); setRound(false); eraSheet(a.id); };
+  const quit = () => { state.histrun = false; keyHandler = null; state.focusG = null; state.target = null; state.mapI = Math.max(0, U.map || 0); state.lmap = null; setRound(false); eraSheet(a.id); };
   let i = 0, right = 0, asked = 0;
   const answered = new Set();
   const show = () => {
@@ -2907,23 +2927,29 @@ function startUnit(a, k) {
     if (c.t === 'quiz' && !c.ord) c.ord = shuffle(c.a.map((_, j) => j));
     if (c.t === 'order' && !c.mix) { do c.mix = shuffle(c.items.map((_, j) => j)); while (c.mix.every((v, j) => v === j)); }
     // The globe: the card's map (and group), else the part's.
-    // A card or part with no map (map: null) shows the plain globe.
+    // The globe. A card's own scene (g: countries to light, pins, routes, a frame) comes first; else the card's
+    // chapter map (and group), else the part's; a part with no map (map: null) shows the plain globe.
+    let fitTo = null;
+    state.lmap = c.g ? lessonScene(c.g) : null;
     const [m, g] = c.map || (U.map == null ? [-1] : [U.map]);
-    if (m === -1) { state.mapI = -1; state.focusG = null; fitBox(U.box || (a.maps && a.maps[0] ? a.maps[0].box || mapBox(a.maps[0]) : G.views.world)); }
+    if (state.lmap) { state.focusG = null; const bx = c.g.box || mapBox(state.lmap); fitTo = (bx === G.views.world && U.box ? U.box : bx); }
+    else if (m === -1) { state.mapI = -1; state.focusG = null; fitTo = (U.box || (a.maps && a.maps[0] ? a.maps[0].box || mapBox(a.maps[0]) : G.views.world)); }
     else if (a.maps && a.maps[m]) {
       const M = a.maps[m]; state.mapI = m; state.focusG = g == null ? null : g;
       const box = g == null ? null : mapBox({ groups: [M.groups[g]] });
-      fitBox(box && box !== G.views.world ? box : M.box || mapBox(M));
+      fitTo = (box && box !== G.views.world ? box : M.box || mapBox(M));
     }
     setSheet(`<div class="qhead"><button class="qx" id="ulX" aria-label="Close">${IC.x}</button><div class="qbar"><i style="width:${i / n * 100}%"></i></div></div>
       <span class="pill hist">${esc(yrs ? yrs + ' · ' : '')}${esc(U.title)}</span>
-      <div class="lcard lc-${c.t}">${lessonCard(c)}</div>
+      <div class="lcard lc-${c.t}">${lessonCard(c)}${c.g && c.g.hl && c.g.hl.some(h => h[2]) ? `<div class="lc-key">${c.g.hl.filter(h => h[2]).map(([k, , l]) => `<span><i style="background:${PAL[k]}"></i>${esc(l)}</span>`).join('')}</div>` : ''}</div>
       <div class="ml-nav">${i ? `<button class="btn" id="mlBack" aria-label="Back">${IC.back}</button>` : ''}<button class="btn primary" id="mlNext"${check && !answered.has(i) ? ' disabled' : ''}>${i + 1 < n ? 'Continue' : 'Finish'}</button></div>
       <button class="flag" data-report="${esc(a.title + ' · ' + U.title + ' · card ' + (i + 1))}">Report an error</button>`);
     sheet.scrollTop = 0;
+    // Frame the globe once the card is in, so the frame fits the space the card leaves.
+    if (fitTo) requestAnimationFrame(() => fitBox(fitTo));
     $('#ulX').onclick = quit;
     const nextB = $('#mlNext');
-    const next = () => { if (nextB.disabled) return; buzz(5); if (i + 1 < n) { i++; show(); } else { state.histrun = false; keyHandler = null; state.focusG = null; state.mapI = Math.max(0, state.mapI); momentDone(a, k, right, asked); } };
+    const next = () => { if (nextB.disabled) return; buzz(5); if (i + 1 < n) { i++; show(); } else { state.histrun = false; keyHandler = null; state.focusG = null; state.mapI = Math.max(0, state.mapI); state.lmap = null; momentDone(a, k, right, asked); } };
     nextB.onclick = next;
     if ($('#mlBack')) $('#mlBack').onclick = () => { buzz(5); i--; show(); };
     const done = (ok, title, why) => {
