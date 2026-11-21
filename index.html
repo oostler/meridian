@@ -586,7 +586,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .lc-pool { display: grid; gap: 6px; }
 .lc-pool .opt.bad { animation: shake .4s; }
 .harrow { display: block; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 14px solid var(--ac); filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4)); pointer-events: none; }
-.ctry-dd { border: 2px solid var(--line); border-radius: 16px; padding: 6px; display: grid; gap: 2px; max-height: 340px; overflow: auto; background: var(--bg); }
+.ctry-dd { border: 2px solid var(--line); border-radius: 16px; padding: 6px; display: grid; gap: 2px; background: var(--bg); }
 .ct-h { margin: 6px 8px 2px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); display: flex; gap: 6px; align-items: center; }
 .ct-h .ic { width: 14px; height: 14px; color: var(--gold-d); }
 .ct-q { margin: 2px 4px 4px; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 700; }
@@ -1197,11 +1197,23 @@ const SCOPES = [
 const SPLIT = ['USA', 'CAN', 'CHN'];
 for (const s of SCOPES) s.items = F.filter(s.test);
 
+// A new player starts on their own continent, guessed from the device's time zone (nothing leaves the device).
+function homeContinent() {
+  let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  const [r, c = ''] = tz.split('/'), SA = /^(Sao_Paulo|Argentina|Buenos_Aires|Santiago|Punta_Arenas|Lima|Bogota|Caracas|La_Paz|Asuncion|Montevideo|Guayaquil|Cayenne|Paramaribo|Guyana|Fortaleza|Recife|Belem|Manaus|Bahia|Cuiaba|Porto_Velho|Boa_Vista|Rio_Branco|Campo_Grande|Araguaina|Maceio|Santarem|Noronha)/;
+  if (r === 'America') return SA.test(c) ? 'South America' : 'North America';
+  if (r === 'Europe' || r === 'Arctic' || /^(Reykjavik|Faroe|Madeira|Canary|Azores)/.test(c) && r === 'Atlantic') return 'Europe';
+  if (r === 'Africa' || r === 'Indian' && /^(Mauritius|Reunion|Mayotte|Comoro|Antananarivo|Mahe)/.test(c)) return 'Africa';
+  if (r === 'Asia' || r === 'Indian') return 'Asia';
+  if (r === 'Australia' || r === 'Pacific' && c !== 'Honolulu') return 'Oceania';
+  if (c === 'Honolulu') return 'North America';
+  return 'world';
+}
 // ---------- storage ----------
 const KEY = 'meridian:v1', OLD_KEY = 'atlas-drill:v1';
 let store = { prog: {}, scope: 'world', subj: 'name' };
 // Progress saved under the app's earlier name carries over.
-try { const raw = localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
+try { const raw = localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); else store.scope = homeContinent(); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} try { syncSoon(); } catch (e) { /* during start-up, before the sync code has run */ } }
 // Appearance: Automatic is night mode from 7pm to 7am (or whenever the device is in dark mode); or fixed light or dark.
 const isNight = () => { const h = new Date().getHours(); return h >= 19 || h < 7; };
@@ -2450,8 +2462,8 @@ function historySheet() {
   setSheet(`<div><div class="title">Timeline</div>${plus && !hasPlus() ? '' : `<p class="hint">${hint}</p>`}</div>
     <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
     ${(() => { const ct = CTRACK[state.track]; return `<div class="seg tracks" role="tablist"><button data-track="world" aria-pressed="${state.track === 'world'}">World</button>
-      <button id="ctryBtn" aria-pressed="${!!ct}" aria-expanded="false">${ct ? esc(byId[ct].n.replace('United States of America', 'United States')) : 'Countries'} ▾</button>
-      ${tracks.some(t => t.id === 'plus') ? `<button data-track="plus" aria-pressed="${plus}"${!hasPlus() ? ' class="faint"' : ''}>${!hasPlus() ? IC.lock : ''}Deep dives</button>` : ''}</div>
+      ${tracks.some(t => t.id === 'plus') ? `<button data-track="plus" aria-pressed="${plus}"${!hasPlus() ? ' class="faint"' : ''}>${!hasPlus() ? IC.lock : ''}Deep dives</button>` : ''}
+      <button id="ctryBtn" aria-pressed="${!!ct}" aria-expanded="false">${ct ? esc(byId[ct].n.replace('United States of America', 'United States')) : 'Countries'} ▾</button></div>
       <div class="ctry-dd" id="ctryDD" hidden>${countryMenu()}</div>`; })()}
     ${locked ? plusHero(list) : ''}
     ${plus ? '' : (() => { const c = chCount(state.track); return `<div class="goalbar${c.k === c.n ? ' done' : ''}"><div class="gb-top"><b>${c.k ? IC.check : ''}${c.k} of ${c.n} chapters complete</b><span>Start anywhere</span></div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`; })()}
