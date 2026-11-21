@@ -2528,12 +2528,44 @@ function countryMoments(f) {
   const by = new Map(); for (const x of out) { const o = by.get(x.a.id); if (!o || (!o.note && x.note)) by.set(x.a.id, x); }
   return [...by.values()].sort((p, q) => trackList('world').indexOf(p.a) - trackList('world').indexOf(q.a));
 }
+// A country's interactive lesson, built from its own data: its story (with the country lit on the globe), each
+// world-timeline chapter it was part of (on that chapter's map), its culture and today, with checks drawn from its
+// clues. It is registered as a chapter ('ct-<id>') so progress, streaks and the final quiz work as for any other.
+// A frame around a country's mainland, sized from its area (overseas territories would stretch a plain bounding box).
+function ctryBox(f) {
+  const sp = Math.min(70, Math.max(9, Math.sqrt(f.ar || 1e5) / 111 * 2.2)), [x, y] = f.l;
+  return [x - sp * 0.8, Math.max(-75, y - sp / 2), x + sp * 0.8, Math.min(80, y + sp / 2)];
+}
+function ctryAnchor(id) {
+  const key = 'ct-' + id; if (anchorById[key]) return anchorById[key];
+  const f = byId[id]; if (!f || !f.h || !f.h.t) return null;
+  const h = f.h, nm = ctryName(f), ms = countryMoments(f).slice(0, 8), here = { hl: [['blue', [id], nm]], box: ctryBox(f) };
+  const others = shuffle(F.filter(x => x.k === 'c' && x.id !== id && x.co.some(c => f.co.includes(c))));
+  const clueQ = q => q && others.length >= 3 ? { t: 'quiz', q, a: [nm, ...others.slice(0, 3).map(ctryName)], c: 0, why: `It is ${nm}.`, g: here } : null;
+  // The story in short cards of two or three sentences.
+  const ss = h.t.split(/(?<=[.!?])\s+(?=[A-Z0-9])/), parts = [];
+  for (let i = 0; i < ss.length;) { const n = ss.length - i <= 4 ? ss.length - i : 3; parts.push(ss.slice(i, i + n).join(' ')); i += n; }
+  const heads = ['Where it begins', 'What happened next', 'Into modern times', 'Recent history'];
+  const units = [{ tab: 'Story', title: `The story of ${nm}`, y: null, map: null, box: here.box, cards: [
+    ...parts.map((p, k) => ({ t: 'read', h: heads[Math.min(k, 3)], p, g: here })), clueQ(h.q && h.q[0])].filter(Boolean) }];
+  if (ms.length) units.push({ tab: 'Through the ages', title: `${nm} in world history`, y: null, map: null, box: here.box, cards: [
+    ...ms.map((x, k) => ({ t: 'read', h: `${x.a.years} · ${x.a.title}`, p: `${nm}: ${x.g.label}.${x.g.sub ? ` ${x.g.sub}.` : ''}${x.note ? `\n\n${x.note}` : ''}`.replace(/\.\./g, '.'), map: [k, x.M.groups.indexOf(x.g)] })),
+    ...(ms.length >= 3 ? [{ t: 'order', h: `Put ${nm}'s chapters in order`, items: ms.slice(0, 5).map(x => x.a.title) }] : []),
+    clueQ(h.q && h.q[1])].filter(Boolean) });
+  units.push({ tab: 'Today', title: `${nm} today`, y: null, map: null, box: here.box, cards: [
+    ...(h.c ? [{ t: 'read', h: 'Culture', p: h.c, g: here }] : []), ...(h.p ? [{ t: 'read', h: 'Today', p: h.p, g: here }] : []), clueQ(h.q && h.q[2])].filter(Boolean) });
+  // Final-quiz questions on its part in history: which chapter saw it in a given role.
+  const titles = [...new Set(trackList('world').map(x => x.title))];
+  const xq = ms.map(x => ({ q: `In which chapter of history is ${nm} shown as "${x.g.label}"?`, a: [x.a.title, ...shuffle(titles.filter(t => t !== x.a.title && !ms.some(z => z.a.title === t))).slice(0, 3)], c: 0, why: x.note || `In ${x.a.title} (${x.a.years}).` }));
+  const a = { id: key, ctry: id, track: 'country', xq, title: `The history of ${nm}`, years: '', maps: ms.map(x => x.M), story: {}, lesson: { units: units.filter(u => u.cards.length) } };
+  anchorById[key] = a; return a;
+}
 function countrySheet(id) {
   const f = byId[id]; if (!f || !f.h) return;
   clearTimeout(advanceT); keyHandler = null;
   state.mode = 'explore'; state.era = null; state.sel = f; state.target = null; state.solved.clear();
   setRound(false); setTab('history');
-  const lk = ctryLocked(id), h = f.h, ms = countryMoments(f), first = h.t.split(/(?<=\.)\s/)[0];
+  const lk = ctryLocked(id), h = f.h, ms = countryMoments(f), first = h.t.split(/(?<=\.)\s/)[0], A = lk ? null : ctryAnchor(id);
   setSheet(`<button class="back" id="ctBack">${IC.back}Timeline</button>
     <div class="ct-head"><span class="flag">${flagOf(f)}</span><div><span class="yrs">Country history</span><h2>${esc(ctryName(f))}</h2></div></div>
     ${lk ? `<p class="ml-t">${esc(first)}</p>
@@ -2541,15 +2573,16 @@ function countrySheet(id) {
         <p>Its story from the first peoples to today, every chapter it played a part in (${ms.length} on the world timeline), and the picture today.</p>
         <button class="btn pbtn" id="ctPlus">${IC.star}${PLUS_LIVE ? 'Unlock with Plus' : 'Coming soon'}</button>
         <p class="pfine">Canada, the United States and China are free, each with its own full timeline.</p></div>`
-    : `<div class="chs"><h4>Its story</h4><p>${esc(h.t)}</p>
+    : `${A ? modBlock(A) : ''}${A && !chDone(A.id) ? '' : `<div class="chs"><h4>Its story</h4><p>${esc(h.t)}</p>
       ${ms.length ? `<h4>Through the ages</h4><p class="hint">Every chapter of the world timeline it was part of. Tap one to see it on the map.</p>
         <div class="chapters">${ms.map(x => `<button class="chapter tile ct-mom" style="--sc:${secColor[x.a.id]}" data-cm="${x.a.id}:${x.m}"><span class="yr">${esc(x.a.years.replace('–', '–\n'))}</span><span><b>${esc(x.a.title)}</b><small><i class="ct-sw" style="background:${PAL[x.g.color]}"></i>${esc(x.g.label)}</small>${x.note ? `<small class="ct-note">${esc(x.note)}</small>` : ''}</span>${IC.next}</button>`).join('')}</div>` : ''}
       ${h.c ? `<h4>Culture</h4><p>${esc(h.c)}</p>` : ''}
-      ${h.p ? `<h4>Today</h4><p>${esc(h.p)}</p>` : ''}</div>`}
+      ${h.p ? `<h4>Today</h4><p>${esc(h.p)}</p>` : ''}</div>`}`}
     <button class="flag" data-report="${esc(ctryName(f) + ' · country history')}">Report an error</button>`);
   $('#ctBack').onclick = () => { state.sel = null; historySheet(); fitBox(G.views.world); };
   if ($('#ctPlus')) $('#ctPlus').onclick = () => { buzz(5); if (PLUS_LIVE) paywallSheet('country', () => countrySheet(id)); else toast('Plus is coming soon'); };
   sheet.querySelectorAll('[data-cm]').forEach(b => b.onclick = () => { buzz(5); const [aid, m] = b.dataset.cm.split(':'); state.sel = null; eraSheet(aid, false, +m); state.sel = f; eraSheet(aid, true); showOnGlobe(f); });
+  if (A) bindMod(A);
   sheet.scrollTop = 0; showOnGlobe(f); draw();
 }
 // ---------- time slider ----------
@@ -2765,6 +2798,7 @@ function unlockSheet(id) {
 function eraSheet(id, keepView, mapI) {
   clearTimeout(advanceT); keyHandler = null;
   const a0 = anchorById[id]; if (!a0) return;
+  if (a0.ctry) { state.lmap = null; state.mode = 'explore'; return countrySheet(a0.ctry); }
   if (plusLocked(id)) return unlockSheet(id);
   state.lmap = null;
   const TL = trackList(trackOf(a0)), i = TL.indexOf(a0), a = a0;
@@ -2904,7 +2938,7 @@ function histSet(id, f) {
 }
 const chDone = id => !!histRec(id).done;
 // The chapter's maps in time order (by the year each starts); the authored order breaks ties.
-const moments = a => a.lesson ? a.lesson.units.map((U, k) => ({ U, M: { tab: U.tab, title: U.title, yr: U.y }, m: k, y: U.y[0], y2: U.y[1] })) : (a.maps || []).map((M, m) => ({ M, m, y: M.yr ? M.yr[0] : 0, y2: M.yr ? M.yr[1] : 0 })).sort((p, q) => p.y - q.y || p.m - q.m);
+const moments = a => a.lesson ? a.lesson.units.map((U, k) => ({ U, M: { tab: U.tab, title: U.title, yr: U.y || null }, m: k, y: U.y ? U.y[0] : 0, y2: U.y ? U.y[1] : 0 })) : (a.maps || []).map((M, m) => ({ M, m, y: M.yr ? M.yr[0] : 0, y2: M.yr ? M.yr[1] : 0 })).sort((p, q) => p.y - q.y || p.m - q.m);
 const shortYr = y => y < 0 ? `${-y} BC` : String(y);
 function momYears(x) {
   if (!x.M.yr) return '';
@@ -2966,7 +3000,7 @@ function lessonQs(a) {
   return out;
 }
 function finalQs(a) {
-  if (a.lesson) { const t = textQs(a), cq = t.filter(q => q.kind === 'cq'), bank = shuffle(t.filter(q => q.kind === 'bank')).slice(0, 2); return shuffle([...cq, ...bank, ...shuffle(lessonQs(a))].slice(0, HIST_N)); }
+  if (a.lesson) { const t = textQs(a), cq = t.filter(q => q.kind === 'cq'), bank = shuffle(t.filter(q => q.kind === 'bank')).slice(0, 2); return shuffle([...cq, ...bank, ...shuffle(lessonQs(a)), ...shuffle((a.xq || []).map(Q => ({ kind: 'lq', a, Q })))].slice(0, HIST_N)); }
   const t = textQs(a), cq = t.filter(q => q.kind === 'cq'), bank = shuffle(t.filter(q => q.kind === 'bank')).slice(0, 3);
   const out = [...cq, ...bank], ms = moments(a);
   for (let j = 0; out.length < HIST_N && j < 4; j++) for (const x of ms) { if (out.length >= HIST_N) break; out.push(...mapQsFor(a, x.m, 1).filter(q => !out.some(o => o.f === q.f))); }
@@ -3223,7 +3257,7 @@ function finalDone(a, right, n) {
   const facts = textQs(a).length;
   setSheet(pass ? `<div class="done"><span class="badge crown">${right === n ? '👑' : ART.trophy}</span><div class="title">Module complete</div><div class="sub">${esc(a.title)} · final quiz ${right} of ${n}${right === n ? ' · a perfect score' : ''}</div></div>
       ${rewardBlock()}
-      ${t === 'plus' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
+      ${t === 'plus' || t === 'country' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
       ${facts ? `<div class="md-note"><b>${IC.check}Added to your daily refresher</b><small>${facts} key facts will come back over the coming days, just before you'd forget them.</small></div>` : ''}
       ${next ? `<button class="md-next" id="fdNext"><small>Up next on the timeline</small><b>${esc(next.title)} ${IC.next}</b><small>${esc(next.years)}</small></button>` : ''}
       <button class="btn primary" id="fdBack">Continue</button>${a.story ? `<button class="btn" id="fdRead">${IC.book || ''}Read the full summary</button>` : ''}${repFoot(`${a.title} · final quiz · results`)}`
@@ -3247,7 +3281,8 @@ function modBlock(a) {
     return `<button class="ms-stop ${s}${x.m === onMap ? ' on' : ''}" data-mstop="${x.m}" aria-label="${esc((momYears(x) || '') + ' ' + x.M.tab)}"><i></i><b>${esc(momYears(x) || x.M.tab)}</b><small>${esc(x.M.tab)}</small></button>`; };
   const card = (x, k) => { const s = dl.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
     return `<button class="mom ${s}" data-mom="${x.m}"${s === 'lock' ? ' aria-disabled="true"' : ''}><b class="m-yr">${esc(momYears(x) || '•')}</b><span><b>${esc(x.M.title)}${s === 'done' ? ' ✓' : ''}</b><small>${s === 'done' ? 'Completed · tap to replay' : s === 'now' ? (x.U ? `Part ${k + 1} of ${n} · about ${Math.max(3, Math.round(x.U.cards.length * .4))} minutes` : `Moment ${k + 1} of ${n} · about 3 minutes`) : `Unlocks after ${esc(momYears(ms[k - 1]) || ms[k - 1].M.tab)}`}</small></span>${s === 'now' ? `<span class="m-go">${PLAY_IC}</span>` : s === 'lock' ? `<span class="m-lk">${IC.lock}</span>` : '<span></span>'}</button>`; };
-  const fq = r.done ? `Completed · best ${r.best} of ${HIST_N}${r.crown ? ' 👑' : ''}` : r.best ? `Best ${r.best} of ${HIST_N} · pass with ${passMark(HIST_N)}` : `${HIST_N} questions · pass with ${passMark(HIST_N)}`;
+  const NQ = a.lesson ? Math.min(HIST_N, finalQs(a).length) || HIST_N : HIST_N;
+  const fq = r.done ? `Completed · best ${r.best} of ${NQ}${r.crown ? ' 👑' : ''}` : r.best ? `Best ${r.best} of ${NQ} · pass with ${passMark(NQ)}` : `${NQ} questions · pass with ${passMark(NQ)}`;
   return `<div class="mod">
     ${n > 1 ? `<div class="ms-scrub" style="--n:${n}"><u><s style="width:${n > 1 ? Math.min(100, done / (n - 1) * 100) : 0}%"></s></u>${ms.map(stop).join('')}</div>` : ''}
     ${ms.map(card).join('')}
