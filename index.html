@@ -606,6 +606,16 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .ct-mom small { display: flex; gap: 6px; align-items: center; }
 .ct-sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .ct-mom .ct-note { display: block; font-weight: 600; margin-top: 2px; line-height: 1.3; }
+.ct-goal { margin: 2px 2px 6px; }
+.ct-conts { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 12.5px; font-weight: 800; color: var(--ink-3); }
+.ct-conts b { color: var(--ink-2); }
+.ct-conts .some b { color: var(--blue-d); }
+.ct-conts .all, .ct-conts .all b { color: var(--green-d); }
+.ct-ok { display: inline-flex; align-items: center; gap: 3px; font-style: normal; font-weight: 900; font-size: 12px; color: var(--green-d); }
+.ct-ok .ic { width: 13px; height: 13px; }
+.ct-part { color: var(--blue-d) !important; }
+.ct-row.learned b { color: var(--green-d); }
+.ct-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--green); color: #fff; font-size: 11px; font-weight: 900; }
 .ct-full { width: 100%; margin-top: 10px; }
 .ct-full small { display: inline-flex; gap: 3px; align-items: center; color: var(--gold-d); font-weight: 900; margin-left: 6px; }
 .ts-evs { display: grid; gap: 6px; }
@@ -2472,7 +2482,7 @@ function historySheet() {
     <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
     ${(() => { const ct = CTRACK[state.track]; return `<div class="seg tracks" role="tablist"><button data-track="world" aria-pressed="${state.track === 'world'}">World</button>
       ${tracks.some(t => t.id === 'plus') ? `<button data-track="plus" aria-pressed="${plus}"${!hasPlus() ? ' class="faint"' : ''}>${!hasPlus() ? IC.lock : ''}Deep dives</button>` : ''}
-      <button id="ctryBtn" aria-pressed="${!!ct}" aria-expanded="false">${ct ? esc(byId[ct].n.replace('United States of America', 'United States')) : 'Countries'} ▾</button></div>
+      <button id="ctryBtn" aria-pressed="${!!ct}" aria-expanded="false">${ct ? esc(byId[ct].n.replace('United States of America', 'United States')) : 'Countries'}${(() => { const k = ctryCount().k; return k && !ct ? ` <small class="ct-badge">${k}</small>` : ''; })()} ▾</button></div>
       <div class="ctry-dd" id="ctryDD" hidden>${countryMenu()}</div>`; })()}
     ${locked ? plusHero(list) : ''}
     ${plus ? '' : (() => { const c = chCount(state.track); return `<div class="goalbar${c.k === c.n ? ' done' : ''}"><div class="gb-top"><b>${c.k ? IC.check : ''}${c.k} of ${c.n} chapters complete</b><span>Start anywhere</span></div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`; })()}
@@ -2503,10 +2513,29 @@ const ctryName = f => f.n.replace('United States of America', 'United States');
 const ctryLocked = id => !CTRACK_OF[id] && !hasPlus();
 // Countries with a story, A to Z (the iPhone app lists only the ones a player can open).
 const histCountries = () => F.filter(f => f.k === 'c' && f.h && f.h.t && (!NATIVE || !ctryLocked(f.id))).sort((a, b) => ctryName(a).localeCompare(ctryName(b)));
+// Country histories learned: a country's module passed (or, for the US, China and Canada, every chapter of its track).
+function ctryProg(id) {
+  const t = CTRACK_OF[id];
+  if (t) { const c = chCount(t); return { done: c.n > 0 && c.k === c.n, k: c.k, n: c.n, unit: 'chapter' }; }
+  const r = histRec('ct-' + id), k = (r.u || []).length;
+  return { done: !!r.done, k: Math.min(k, 3), n: 3, unit: 'part' };
+}
+function ctryCount() {
+  const all = histCountries(), done = all.filter(f => ctryProg(f.id).done);
+  const CONT = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
+  return { k: done.length, n: all.length, by: CONT.map(c => { const l = all.filter(f => f.co.includes(c)); return [c, l.filter(f => ctryProg(f.id).done).length, l.length]; }).filter(x => x[2]) };
+}
+function ctryGoal() {
+  const c = ctryCount();
+  return `<div class="goalbar ct-goal${c.k === c.n ? ' done' : ''}"><div class="gb-top"><b>${c.k ? IC.check : ''}${c.k} of ${c.n} country histories learned</b></div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div>
+    <div class="ct-conts">${c.by.map(([n, k, t]) => `<span class="${k === t ? 'all' : k ? 'some' : ''}">${esc(n)} <b>${k}/${t}</b></span>`).join('')}</div></div>`;
+}
 function countryMenu() {
   const free = ['CAN', 'USA', 'CHN'].map(id => byId[id]).filter(Boolean), rest = histCountries().filter(f => !CTRACK_OF[f.id]);
-  const row = f => `<button class="ct-row" data-ctry="${f.id}" data-n="${esc(ctryName(f).toLowerCase())}"><span>${flagOf(f)}</span><b>${esc(ctryName(f))}</b>${ctryLocked(f.id) ? `<i>${IC.lock}</i>` : CTRACK_OF[f.id] ? `<small>${trackList(CTRACK_OF[f.id]).length} chapters</small>` : ''}</button>`;
-  return `<p class="ct-h">Free</p>${free.map(row).join('')}
+  const st = f => { if (ctryLocked(f.id)) return `<i>${IC.lock}</i>`; const g = ctryProg(f.id);
+    return g.done ? `<em class="ct-ok">${IC.check}Learned</em>` : g.k ? `<small class="ct-part">${g.k} of ${g.n} ${g.unit}s</small>` : CTRACK_OF[f.id] ? `<small>${g.n} chapters</small>` : ''; };
+  const row = f => `<button class="ct-row${ctryProg(f.id).done ? ' learned' : ''}" data-ctry="${f.id}" data-n="${esc(ctryName(f).toLowerCase())}"><span>${flagOf(f)}</span><b>${esc(ctryName(f))}</b>${st(f)}</button>`;
+  return `${ctryGoal()}<p class="ct-h">Free</p>${free.map(row).join('')}
     ${rest.length ? `<p class="ct-h">${hasPlus() ? 'Every country' : `${IC.star}With Plus · ${rest.length} countries`}</p><input id="ctryQ" class="ct-q" type="search" placeholder="Find a country" autocomplete="off" aria-label="Find a country">${rest.map(row).join('')}` : ''}`;
 }
 function bindCountryMenu() {
@@ -2574,7 +2603,7 @@ function countrySheet(id) {
   setRound(false); setTab('history');
   const lk = ctryLocked(id), h = f.h, ms = countryMoments(f), first = h.t.split(/(?<=\.)\s/)[0], A = lk ? null : ctryAnchor(id);
   setSheet(`<button class="back" id="ctBack">${IC.back}Timeline</button>
-    <div class="ct-head"><span class="flag">${flagOf(f)}</span><div><span class="yrs">Country history</span><h2>${esc(ctryName(f))}</h2></div></div>
+    <div class="ct-head"><span class="flag">${flagOf(f)}</span><div><span class="yrs">Country history${ctryProg(id).done ? ' · <em class="ct-ok">' + IC.check + 'Learned</em>' : ''}</span><h2>${esc(ctryName(f))}</h2></div></div>
     ${lk ? `<p class="ml-t">${esc(first)}</p>
       <div class="pwall"><span class="ptag">${IC.star}Globe Genius Plus</span><h3>The full history of ${esc(ctryName(f))}</h3>
         <p>Its story from the first peoples to today, every chapter it played a part in (${ms.length} on the world timeline), and the picture today.</p>
@@ -3264,7 +3293,7 @@ function finalDone(a, right, n) {
   const facts = textQs(a).length;
   setSheet(pass ? `<div class="done"><span class="badge crown">${right === n ? '👑' : ART.trophy}</span><div class="title">Module complete</div><div class="sub">${esc(a.title)} · final quiz ${right} of ${n}${right === n ? ' · a perfect score' : ''}</div></div>
       ${rewardBlock()}
-      ${t === 'plus' || t === 'country' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
+      ${t === 'country' ? ctryGoal() : ''}${t === 'plus' || t === 'country' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
       ${facts ? `<div class="md-note"><b>${IC.check}Added to your daily refresher</b><small>${facts} key facts will come back over the coming days, just before you'd forget them.</small></div>` : ''}
       ${next ? `<button class="md-next" id="fdNext"><small>Up next on the timeline</small><b>${esc(next.title)} ${IC.next}</b><small>${esc(next.years)}</small></button>` : ''}
       <button class="btn primary" id="fdBack">Continue</button>${a.story ? `<button class="btn" id="fdRead">${IC.book || ''}Read the full summary</button>` : ''}${repFoot(`${a.title} · final quiz · results`)}`
