@@ -501,6 +501,81 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .goalbar .gb-bar i { display: block; height: 100%; border-radius: 6px; background: var(--orange); min-width: 6px; transition: width .4s var(--ease); }
 .goalbar.done .gb-bar i { background: var(--green); }
 .goalbar .gb-c { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+/* History modules: the chapter's scrubber, moments and final quiz */
+.mod { display: grid; gap: 8px; margin: 2px 0 8px; }
+.ms-scrub { position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); padding-top: 2px; margin-bottom: 4px; }
+.ms-scrub u { position: absolute; left: calc(50% / var(--n)); right: calc(50% / var(--n)); top: 11px; height: 6px; border-radius: 3px; background: var(--line); }
+.ms-scrub u s { display: block; height: 100%; border-radius: 3px; background: var(--gold); text-decoration: none; }
+.ms-stop { position: relative; z-index: 1; display: grid; justify-items: center; align-content: start; gap: 2px; min-width: 0; padding: 0 2px; border: 0 !important; background: none !important; box-shadow: none !important; border-radius: 12px; color: var(--ink); }
+.ms-stop i { width: 18px; height: 18px; margin: 3px; border-radius: 50%; background: var(--line); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--line); }
+.ms-stop.done i { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.ms-stop.now i { background: var(--green); box-shadow: 0 0 0 4px var(--green-l); }
+.ms-stop.on i { outline: 3px solid var(--blue); outline-offset: 3px; }
+.ms-stop b { font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ms-stop small { font-size: 10px; font-weight: 800; color: var(--ink-2); text-align: center; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ms-stop.lock b, .ms-stop.lock small { color: var(--ink-3); }
+.mom { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center; text-align: left; padding: 11px 12px; border: 2px solid var(--line); background: var(--bg); border-radius: 16px; width: 100%; color: var(--ink); }
+.mom > span:first-of-type b { display: block; font-weight: 900; line-height: 1.2; }
+.mom small { font-weight: 700; color: var(--ink-2); font-size: 12px; }
+.mom .m-yr { text-align: center; font-weight: 900; font-size: 14px; color: var(--gold-d); line-height: 1.15; }
+.mom.now { border-color: var(--green); background: var(--green-l); }
+.mom.now .m-yr { color: var(--green-d); font-size: 16px; }
+.mom.lock { opacity: .55; }
+.mom.quiz { border-color: var(--gold); background: var(--gold-l); }
+.mom.quiz .m-yr { font-size: 24px; }
+.mom > .ic { width: 20px; height: 20px; color: var(--ink-3); }
+.mom .m-go { width: 38px; height: 38px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; box-shadow: 0 3px 0 var(--green-d); }
+.mom .m-go .ic { width: 18px; height: 18px; }
+.mom .m-lk .ic { width: 18px; height: 18px; color: var(--ink-3); }
+.mod-read { justify-self: center; font-weight: 900; color: var(--blue-d); }
+.ml-dots { display: flex; gap: 6px; margin: 0 0 2px; }
+.ml-dots i { width: 22px; height: 6px; border-radius: 3px; background: var(--line); }
+.ml-dots i.on { background: var(--purple); }
+.ml-t { margin: 0; font-weight: 700; font-size: 16px; line-height: 1.45; }
+.ml-g { display: flex; align-items: center; gap: 10px; }
+.ml-g i { width: 20px; height: 20px; border-radius: 6px; flex: none; }
+.ml-note { margin: 0; font-size: 15px; line-height: 1.4; font-weight: 600; color: var(--ink-2); }
+.ml-note .lk, .ml-note b { font-weight: 900; color: var(--ink); }
+.ml-pins { display: grid; gap: 8px; }
+.ml-nav { display: flex; gap: 8px; margin-top: 6px; }
+.ml-nav .btn.primary { flex: 1; }
+.ml-nav #mlBack { width: 56px; padding: 0; display: grid; place-items: center; }
+.md-note { border-radius: 16px; padding: 12px 14px; background: var(--green-l); border: 2px solid var(--green); display: grid; gap: 3px; }
+.md-note b { display: flex; align-items: center; gap: 5px; color: var(--green-d); font-weight: 900; }
+.md-note b .ic { width: 16px; height: 16px; }
+.md-note small, .md-next small { font-weight: 700; color: var(--ink-2); }
+.md-next { border: 2px solid var(--line); border-radius: 16px; padding: 12px 14px; display: grid; gap: 2px; text-align: left; width: 100%; background: var(--bg); color: var(--ink); }
+.md-next b { display: flex; align-items: center; gap: 4px; color: var(--blue-d); font-size: 18px; font-weight: 900; }
+.md-next b .ic { width: 18px; height: 18px; }
+.done .badge.crown { font-size: 72px; line-height: 92px; text-align: center; }
+.chapter .mst.part { color: var(--orange); }
+.chapter.cdone .yr { background: var(--green); border-color: var(--green); color: #fff; }
+.chapter .freeb.pop { background: var(--gold-d); }
+/* Learn: choose geography or history */
+.lc-top { display: flex; justify-content: space-between; align-items: baseline; }
+.lc-st { display: flex; align-items: center; gap: 3px; font-weight: 900; color: var(--orange); }
+.lc-st .ic { width: 18px; height: 18px; }
+.lc-st.off { color: var(--ink-3); }
+.lc-hint { margin: -6px 0 0; }
+.lchoice { border-radius: 22px; padding: 16px; display: grid; gap: 4px; border: 2px solid; }
+.lchoice.geo { background: var(--blue-l); border-color: color-mix(in srgb, var(--blue) 40%, transparent); }
+.lchoice.hist { background: color-mix(in srgb, var(--purple) 12%, var(--bg)); border-color: color-mix(in srgb, var(--purple) 35%, transparent); }
+.lchoice > small { font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-size: 12px; }
+.lchoice > b { font-size: 24px; font-weight: 900; line-height: 1.1; }
+.lchoice > span { font-weight: 700; color: var(--ink-2); }
+.lc-bar { height: 10px; border-radius: 6px; background: color-mix(in srgb, var(--bg) 70%, transparent); overflow: hidden; margin: 6px 0 4px; }
+.lc-bar i { display: block; height: 100%; background: var(--green); border-radius: 6px; min-width: 6px; }
+.lchoice .btn { margin: 2px 0 0; }
+.lc-alt { justify-self: center; font-weight: 900; color: var(--ink-2); margin-top: 2px; }
+.lc-fine { margin: 0; text-align: center; color: var(--ink-3); }
+/* Home: the daily refresher and the current history chapter */
+.hm-card { display: grid; gap: 3px; text-align: left; width: 100%; margin-top: 10px; border-radius: 18px; padding: 13px 14px; border: 2px solid; color: var(--ink); }
+.hm-card b { font-size: 17px; font-weight: 900; }
+.hm-card small { font-weight: 700; color: var(--ink-2); }
+.hm-card.refresh { background: var(--gold-l); border-color: var(--gold); }
+.hm-card.histc { background: color-mix(in srgb, var(--purple) 12%, var(--bg)); border-color: color-mix(in srgb, var(--purple) 35%, transparent); }
+.hm-chips { display: flex; gap: 6px; margin-top: 3px; }
+.hm-chips em { font-style: normal; background: var(--bg); border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 900; }
 .ob { display: grid; gap: 14px; }
 .ob h2 { margin: 0; font-size: 30px; font-weight: 900; text-align: center; }
 .ob h3 { margin: 4px 0 0; font-size: 22px; font-weight: 900; line-height: 1.2; }
@@ -2145,7 +2220,7 @@ function settingsSheet() {
   $('#resetAsk').onclick = () => {
     $('#resetAll').innerHTML = `<p class="hint">This clears everything you've learned, your streak and map quiz scores. It can't be undone.</p><div class="rbtns"><button class="btn" id="resetKeep">Keep</button><button class="btn" id="resetGo" style="background:var(--red);border-color:var(--red);color:#fff">Reset</button></div>`;
     $('#resetKeep').onclick = settingsSheet;
-    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; store.cq = {}; store.cqBest = {}; save(); if (CLOUD && ME && !ME.pending) CLOUD.setProgress(syncable()).catch(() => {}); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
+    $('#resetGo').onclick = () => { store.prog = {}; store.days = []; store.hqBest = {}; store.cq = {}; store.cqBest = {}; store.hist = {}; save(); if (CLOUD && ME && !ME.pending) CLOUD.setProgress(syncable()).catch(() => {}); updateTop(); draw(); toast('Progress reset'); settingsSheet(); };
   };
 }
 function aboutSheet() {
@@ -2217,7 +2292,18 @@ function learnSheet() {
   setRound(false); setTab('learn');
   const c = counts();
   const what = state.subj === 'cap' ? 'capitals' : lower(state.scope.unit);
-  setSheet(`${hero('green', `Learn the ${esc(what)}`, c.m, c.t, `${c.m} of ${c.t} mastered`, 'goLearn', c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start')}
+  // Geography or history: either one is today's lesson and keeps the streak.
+  const ha = histNext(), hs = modState(ha), st = streak();
+  const hsub = hs.r.done ? 'Completed. Take the quiz again any time' : hs.cur ? `Moment ${hs.ms.indexOf(hs.cur) + 1} of ${hs.n} · ${esc(momYears(hs.cur) ? momYears(hs.cur) + ', ' : '')}${esc(hs.cur.M.tab)}` : 'Final quiz: 10 questions';
+  setSheet(`<div class="lc-top"><div class="title">Learn</div><span class="lc-st${st ? '' : ' off'}">${IC.flame}${st}</span></div>
+    <p class="hint lc-hint">Pick what to learn today. Either one keeps your streak going.</p>
+    <div class="lchoice geo"><small>🌍 Geography</small><b>${esc(state.scope.name)}</b><span>${c.m} of ${c.t} ${esc(what)} mastered</span>
+      <div class="lc-bar"><i style="width:${c.t ? c.m / c.t * 100 : 0}%"></i></div>
+      <button class="btn primary" id="goLearn">${c.m === c.t && c.t ? 'Review' : c.m || c.l ? 'Continue' : 'Start'}</button><button class="link lc-alt" id="pickScope">Choose another place</button></div>
+    <div class="lchoice hist"><small>📜 History</small><b>${esc(ha.title)}</b><span>${hsub}</span>
+      <div class="lc-bar"><i style="width:${(hs.done + (hs.r.done ? 1 : 0)) / (hs.n + 1) * 100}%"></i></div>
+      <button class="btn primary" id="goHistMod">${hs.done || hs.r.best ? 'Continue' : 'Start'}</button><button class="link lc-alt" id="goChapters">Choose another chapter</button></div>
+    <p class="fine lc-fine">Daily challenges are separate: they rank you against the world but don't count towards your streak.</p>
     ${histTile()}
     ${subjSeg()}
     ${progressCard()}
@@ -2225,6 +2311,8 @@ function learnSheet() {
     <div class="confirm" id="resetRow"><button class="link quiet" id="reset">Reset progress</button></div>`);
   bindSubj(learnSheet);
   $('#goLearn').onclick = () => { buzz(8); startLearn(); };
+  $('#goHistMod').onclick = () => { buzz(8); goHistory(ha); };
+  $('#goChapters').onclick = () => { buzz(5); state.track = 'world'; historySheet(); sheet.scrollTop = 0; };
   if ($('#goReview')) $('#goReview').onclick = () => { buzz(8); startReview(); };
   bindDaily();
   if ($('#goHist')) $('#goHist').onclick = () => { buzz(8); startHistQuiz(); };
@@ -2252,14 +2340,16 @@ function historySheet() {
     <button class="go tile" id="goTime" style="--c:var(--blue)"><span class="go-ic">${IC.clock}</span><span><b>Travel through time</b><small>Drag through the years and watch empires and borders change</small></span>${IC.next}</button>
     ${tracks.length > 1 ? `<div class="seg tracks" role="tablist">${tracks.map(t => `<button data-track="${t.id}" aria-pressed="${t.id === state.track}"${t.id === 'plus' && !hasPlus() ? ' class="faint"' : ''}>${t.id === 'plus' && !hasPlus() ? IC.lock : ''}${t.name}</button>`).join('')}</div>` : ''}
     ${locked ? plusHero(list) : ''}
+    ${plus ? '' : (() => { const c = chCount(state.track); return `<div class="goalbar${c.k === c.n ? ' done' : ''}"><div class="gb-top"><b>${c.k ? IC.check : ''}${c.k} of ${c.n} chapters complete</b><span>Start anywhere</span></div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`; })()}
     <div class="chapters">${list.map((a, k) => {
       const sub = !a.maps ? '' : a.maps.length > 1 ? a.maps.map(m => m.tab).join(' · ') : a.maps[0].title;
       const n = plus && a.cat ? list.filter(x => x.cat === a.cat).length : 0;
       const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}<span class="sec-n">${n}</span></h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
       const lk = plusLocked(a.id), free = plus && !hasPlus() && a.id === PLUS_FREE;
-      const qm = quizMaps(a), all = qm.length + (a.quiz ? 1 : 0), done = lk ? 0 : qm.filter(m => mapDone(a.id, m)).length + (understood(a.id) ? 1 : 0);
-      const prog = done ? `<em class="mst${done === all ? ' all' : ''}">${IC.check}${done}/${all}</em>` : '';
-      return `${hd}<button class="chapter tile${lk ? ' locked' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
+      const r = histRec(a.id), nm = (a.maps || []).length, k2 = lk ? 0 : r.m.filter(m => m < nm).length;
+      const prog = lk ? '' : r.done ? `<em class="mst all">${r.crown ? '👑 ' : IC.check}Completed</em>` : k2 ? `<em class="mst part">${k2} of ${nm} moment${nm > 1 ? 's' : ''}</em>` : '';
+      const pop = a.id === 'ww2' && !store.hist ? `<em class="freeb pop">Popular start</em>` : '';
+      return `${hd}<button class="chapter tile${lk ? ' locked' : ''}${r.done && !lk ? ' cdone' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}${pop}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
   $('#goTime').onclick = () => { buzz(8); timeSheet(); fitTime(); };
@@ -2475,7 +2565,7 @@ function eraSheet(id, keepView, mapI) {
   const M = curMap(), sel = state.sel;
   if (state.hq && state.hq.M !== M) state.hq = null;
   const hq = state.hq;
-  const maps = a.maps || [];
+  const maps = a.maps || [], mod = !hq && maps.length ? modBlock(a) : '';
   const members = M ? null : eraMembers(id);
   const kind = state.scope.id === 'oceans' ? 'countries' : state.scope.unit.toLowerCase();
   const byName = (x, y) => x.n.localeCompare(y.n);
@@ -2495,14 +2585,15 @@ function eraSheet(id, keepView, mapI) {
   }
   setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
     <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${TL.length}</span><h2>${esc(a.title)}</h2></div>
+    ${mod}
     ${a.story ? storyBlock(a) : M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
-    ${maps.length > 1 ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${mapDone(a.id, k) ? `<span class="mt-ok" aria-label="Mastered">${IC.check}</span>` : ''}${esc(m.tab)}</button>`).join('')}</div>` : ''}
+    ${maps.length > 1 && !mod ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${mapDone(a.id, k) ? `<span class="mt-ok" aria-label="Mastered">${IC.check}</span>` : ''}${esc(m.tab)}</button>`).join('')}</div>` : ''}
     ${hq ? hquizHtml(hq) : M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
       <div class="legend">${legend}${(M.lines || []).filter((l, k, a) => a.findIndex(x => x.label === l.label) === k).map(l => `<div class="lrow"><i style="--gc:${PAL[l.color]}"></i><b>${esc(l.label)}</b></div>`).join('')}</div>${M.groups.some(g => g.part && g.part.length) ? `<p class="fine">Shown on today's borders. Lighter shading: only part of that country.</p>` : ''}
       <button class="flag" data-report="${esc(a.title + ' · ' + M.tab + (sel ? ' · ' + sel.n : ''))}">Report an error</button>
       ${hquizPool(M).length >= 3 ? `<button class="btn primary" id="hqGo">${IC.target}Quiz me on this map</button>` : ''}</div>` : ''}
     ${hq ? '' : card}
-    ${a.quiz && !hq ? `<div class="cq-go"><button class="btn primary" id="cqGo">${understood(a.id) ? IC.check : IC.target}Check your understanding</button><small>${understood(a.id) ? `Best ${store.cqBest[a.id]} of ${a.quiz.length}. Questions come back in your daily review.` : `${a.quiz.length} questions on what happened, why, and what it changed`}</small></div>` : ''}
+    ${a.quiz && !hq && !mod ? `<div class="cq-go"><button class="btn primary" id="cqGo">${understood(a.id) ? IC.check : IC.target}Check your understanding</button><small>${understood(a.id) ? `Best ${store.cqBest[a.id]} of ${a.quiz.length}. Questions come back in your daily review.` : `${a.quiz.length} questions on what happened, why, and what it changed`}</small></div>` : ''}
     ${M && !a.story ? `<div class="era-sum"><h4>The chapter in brief</h4><p class="era-intro">${esc(a.text)}</p></div>` : ''}
     <div class="era-nav"><button class="btn" id="eraPrev" aria-label="Previous chapter" ${i ? '' : 'disabled'}>${IC.back}</button>
       <span class="era-count">${M ? 'Tap a lit country for its part in the story.' : members.length ? `${members.length} ${kind} lit up. Tap one for its story.` : `No ${kind} in this view belong to this chapter.`}</span>
@@ -2515,6 +2606,7 @@ function eraSheet(id, keepView, mapI) {
   if ($('#hqGo')) $('#hqGo').onclick = () => { buzz(8); startHQ(M); eraSheet(id, true); };
   if ($('#cqGo')) $('#cqGo').onclick = () => { buzz(8); chapterQuiz(id); };
   if (hq) bindHQ(id);
+  if (mod) bindMod(a);
   sheet.querySelectorAll('.mtabs [data-m]').forEach(b => b.onclick = () => { buzz(5); eraSheet(id, false, +b.dataset.m); });
   sheet.querySelectorAll('.grp').forEach(b => b.onclick = () => { buzz(5); state.focusG = state.focusG === +b.dataset.g ? null : +b.dataset.g; eraSheet(id, true); });
   sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { buzz(5); const f = byId[b.dataset.id]; state.sel = f; eraSheet(id, true); showOnGlobe(f); });
@@ -2587,6 +2679,252 @@ function chapterQuiz(id) {
     keyHandler = e => { const k = +e.key; if (k >= 1 && k <= 4) pick(btns[k - 1]); };
   };
   show();
+}
+// ---------- history modules ----------
+// Each chapter is a module. Its maps are dated moments on a small time scrubber. A moment is a short map story
+// (the globe lights each group in turn, then the key places) followed by a few practice questions; finishing
+// one is a lesson, so it keeps the streak. A final quiz of ten completes the chapter: pass with 8, a crown for 10.
+// Questions answered here come back in the daily refresher.
+const histRec = id => (store.hist && store.hist[id]) || { m: [], best: 0 };
+function histSet(id, f) {
+  const h = store.hist || (store.hist = {}), r = h[id] || (h[id] = { m: [], best: 0 });
+  f(r); r.t = Date.now(); store.histLast = id; save();
+}
+const chDone = id => !!histRec(id).done;
+// The chapter's maps in time order (by the year each starts); the authored order breaks ties.
+const moments = a => (a.maps || []).map((M, m) => ({ M, m, y: M.yr ? M.yr[0] : 0, y2: M.yr ? M.yr[1] : 0 })).sort((p, q) => p.y - q.y || p.m - q.m);
+const shortYr = y => y < 0 ? `${-y} BC` : String(y);
+function momYears(x) {
+  if (!x.M.yr) return '';
+  if (x.y === x.y2) return x.y < -10000 ? fmtYear(x.y) : shortYr(x.y);
+  if (x.y < 0 && x.y2 < 0) return `${-x.y}–${-x.y2} BC`;
+  if (x.y >= 1000 && Math.floor(x.y / 100) === Math.floor(x.y2 / 100)) return `${x.y}–${String(x.y2).slice(2)}`;
+  return `${shortYr(x.y)}–${shortYr(x.y2)}`;
+}
+// Where a player is in a chapter: the first moment (in time order) not yet done, or the final quiz.
+function modState(a) {
+  const ms = moments(a), r = histRec(a.id), done = ms.filter(x => r.m.includes(x.m)).length;
+  const cur = ms.find(x => !r.m.includes(x.m)) || null;
+  return { ms, r, done, cur, n: ms.length };
+}
+// The chapter to offer next: the last one touched if unfinished, else the next unfinished after it (World War II
+// for a first-timer: the most popular place to start).
+function histNext() {
+  const TL = trackList('world'), last = anchorById[store.histLast];
+  if (last && last.maps && !plusLocked(last.id) && !chDone(last.id)) return last;
+  const from = last && trackOf(last) === 'world' ? TL.indexOf(last) : TL.findIndex(a => a.id === 'ww2');
+  for (let k = 0; k < TL.length; k++) { const a = TL[(Math.max(0, from) + k) % TL.length]; if (!chDone(a.id)) return a; }
+  return anchorById.ww2 || TL[0];
+}
+// Continue a chapter where the player left off: the next moment, or the final quiz once every moment is done.
+function goHistory(a = histNext()) { const st = modState(a); if (st.cur) startMoment(a.id, st.cur.m); else eraSheet(a.id); }
+const chCount = t => { const TL = trackList(t); return { k: TL.filter(a => chDone(a.id)).length, n: TL.length }; };
+
+// Practice questions. A map question lights a place and asks which group it was in (in the map's own words where
+// it has them); text questions come from the chapter quiz and the hand-written bank for this chapter.
+function mapQsFor(a, m, n) {
+  const M = a.maps[m]; if (!M || M.groups.length < 2) return [];
+  const skip = new Set(M.askSkip || []), byG = M.groups.map(() => []);
+  M.groups.forEach((g, gi) => { if (skip.has(gi)) return; for (const c of g.full || []) { const f = byId[c]; if (f && LAYER.includes(f) && !giveaway(g.label, f)) byG[gi].push(f); } });
+  byG.forEach((l, gi) => { const noted = l.filter(f => M.notes && M.notes[f.id]); byG[gi] = [...shuffle(noted), ...shuffle(l.filter(f => !noted.includes(f)))]; });
+  const out = [];
+  // One from each group in turn, so the answer isn't the same group every time.
+  for (let round = 0; out.length < n && byG.some(l => l.length); round++) for (const gi of shuffle(byG.map((_, k) => k))) { if (out.length >= n) break; const f = byG[gi].shift(); if (f) out.push({ kind: 'map', a, m, gi, f }); }
+  return out;
+}
+function textQs(a) {
+  const out = (a.quiz || []).map((Q, i) => ({ kind: 'cq', a, i, Q }));
+  (BANK.hist || []).forEach((x, n) => { if (x.ch === a.id) out.push({ kind: 'bank', a, n, Q: bankQ(x) }); });
+  return out;
+}
+function momentQs(a, m) {
+  const ms = moments(a), k = ms.findIndex(x => x.m === m), K = ms.length;
+  const txt = textQs(a).filter((_, j) => j % K === k).slice(0, 3);
+  return shuffle([...mapQsFor(a, m, Math.max(2, 5 - txt.length)), ...txt]);
+}
+function finalQs(a) {
+  const t = textQs(a), cq = t.filter(q => q.kind === 'cq'), bank = shuffle(t.filter(q => q.kind === 'bank')).slice(0, 3);
+  const out = [...cq, ...bank], ms = moments(a);
+  for (let j = 0; out.length < HIST_N && j < 4; j++) for (const x of ms) { if (out.length >= HIST_N) break; out.push(...mapQsFor(a, x.m, 1).filter(q => !out.some(o => o.f === q.f))); }
+  return shuffle(out.slice(0, HIST_N));
+}
+const HIST_N = 10;
+const passMark = n => Math.ceil(n * 0.8);
+
+// The map story for one moment: the map's headline, then each group in turn, then the key places.
+function startMoment(id, m) {
+  const a = anchorById[id]; if (!a || !a.maps || !a.maps[m]) return;
+  if (plusLocked(id)) return unlockSheet(id);
+  const M = a.maps[m], x = moments(a).find(z => z.m === m), yrs = momYears(x);
+  const steps = [{ k: 'intro' }, ...M.groups.slice(0, 6).map((g, gi) => ({ k: 'g', gi })), ...(M.pins && M.pins.length ? [{ k: 'pins' }] : [])];
+  clearTimeout(advanceT); stopPlay();
+  state.mode = 'era'; state.era = id; state.mapI = m; state.sel = null; state.hq = null; state.target = null; state.flash = null; state.histrun = true;
+  setRound(true); setTab('history'); gainStart();
+  const quit = () => { state.histrun = false; keyHandler = null; state.focusG = null; state.target = null; setRound(false); eraSheet(id); };
+  let s = 0;
+  const show = () => {
+    const st = steps[s], n = steps.length;
+    state.focusG = st.k === 'g' ? st.gi : null;
+    let body = '';
+    if (st.k === 'intro') body = `<p class="prompt">${esc(M.title)}</p><p class="ml-t">${linkText(M.text)}</p>`;
+    else if (st.k === 'g') {
+      const g = M.groups[st.gi], ids = [...(g.full || []), ...(g.part || [])].map(c => byId[c]).filter(Boolean);
+      const noted = ids.filter(f => M.notes && M.notes[f.id]).slice(0, 2);
+      body = `<p class="prompt ml-g"><i style="background:${PAL[g.color]}"></i>${esc(g.label)}</p>${g.sub ? `<p class="ml-t">${esc(g.sub)}</p>` : ''}
+        ${noted.map(f => `<p class="ml-note"><button class="lk" data-id="${f.id}">${esc(f.n)}</button> ${esc(M.notes[f.id])}</p>`).join('')}
+        ${ids.length ? `<div class="gchips">${ids.slice(0, 14).map(f => `<button class="lk chip${(g.part || []).includes(f.id) ? ' part' : ''}" data-id="${f.id}">${esc(f.n)}</button>`).join('')}${ids.length > 14 ? `<span class="chip more">+${ids.length - 14} more</span>` : ''}</div>` : ''}`;
+      const box = mapBox({ groups: [g] }); fitBox(box === G.views.world ? (M.box || mapBox(M)) : box);
+    } else body = `<p class="prompt">Key places</p><div class="ml-pins">${M.pins.slice(0, 5).map(p => `<p class="ml-note"><b>📍 ${esc(p.n)}</b>${p.note ? ` ${esc(p.note)}` : ''}</p>`).join('')}</div>`;
+    if (st.k !== 'g') fitBox(M.box || mapBox(M));
+    setSheet(`<div class="qhead"><button class="qx" id="mlX" aria-label="Close">${IC.x}</button><div class="qbar"><i style="width:${s / (n + 1) * 100}%"></i></div></div>
+      <div class="ml-dots">${steps.map((_, j) => `<i class="${j <= s ? 'on' : ''}"></i>`).join('')}</div>
+      <span class="pill hist">${esc(yrs ? yrs + ' · ' : '')}${esc(M.tab)}</span>
+      ${body}
+      <div class="ml-nav">${s ? `<button class="btn" id="mlBack" aria-label="Back">${IC.back}</button>` : ''}<button class="btn primary" id="mlNext">${s + 1 < n ? 'Continue' : 'Practice'}</button></div>
+      <button class="flag" data-report="${esc(a.title + ' · ' + M.tab + ' · lesson step ' + (s + 1))}">Report an error</button>`);
+    sheet.scrollTop = 0;
+    $('#mlX').onclick = quit;
+    if ($('#mlBack')) $('#mlBack').onclick = () => { buzz(5); s--; show(); };
+    const next = () => { buzz(5); if (s + 1 < n) { s++; show(); } else { state.focusG = null; histRun(a, momentQs(a, m), { m, yrs }); } };
+    $('#mlNext').onclick = next;
+    sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { const f = byId[b.dataset.id]; if (f) { buzz(5); toast(f.n); showOnGlobe(f); } });
+    keyHandler = e => { if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); next(); } };
+    draw();
+  };
+  show();
+}
+
+// Runs a set of practice or final-quiz questions over the chapter map. opts.m: the moment being practised;
+// without it, this is the final quiz.
+function histRun(a, qs, opts = {}) {
+  const id = a.id, fin = opts.m == null, n = qs.length;
+  if (!n) { if (fin) { toast('No quiz for this chapter yet'); return eraSheet(id); } return momentDone(a, opts.m, 0, 0); }
+  clearTimeout(advanceT);
+  state.mode = 'era'; state.era = id; state.histrun = true; state.hq = null; state.sel = null;
+  setRound(true); setTab('history');
+  if (fin) gainStart();
+  let i = 0, right = 0;
+  const quit = () => { state.histrun = false; keyHandler = null; state.focusG = null; state.target = null; setRound(false); eraSheet(id); };
+  const show = () => {
+    if (i >= n) { state.histrun = false; state.target = null; state.focusG = null; keyHandler = null; return fin ? finalDone(a, right, n) : momentDone(a, opts.m, right, n); }
+    const q = qs[i];
+    let prompt, opt, ans, why;
+    if (q.kind === 'map') {
+      const M = a.maps[q.m];
+      if (state.mapI !== q.m) state.mapI = q.m;
+      state.target = q.f; state.focusG = -1;
+      fitBox(M.box || mapBox(M));
+      prompt = M.ask ? mapAsk(M, q.f) : `Which was <em>${esc(q.f.n)}</em> part of?`;
+      opt = mapOpts(M, q.gi, shuffle).map(k => ({ v: k, t: mapLabel(M, k) })); ans = q.gi;
+      why = esc((M.notes && (M.notes[q.f.id] || M.notes[parentId(q.f)])) || M.groups[q.gi].sub || '');
+    } else {
+      state.target = null; state.focusG = null;
+      prompt = esc(q.Q.q); opt = shuffle([0, 1, 2, 3]).filter(k => q.Q.a[k] != null).map(k => ({ v: k, t: q.Q.a[k] })); ans = q.Q.c; why = esc(q.Q.why || '');
+    }
+    const M = a.maps[q.kind === 'map' ? q.m : state.mapI || 0];
+    setSheet(`<div class="qhead"><button class="qx" id="hrX" aria-label="End">${IC.x}</button><div class="qbar"><i style="width:${i / n * 100}%"></i></div></div>
+      <span class="pill hist">${fin ? `Final quiz · ${i + 1} of ${n}` : q.kind === 'map' ? `On the map · ${esc(M.tab)}` : 'Practice'}</span>
+      <p class="prompt">${prompt}</p>
+      <div class="opts col">${opt.map((o, j) => `<button class="opt" data-v="${o.v}"><kbd>${j + 1}</kbd><span>${esc(o.t)}</span></button>`).join('')}</div>
+      <div class="fb inline" id="fb"></div>`);
+    sheet.scrollTop = 0;
+    $('#hrX').onclick = quit;
+    const btns = [...sheet.querySelectorAll('.opt')];
+    const pick = b => {
+      if (b.disabled) return;
+      btns.forEach(x => x.disabled = true);
+      const ok = +b.dataset.v === ans;
+      const good = btns.find(x => +x.dataset.v === ans); if (good) good.classList.add('good');
+      if (!ok) b.classList.add('bad');
+      if (ok) right++;
+      if (q.kind === 'cq') rememberCQ(id, q.i, ok); else if (q.kind === 'bank') rememberCQ('bank', q.n, ok);
+      if (q.kind === 'map') { state.focusG = null; draw(); }
+      practisedToday(ok ? 10 : 0); updateTop();
+      const fb = verdict(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : q.kind === 'map' ? `Answer: ${esc(mapLabel(a.maps[q.m], ans))}` : 'Not quite', why);
+      buzz(ok ? 12 : [20, 40, 20]);
+      requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+      const nb = document.createElement('button'); nb.className = 'btn primary'; nb.id = 'nextBtn'; nb.textContent = i + 1 < n ? 'Continue' : 'See how you did';
+      const go = () => { i++; show(); };
+      nb.onclick = go; fb.append(nb); setTimeout(() => nb.focus({ preventScroll: true }), 30);
+      keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    };
+    btns.forEach(b => b.onclick = () => pick(b));
+    keyHandler = e => { const k = +e.key; if (k >= 1 && k <= btns.length) pick(btns[k - 1]); };
+    draw();
+  };
+  show();
+}
+// A moment finished: it counts as today's lesson.
+function momentDone(a, m, right, n) {
+  histSet(a.id, r => { if (!r.m.includes(m)) r.m.push(m); });
+  markDay('learn');
+  const M = a.maps[m], x = moments(a).find(z => z.m === m), st = modState(a), nx = st.cur;
+  state.mode = 'summary'; state.target = null; state.focusG = null;
+  setSheet(`<div class="done"><span class="badge">${ART.trophy}</span><div class="title">${esc(momYears(x) || M.tab)} done</div><div class="sub">${esc(M.title)}${n ? ` · ${right} of ${n} right` : ''}</div></div>
+    ${rewardBlock()}
+    ${remindCard() || saveCard(false)}
+    <div class="goalbar"><div class="gb-top"><b>${esc(a.title)}</b><span>${st.done} of ${st.n} moments</span></div><div class="gb-bar"><i style="width:${st.done / (st.n + 1) * 100}%"></i></div></div>
+    ${nx ? `<button class="btn primary" id="mdNext">Next: ${esc(momYears(nx) ? momYears(nx) + ', ' : '')}${esc(nx.M.tab)}</button>` : `<button class="btn primary" id="mdQuiz">${IC.trophy}Take the final quiz</button>`}
+    <button class="btn" id="mdBack">Back to the chapter</button>${repFoot(`${a.title} · ${M.tab} · moment results`)}`);
+  buzz([10, 60, 10]); celebrate(true);
+  if ($('#mdNext')) $('#mdNext').onclick = () => startMoment(a.id, nx.m);
+  if ($('#mdQuiz')) $('#mdQuiz').onclick = () => startFinal(a.id);
+  $('#mdBack').onclick = () => { setRound(false); eraSheet(a.id); };
+  bindSave(() => eraSheet(a.id)); bindRemind();
+  setRound(true); draw();
+}
+function startFinal(id) {
+  const a = anchorById[id]; if (!a) return;
+  if (plusLocked(id)) return unlockSheet(id);
+  histRun(a, finalQs(a));
+}
+function finalDone(a, right, n) {
+  const pass = right >= passMark(n), was = chDone(a.id);
+  histSet(a.id, r => { r.best = Math.max(r.best || 0, right); if (pass) { r.done = 1; for (const x of moments(a)) if (!r.m.includes(x.m)) r.m.push(x.m); } if (right === n) r.crown = 1; });
+  const cb = store.cqBest || (store.cqBest = {}); cb[a.id] = Math.max(cb[a.id] || 0, Math.min(right, (a.quiz || []).length));
+  markDay('learn');
+  state.mode = 'summary'; state.target = null; state.focusG = null;
+  const t = trackOf(a), TL = trackList(t), c = chCount(t), next = TL.slice(TL.indexOf(a) + 1).find(x => !chDone(x.id) && !plusLocked(x.id));
+  const facts = textQs(a).length;
+  setSheet(pass ? `<div class="done"><span class="badge crown">${right === n ? '👑' : ART.trophy}</span><div class="title">${esc(a.title)} complete</div><div class="sub">Final quiz: ${right} of ${n}${right === n ? ' · a perfect score' : ''}</div></div>
+      ${rewardBlock()}
+      ${t === 'plus' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
+      ${facts ? `<div class="md-note"><b>${IC.check}Added to your daily refresher</b><small>${facts} key facts will come back over the coming days, just before you'd forget them.</small></div>` : ''}
+      ${next ? `<button class="md-next" id="fdNext"><small>Up next on the timeline</small><b>${esc(next.title)} ${IC.next}</b><small>${esc(next.years)}</small></button>` : ''}
+      <button class="btn primary" id="fdBack">Continue</button>${repFoot(`${a.title} · final quiz · results`)}`
+    : `<div class="done"><span class="badge">${ART.medal}</span><div class="title">${right} of ${n} right</div><div class="sub">You need ${passMark(n)} to complete ${esc(a.title)}</div></div>
+      ${rewardBlock()}
+      <p class="hint" style="text-align:center">Replay a moment or reread the chapter, then try again. Every question you missed comes back in your daily refresher.</p>
+      <button class="btn primary" id="fdAgain">Try again</button><button class="btn" id="fdBack">Back to the chapter</button>${repFoot(`${a.title} · final quiz · results`)}`);
+  buzz(pass ? [10, 60, 10] : 10); celebrate(pass);
+  if ($('#fdNext')) $('#fdNext').onclick = () => { setRound(false); eraSheet(next.id); };
+  if ($('#fdAgain')) $('#fdAgain').onclick = () => startFinal(a.id);
+  $('#fdBack').onclick = () => { setRound(false); eraSheet(a.id); };
+  setRound(true); draw();
+}
+// The top of a chapter: the time scrubber (tap a year to see its map), the moments and the final quiz.
+function modBlock(a) {
+  const { ms, r, cur, done, n } = modState(a); if (!n) return '';
+  const curI = cur ? ms.indexOf(cur) : n, onMap = state.mapI || 0;
+  const stop = (x, k) => { const s = r.m.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
+    return `<button class="ms-stop ${s}${x.m === onMap ? ' on' : ''}" data-mstop="${x.m}" aria-label="${esc((momYears(x) || '') + ' ' + x.M.tab)}"><i></i><b>${esc(momYears(x) || x.M.tab)}</b><small>${esc(x.M.tab)}</small></button>`; };
+  const card = (x, k) => { const s = r.m.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
+    return `<button class="mom ${s}" data-mom="${x.m}"${s === 'lock' ? ' aria-disabled="true"' : ''}><b class="m-yr">${esc(momYears(x) || '•')}</b><span><b>${esc(x.M.title)}${s === 'done' ? ' ✓' : ''}</b><small>${s === 'done' ? 'Completed · tap to replay' : s === 'now' ? `Moment ${k + 1} of ${n} · about 3 minutes` : `Unlocks after ${esc(momYears(ms[k - 1]) || ms[k - 1].M.tab)}`}</small></span>${s === 'now' ? `<span class="m-go">${PLAY_IC}</span>` : s === 'lock' ? `<span class="m-lk">${IC.lock}</span>` : '<span></span>'}</button>`; };
+  const fq = r.done ? `Completed · best ${r.best} of ${HIST_N}${r.crown ? ' 👑' : ''}` : r.best ? `Best ${r.best} of ${HIST_N} · pass with ${passMark(HIST_N)}` : `${HIST_N} questions · pass with ${passMark(HIST_N)}`;
+  return `<div class="mod">
+    ${n > 1 ? `<div class="ms-scrub" style="--n:${n}"><u><s style="width:${n > 1 ? Math.min(100, done / (n - 1) * 100) : 0}%"></s></u>${ms.map(stop).join('')}</div>` : ''}
+    ${ms.map(card).join('')}
+    <button class="mom quiz${r.done ? ' done' : ''}" id="modQuiz"><b class="m-yr">${r.crown ? '👑' : '🏆'}</b><span><b>Test what you learned</b><small>${fq}</small></span>${IC.next}</button>
+    ${a.story ? `<button class="link mod-read" id="modRead">Read the full chapter ↓</button>` : ''}</div>`;
+}
+function bindMod(a) {
+  sheet.querySelectorAll('[data-mstop]').forEach(b => b.onclick = () => { buzz(5); eraSheet(a.id, false, +b.dataset.mstop); });
+  sheet.querySelectorAll('[data-mom]').forEach(b => b.onclick = () => {
+    if (b.classList.contains('lock')) { buzz(10); return toast('Finish the moment before it first'); }
+    buzz(8); startMoment(a.id, +b.dataset.mom);
+  });
+  if ($('#modQuiz')) $('#modQuiz').onclick = () => { buzz(8); startFinal(a.id); };
+  if ($('#modRead')) $('#modRead').onclick = () => { const s = sheet.querySelector('.chs'); if (s) sheet.scrollTo({ top: sheet.scrollTop + s.getBoundingClientRect().top - sheet.getBoundingClientRect().top - 8, behavior: 'smooth' }); };
 }
 // Key facts: everything the Daily History asks about this chapter, so the Timeline teaches every answer.
 function keyFacts(id) {
@@ -2741,8 +3079,8 @@ function reviewDue() {
   const now = Date.now();
   const places = quizItems().filter(f => { const p = prog(f.id); return p.s >= 1 && dueAt(p) <= now; }).sort((x, y) => dueAt(prog(x.id)) - dueAt(prog(y.id)));
   const hist = Object.entries(store.cq || {}).filter(([, v]) => v.due <= now).sort((x, y) => x[1].due - y[1].due)
-    .map(([k]) => { const [id, i] = k.split('#'); return { a: anchorById[id], i: +i }; })
-    .filter(h => h.a && h.a.quiz && h.a.quiz[h.i] && !plusLocked(h.a.id));
+    .map(([k]) => { const [id, i] = k.split('#'), x = id === 'bank' && BANK.hist[+i]; return x ? { a: anchorById[x.ch], i: +i, x: bankQ(x), bn: +i } : { a: anchorById[id], i: +i }; })
+    .filter(h => h.a && (h.x || h.a.quiz && h.a.quiz[h.i]) && !plusLocked(h.a.id));
   return { places: places.slice(0, 8), hist: hist.slice(0, 5) };
 }
 function reviewCard() {
@@ -2775,7 +3113,7 @@ function askHist(item) {
     if (!ok) b.classList.add('bad');
     const key = x ? 'b:' + Q.q : a.id + '#' + i;
     if (!session.first.has(key)) session.first.set(key, ok);
-    if (!x) rememberCQ(a.id, i, ok);
+    if (!x) rememberCQ(a.id, i, ok); else if (item.h.bn != null) rememberCQ('bank', item.h.bn, ok);
     if (!ok && session.review) requeue(item, 3);
     practisedToday(ok ? 10 : 0); updateTop();
     session.done++;
@@ -3084,7 +3422,7 @@ function summary() {
     if (findPR) pushRecords();
   }
   if (n >= 3 && !state.locate) markDay('learn');
-  setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : session.review ? 'Review done!' : session.histq ? 'History quiz done!' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}${findTime ? ` · ${findTime}` : ''}</div></div>
+  setSheet(`<div class="done"><span class="badge">${great ? ART.trophy : ART.medal}</span><div class="title">${!n ? 'Round ended' : session.review ? 'Refresher done!' : session.histq ? 'History quiz done!' : great ? 'Round complete!' : 'Good practice!'}</div><div class="sub">${scopeLine()}${findTime ? ` · ${findTime}` : ''}</div></div>
     ${findPR ? `<div class="pr-badge">${IC.timer}<b>New personal record</b>${findPR.ms ? `<span>Was ${findPR.n}/${session.total} in ${fmtTime(findPR.ms)}</span>` : '<span>Your first full run on this map</span>'}</div>` : ''}
     ${rewardBlock()}
     ${remindCard() || saveCard(false)}
@@ -3543,7 +3881,7 @@ function usualHour() {
 function reminderPlan() {
   if (!store.remind) return [];
   const [h, m] = store.remind === 'smart' ? [usualHour(), 0] : store.remind.split(':').map(Number);
-  const t = todayDone(), played = !!(t.learn || t.geo || t.hist), st = streak(), now = Date.now(), out = [];
+  const t = todayDone(), played = !!t.learn, st = streak(), now = Date.now(), out = [];
   const W = SCOPES.find(s => s.id === 'world').items.filter(f => f.k === 'c' && prog(f.id, 'name').s < 2 && (f.pop || 0) > 3e6);
   const pickPlace = k => W.length ? W[(dailyNo() * 7 + k * 13) % W.length].n : 'Kyrgyzstan';
   const left = 3 - (t.learn ? 1 : 0) - (dailyState('geo').done ? 1 : 0) - (dailyState('hist').done ? 1 : 0);
@@ -3551,18 +3889,18 @@ function reminderPlan() {
   const add = (id, when, title, body) => { if (when > now + 60000) out.push({ id, title, body, at: when }); };
   // today
   if (!played) {
-    add(100, at(0, h, m), st ? `🔥 Keep your ${st}-day streak going` : '🌍 Today\'s challenges are live', st ? 'Today\'s Daily Geography is ready. Two minutes keeps the streak alive.' : 'Ten questions, the same for everyone. Where will you rank today?');
-    if (st) add(101, at(0, 20, 45), `Your ${st}-day streak ends at midnight`, 'One daily challenge takes two minutes.');
-    if (st >= 3) add(102, at(0, 22, 30), `⏰ Last chance for your ${st}-day streak`, 'Ninety minutes left. Play one quick challenge.');
+    add(100, at(0, h, m), st ? `🔥 Keep your ${st}-day streak going` : '🌍 Today\'s lesson is ready', st ? 'Today\'s lesson is ready. Five minutes of geography or history keeps the streak alive.' : 'Five minutes of geography or history. Pick up where you left off.');
+    if (st) add(101, at(0, 20, 45), `Your ${st}-day streak ends at midnight`, 'One short lesson keeps it going.');
+    if (st >= 3) add(102, at(0, 22, 30), `⏰ Last chance for your ${st}-day streak`, 'Ninety minutes left. One quick lesson saves it.');
   } else if (left > 0 && h < 18) {
-    add(103, at(0, 18, 30), `${left === 1 ? 'One' : 'Two'} more for a perfect day 👑`, left === 1 ? 'Finish today\'s last challenge before midnight.' : 'Daily History and today\'s lesson are waiting.');
+    add(103, at(0, 18, 30), `${left === 1 ? 'One' : 'Two'} more for a perfect day 👑`, left === 1 ? 'One more before midnight makes it perfect.' : 'Two left for a perfect day.');
   }
   // the next few days, then a win-back series that tails off
   const lines = [
     [1, '🌍 New questions are live', 'Ten new geography questions. Where will you rank today?'],
     [2, '📜 Today\'s Daily History is ready', 'Empires, wars and big ideas, in two minutes.'],
     [3, `Can you find ${pickPlace(3)} on a map?`, 'Find out in today\'s challenge.'],
-    [5, 'Your globe misses you', 'Two minutes is all it takes to start a new streak.'],
+    [5, 'Your globe misses you', 'One five-minute lesson starts a new streak.'],
     [7, 'A week away', `Pick up where you left off. ${pickPlace(7)} is still waiting to be learned.`],
     [14, 'We\'ll stop sending reminders', 'They don\'t seem to be helping, so we\'ll pause them. Come back any time.'],
   ];
@@ -3768,7 +4106,8 @@ const dailyLine = d => d.done ? `${ddScore(d)} pts${d.pct != null ? ` · ${topPc
 if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__ddQs = (no, kind) => dailyQs(no, kind);  // tests only
 
 // ---------- today: learn, two dailies, the streak ----------
-// Any one of the three keeps the streak alive; all three is a perfect day. A free streak freeze arrives each
+// A lesson (geography or history) keeps the streak alive; the two daily challenges rank you against the world but
+// don't count towards it. A lesson plus both challenges is a perfect day. A free streak freeze arrives each
 // week (two with Plus) and covers a missed day automatically.
 const todayDone = () => store.td && store.td.d === dayKey() ? store.td : {};
 function markDay(kind) {
@@ -3776,7 +4115,7 @@ function markDay(kind) {
   t[kind] = 1;
   const hrs = store.hours || (store.hours = Array(24).fill(0)); hrs[new Date().getHours()]++;
   const days = store.days || (store.days = []);
-  if (days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); gain.streakUp = true; }
+  if (kind === 'learn' && days[days.length - 1] !== today) { days.push(today); if (days.length > 400) days.shift(); gain.streakUp = true; }
   if (t.learn && t.geo && t.hist && !t.perfect) { t.perfect = 1; store.perfect = (store.perfect || 0) + 1; gain.perfect = true; }
   save(); updateTop(); remindersSoon(); markFounder();
 }
@@ -3852,12 +4191,12 @@ function todayCard() {
   const ITEMS = {
     geo: { id: 'goDaily', title: 'Daily Geography', icon: IC.globe, c: 'var(--blue)', h: ['#38aaf8', '#1b7fd0', '#1566ad'], d: dg, sub: 'Ten questions on the map. The whole world gets the same ones.' },
     hist: { id: 'goDailyH', title: 'Daily History', icon: IC.clock, c: 'var(--purple)', h: ['#b48aff', '#8656e6', '#6a3fc4'], d: dh, sub: 'Ten questions on empires, wars and big ideas.' },
-    learn: { id: 'goToday', title: 'Learn', icon: IC.target, c: 'var(--green)', h: ['#3fd072', '#1f9b4b', '#177d3b'], sub: `Five minutes of new ${esc(what)}, with a quick review.` },
+    learn: { id: 'goToday', title: 'Learn', icon: IC.target, c: 'var(--green)', h: ['#3fd072', '#1f9b4b', '#177d3b'], sub: `Five minutes of geography or history. Keeps your streak going.` },
   };
   const isDone = k => k === 'learn' ? !!t.learn : !!ITEMS[k].d.done;
   const next = ['geo', 'hist', 'learn'].find(k => !isDone(k));
   const status = k => {
-    if (k === 'learn') return t.learn ? 'Done today' : '5 minutes';
+    if (k === 'learn') return t.learn ? 'Done today' : 'Keeps your streak';
     const d = ITEMS[k].d;
     return d.done ? `${ddScore(d)} pts${d.pct != null ? ` · ${topPct(d.pct)}` : ''}` : d.ans.length ? `${d.ans.length} of ${DQ_N} answered` : '10 questions';
   };
@@ -3879,14 +4218,30 @@ function todayCard() {
     ${repairCard()}
     ${hero}
     <div class="hm-tiles${tiles.split('hm-tile').length > 3 ? ' three' : ''}">${tiles}</div>
+    ${refreshCard()}${histCard()}
     ${dg.no > 1 ? `<button class="link td-arc" id="goArc">Missed a day? Play past challenges</button>` : ''}
   </div>`;
 }
+// The daily refresher: what you've learned that is due to fade (places, chapter facts), a couple of minutes a day.
+function refreshCard() {
+  const { places, hist } = reviewDue(), n = places.length + hist.length;
+  if (!n) return '';
+  return `<button class="hm-card refresh" id="goReview"><b>🧠 Daily refresher</b><small>${n} thing${n > 1 ? 's' : ''} to remember from what you've learned · ${Math.max(1, Math.round(n / 4))} min</small>
+    <span class="hm-chips">${places.length ? `<em>Geography ${places.length}</em>` : ''}${hist.length ? `<em>History ${hist.length}</em>` : ''}</span></button>`;
+}
+// Back into the history chapter you're working through.
+function histCard() {
+  const a = anchorById[store.histLast]; if (!a || !a.maps || chDone(a.id) || plusLocked(a.id)) return '';
+  const st = modState(a);
+  return `<button class="hm-card histc" id="goHistCard"><small>History · ${esc(a.title)}</small><b>${st.cur ? `Continue: ${esc(momYears(st.cur) ? momYears(st.cur) + ', ' : '')}${esc(st.cur.M.tab)}` : 'Take the final quiz'}</b><small>${st.cur ? `Moment ${st.ms.indexOf(st.cur) + 1} of ${st.n}` : `${st.n} of ${st.n} moments done`}</small></button>`;
+}
 function bindDaily() {
   bindVs(); bindRepair();
-  // A lesson started from Today comes back to Today when it ends.
-  if ($('#goToday')) $('#goToday').onclick = () => { buzz(8); const t = state.tab; startLearn(); roundFrom = t; };
-  if ($('#tdPlay')) $('#tdPlay').onclick = () => { buzz(8); const k = $('#tdPlay').dataset.next; if (k === 'learn') { const t = state.tab; startLearn(); roundFrom = t; } else dailyChallenge(k); };
+  // Today's lesson opens Learn, where you pick geography or history.
+  const learn = () => { buzz(8); learnSheet(); sheet.scrollTop = 0; };
+  if ($('#goToday')) $('#goToday').onclick = learn;
+  if ($('#tdPlay')) $('#tdPlay').onclick = () => { const k = $('#tdPlay').dataset.next; if (k === 'learn') learn(); else { buzz(8); dailyChallenge(k); } };
+  if ($('#goHistCard')) $('#goHistCard').onclick = () => { buzz(8); goHistory(anchorById[store.histLast]); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
   if ($('#goDailyH')) $('#goDailyH').onclick = () => { buzz(8); dailyChallenge('hist'); };
   if ($('#goArc')) $('#goArc').onclick = () => { buzz(5); archiveSheet(); };
@@ -4310,7 +4665,7 @@ function pushStatsSoon() {
 // With a profile, learning progress follows you between devices. Each sync reads the saved copy, merges it
 // with this device's (the most recent answer per place wins, streak days and best scores combine), and
 // writes the result back. Settings like theme and the current map stay per device.
-const SYNC_KEYS = ['founder', 'leagues', 'prog', 'days', 'td', 'frz', 'perfect', 'ddLog', 'cq', 'cqBest', 'hqBest', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
+const SYNC_KEYS = ['founder', 'leagues', 'prog', 'days', 'td', 'frz', 'perfect', 'ddLog', 'cq', 'cqBest', 'hqBest', 'hist', 'histLast', 'today', 'wk', 'goal', 'commit', 'onb', 'why', 'level', 'plus', 'daily', 'dailyH', 'prs'];
 function mergeProgress(a, b) {
   const out = {};
   const later = (x, y) => (x && x.t || 0) >= (y && y.t || 0) ? x : y;
@@ -4330,6 +4685,9 @@ function mergeProgress(a, b) {
   for (const k in b.cq || {}) { const x = cq[k], y = b.cq[k]; cq[k] = !x ? y : (y.due || 0) > (x.due || 0) ? y : x; }
   out.cq = cq;
   out.cqBest = maxMap(a.cqBest, b.cqBest); out.hqBest = maxMap(a.hqBest, b.hqBest);
+  // History modules: moments done on either device, the best final quiz, completed and crowned if either says so.
+  if (a.hist || b.hist) { out.hist = { ...(a.hist || {}) }; for (const [k, y] of Object.entries(b.hist || {})) { const x = out.hist[k]; out.hist[k] = !x ? y : { m: [...new Set([...(x.m || []), ...(y.m || [])])], best: Math.max(x.best || 0, y.best || 0), done: x.done || y.done || undefined, crown: x.crown || y.crown || undefined, t: Math.max(x.t || 0, y.t || 0) }; } }
+  out.histLast = (a.hist && a.hist[a.histLast] && a.hist[a.histLast].t || 0) >= (b.hist && b.hist[b.histLast] && b.hist[b.histLast].t || 0) ? a.histLast || b.histLast : b.histLast;
   // Today's count and this week's XP: the later day or week wins; the same one keeps the higher number.
   const newer = (x, y, key, num) => !x || !y ? x || y : x[key] !== y[key] ? (x[key] > y[key] ? x : y) : { [key]: x[key], [num]: Math.max(x[num] || 0, y[num] || 0) };
   out.today = newer(a.today, b.today, 'd', 'n'); out.wk = newer(a.wk, b.wk, 'id', 'pts');
