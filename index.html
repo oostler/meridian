@@ -563,14 +563,19 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .lc-grid span { font-size: 15px; font-weight: 600; line-height: 1.35; }
 .lc-sides { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: stretch; }
 .lc-sides > i { align-self: center; font-weight: 900; font-style: normal; color: var(--ink-3); font-size: 13px; }
-.lc-sides ul { margin: 4px 0 0; padding-left: 16px; display: grid; gap: 4px; font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+.lc-sides ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14.5px; font-weight: 700; line-height: 1.3; }
+.lcard { container-type: inline-size; }
+@container (max-width: 520px) {
+  .lc-sides { grid-template-columns: 1fr; gap: 4px; }
+  .lc-sides > i { justify-self: center; }
+}
 .lc-bars { display: flex; flex-direction: column; gap: 8px; }
 .lcb { display: flex; gap: 10px; align-items: flex-start; margin: 0; }
 .lcb > b { flex: 0 0 104px; font-weight: 800; font-size: 14px; line-height: 1.2; padding-top: 1px; }
 .lcb-r { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .lcb-t { display: block; height: 14px; border-radius: 7px; background: var(--line); overflow: hidden; }
 .lcb-t > span { display: block; height: 100%; border-radius: 7px; background: var(--purple); animation: lcgrow .7s ease-out; transform-origin: left; }
-.lcb-r small { font-size: 12.5px; font-weight: 800; color: var(--ink-3); }
+.lcb-r small { font-size: 12.5px; font-weight: 800; color: var(--ink-2); }
 @keyframes lcgrow { from { transform: scaleX(0); } }
 .lc-tf { font-size: 21px; }
 .lc-tfo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
