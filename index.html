@@ -2117,6 +2117,8 @@ function drawHist() {
   const unwrap = pts => { let prev; return pts.map(([x, y]) => { if (prev != null) x += Math.round((prev - x) / 360) * 360; prev = x; return [x, y]; }); };
   const lines = (M && M.lines || []).map(l => ({ type: 'Feature', properties: { c: PAL[l.color] || PAL.gold }, geometry: { type: 'LineString', coordinates: unwrap(l.pts) } }));
   map.getSource('hist')?.setData({ type: 'FeatureCollection', features: lines });
+  // Hide the route layers outright when there are none, so an old route can't linger on screen.
+  for (const id of ['hist-case', 'hist-line']) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', lines.length ? 'visible' : 'none');
   // Lesson routes end in an arrowhead pointing the way they go (borders, in slate, don't).
   for (const l of M && M.lines || []) {
     if (!l.arrow || l.pts.length < 2) continue;
