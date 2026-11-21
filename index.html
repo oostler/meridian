@@ -543,6 +543,44 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .ml-nav { display: flex; gap: 8px; margin-top: 6px; }
 .ml-nav .btn.primary { flex: 1; }
 .ml-nav #mlBack { width: 56px; padding: 0; display: grid; place-items: center; }
+.lcard { display: grid; gap: 10px; }
+.lc-tag { justify-self: start; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--purple-d); background: color-mix(in srgb, var(--purple) 14%, var(--bg)); padding: 4px 10px; border-radius: 999px; }
+.lc-stat { display: grid; gap: 2px; padding: 16px; border-radius: 18px; background: color-mix(in srgb, var(--purple) 12%, var(--bg)); border: 2px solid color-mix(in srgb, var(--purple) 40%, var(--line)); text-align: center; }
+.lc-stat b { font-size: 44px; font-weight: 900; line-height: 1; color: var(--purple-d); font-variant-numeric: tabular-nums; }
+.lc-stat span { font-weight: 800; color: var(--ink-2); }
+.lc-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+.lc-flow li { position: relative; display: grid; gap: 3px; padding: 10px 12px; border: 2px solid var(--line); border-left: 6px solid var(--purple); border-radius: 14px; background: var(--bg); }
+.lc-flow li + li::before { content: '↓'; position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-weight: 900; color: var(--purple); line-height: 22px; }
+.lc-flow b, .lc-line b { font-weight: 900; font-size: 14px; color: var(--purple-d); }
+.lc-flow span, .lc-line span { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.lc-line { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 3px solid color-mix(in srgb, var(--purple) 45%, var(--line)); display: grid; gap: 12px; }
+.lc-line li { position: relative; display: grid; gap: 2px; }
+.lc-line li::before { content: ''; position: absolute; left: -26px; top: 3px; width: 13px; height: 13px; border-radius: 50%; background: var(--purple); border: 3px solid var(--bg); }
+.lc-grid { display: grid; gap: 8px; }
+.lc-grid > div, .lc-sides > div { display: grid; gap: 2px; padding: 10px 12px; border-radius: 14px; border: 2px solid color-mix(in srgb, var(--lc) 45%, var(--line)); background: color-mix(in srgb, var(--lc) 9%, var(--bg)); }
+.lc-grid b, .lc-sides b { font-weight: 900; font-size: 17px; color: color-mix(in srgb, var(--lc) 70%, var(--ink)); }
+.lc-grid small { font-weight: 800; color: var(--ink-3); font-size: 12px; }
+.lc-grid span { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.lc-sides { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: stretch; }
+.lc-sides > i { align-self: center; font-weight: 900; font-style: normal; color: var(--ink-3); font-size: 13px; }
+.lc-sides ul { margin: 4px 0 0; padding-left: 16px; display: grid; gap: 4px; font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+.lc-bars { display: grid; gap: 8px; }
+.lc-bars > div { display: grid; grid-template-columns: 96px 1fr; gap: 2px 8px; align-items: center; }
+.lc-bars span { font-weight: 800; font-size: 14px; }
+.lc-bars u { height: 14px; border-radius: 7px; background: var(--line); overflow: hidden; display: block; }
+.lc-bars s { display: block; height: 100%; border-radius: 7px; background: var(--purple); animation: lcgrow .7s ease-out; transform-origin: left; }
+.lc-bars em { grid-column: 2; font-style: normal; font-size: 12.5px; font-weight: 800; color: var(--ink-3); }
+@keyframes lcgrow { from { transform: scaleX(0); } }
+.lc-tf { font-size: 21px; }
+.lc-tfo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lc-tfo .opt { justify-content: center; }
+.lc-ord { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.lc-ord li { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; border: 2px solid var(--green); background: var(--green-l); color: var(--green-d); font-weight: 800; animation: fade .2s; }
+.lc-ord li b { width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 13px; flex: none; }
+.lc-pool { display: grid; gap: 6px; }
+.lc-pool .opt.bad { animation: shake .4s; }
+.mod-lock { display: flex; gap: 6px; align-items: center; justify-content: center; margin: 0; font-size: 13px; font-weight: 800; color: var(--ink-3); }
+.mod-lock .ic { width: 14px; height: 14px; }
 .md-note { border-radius: 16px; padding: 12px 14px; background: var(--green-l); border: 2px solid var(--green); display: grid; gap: 3px; }
 .md-note b { display: flex; align-items: center; gap: 5px; color: var(--green-d); font-weight: 900; }
 .md-note b .ic { width: 16px; height: 16px; }
@@ -1380,7 +1418,7 @@ function styleFor(f) {
     if (r) {
       const dim = state.focusG != null && state.focusG !== r.gi;
       fill = PAL[M.groups[r.gi].color] || C.target; fo = dim ? 0.1 : r.part ? 0.3 : 0.6; lc = INK; lo = dim ? 0.25 : 0.6; lw = 1;
-    } else if (!M && f.h && f.h.a.includes(state.era)) { fill = C.target; fo = 0.42; lc = INK; lo = 0.7; lw = 1; }
+    } else if (!M && state.mapI !== -1 && f.h && f.h.a.includes(state.era)) { fill = C.target; fo = 0.42; lc = INK; lo = 0.7; lw = 1; }
     if (state.sel && state.sel.id === f.id) { if (!r) fill = C.target; fo = Math.max(fo, 0.7) + 0.08; lc = sat ? '#ffffff' : INK; lo = 1; lw = 2.2; }
     const hq = state.hq;
     if (hq && hq.picked == null) {
@@ -2003,7 +2041,7 @@ const eraMembers = id => LAYER.filter(f => f.h && f.h.a.includes(id));
 const PAL = { red: '#e03131', blue: '#2846c4', gold: '#f2a900', green: '#2f9e44', purple: '#8f3fe0', teal: '#0c9c9c', orange: '#f76707', pink: '#d6336c', brown: '#96693d', slate: '#5c7684', navy: '#283c8c', lime: '#82b81a' };
 const parentId = f => f.k === 's' ? 'USA' : f.k === 'p' ? 'CAN' : f.k === 'r' && !['HKG', 'MAC'].includes(f.id) ? 'CHN' : f.id;
 let roleCache = null, roleFor = null;
-const curMap = () => { const a = anchorById[state.era]; return a && a.maps ? a.maps[Math.min(state.mapI || 0, a.maps.length - 1)] : null; };
+const curMap = () => { const a = anchorById[state.era]; return a && a.maps && state.mapI !== -1 ? a.maps[Math.min(state.mapI || 0, a.maps.length - 1)] : null; };
 function histRole(f) {
   const M = curMap(); if (!M) return null;
   if (roleFor !== M) {
@@ -2372,7 +2410,7 @@ function historySheet() {
       const n = plus && a.cat ? list.filter(x => x.cat === a.cat).length : 0;
       const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}<span class="sec-n">${n}</span></h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
       const lk = plusLocked(a.id), free = plus && !hasPlus() && a.id === PLUS_FREE;
-      const r = histRec(a.id), nm = (a.maps || []).length, k2 = lk ? 0 : r.m.filter(m => m < nm).length;
+      const r = histRec(a.id), ms0 = moments(a), nm = ms0.length, dl0 = doneList(a, r), k2 = lk ? 0 : ms0.filter(x => dl0.includes(x.m)).length;
       const prog = lk ? '' : r.done ? `<em class="mst all">${r.crown ? '👑 ' : IC.check}Completed</em>` : k2 >= nm ? `<em class="mst part">Final quiz to go</em>` : k2 ? `<em class="mst part">${k2} of ${nm} moment${nm > 1 ? 's' : ''}</em>` : '';
       const pop = a.id === 'ww2' && !store.hist ? `<em class="freeb pop">Popular start</em>` : '';
       return `${hd}<button class="chapter tile${lk ? ' locked' : ''}${lk ? '' : r.done ? ' cdone' : k2 ? ' cpart' : ' cnew'}" style="--sc:${secColor[a.id]};--p:${nm ? Math.round(k2 / nm * 100) : 0}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}${pop}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
@@ -2612,7 +2650,7 @@ function eraSheet(id, keepView, mapI) {
   setSheet(`<button class="back" id="eraDone">${IC.back}Timeline</button>
     <div class="era-head" style="--sc:${secColor[a.id]}"><span class="yrs">${esc(a.years)} · Chapter ${i + 1} of ${TL.length}</span><h2>${esc(a.title)}</h2></div>
     ${mod}
-    ${a.story ? storyBlock(a) : M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
+    ${a.story ? (a.lesson && !chDone(a.id) ? '' : storyBlock(a)) : M ? '' : `<p class="era-intro">${esc(a.text)}</p>`}
     ${maps.length > 1 && !mod ? `<div class="mtabs" role="tablist">${maps.map((m, k) => `<button role="tab" data-m="${k}" aria-selected="${k === (state.mapI || 0)}">${mapDone(a.id, k) ? `<span class="mt-ok" aria-label="Mastered">${IC.check}</span>` : ''}${esc(m.tab)}</button>`).join('')}</div>` : ''}
     ${hq ? hquizHtml(hq) : M ? `<div class="hmap"><h3>${esc(M.title)}</h3><p>${linkText(M.text)}</p>
       <div class="legend">${legend}${(M.lines || []).filter((l, k, a) => a.findIndex(x => x.label === l.label) === k).map(l => `<div class="lrow"><i style="--gc:${PAL[l.color]}"></i><b>${esc(l.label)}</b></div>`).join('')}</div>${M.groups.some(g => g.part && g.part.length) ? `<p class="fine">Shown on today's borders. Lighter shading: only part of that country.</p>` : ''}
@@ -2718,7 +2756,7 @@ function histSet(id, f) {
 }
 const chDone = id => !!histRec(id).done;
 // The chapter's maps in time order (by the year each starts); the authored order breaks ties.
-const moments = a => (a.maps || []).map((M, m) => ({ M, m, y: M.yr ? M.yr[0] : 0, y2: M.yr ? M.yr[1] : 0 })).sort((p, q) => p.y - q.y || p.m - q.m);
+const moments = a => a.lesson ? a.lesson.units.map((U, k) => ({ U, M: { tab: U.tab, title: U.title, yr: U.y }, m: k, y: U.y[0], y2: U.y[1] })) : (a.maps || []).map((M, m) => ({ M, m, y: M.yr ? M.yr[0] : 0, y2: M.yr ? M.yr[1] : 0 })).sort((p, q) => p.y - q.y || p.m - q.m);
 const shortYr = y => y < 0 ? `${-y} BC` : String(y);
 function momYears(x) {
   if (!x.M.yr) return '';
@@ -2728,10 +2766,12 @@ function momYears(x) {
   return `${shortYr(x.y)}–${shortYr(x.y2)}`;
 }
 // Where a player is in a chapter: the first moment (in time order) not yet done, or the final quiz.
+// Chapters with an interactive lesson keep their finished units in u; the others their finished maps in m.
+const doneList = (a, r = histRec(a.id)) => (a.lesson ? r.u : r.m) || [];
 function modState(a) {
-  const ms = moments(a), r = histRec(a.id), done = ms.filter(x => r.m.includes(x.m)).length;
-  const cur = ms.find(x => !r.m.includes(x.m)) || null;
-  return { ms, r, done, cur, n: ms.length };
+  const ms = moments(a), r = histRec(a.id), dl = doneList(a, r), done = ms.filter(x => dl.includes(x.m)).length;
+  const cur = ms.find(x => !dl.includes(x.m)) || null;
+  return { ms, r, done, cur, n: ms.length, dl };
 }
 // The chapter to offer next: the last one touched if unfinished, else the next unfinished after it (World War II
 // for a first-timer: the most popular place to start).
@@ -2768,7 +2808,17 @@ function momentQs(a, m) {
   const txt = textQs(a).filter((_, j) => j % K === k).slice(0, 3);
   return shuffle([...mapQsFor(a, m, Math.max(2, 5 - txt.length)), ...txt]);
 }
+// A lesson's own checks, as quiz questions (true-or-false ones as two options).
+function lessonQs(a) {
+  const out = [];
+  (a.lesson ? a.lesson.units : []).forEach((U, u) => U.cards.forEach(c => {
+    if (c.t === 'quiz') out.push({ kind: 'lq', a, Q: { q: c.q, a: c.a, c: c.c, why: c.why } });
+    else if (c.t === 'tf') out.push({ kind: 'lq', a, Q: { q: 'True or false: ' + c.s, a: ['True', 'False'], c: c.v ? 0 : 1, why: c.why } });
+  }));
+  return out;
+}
 function finalQs(a) {
+  if (a.lesson) { const t = textQs(a), cq = t.filter(q => q.kind === 'cq'), bank = shuffle(t.filter(q => q.kind === 'bank')).slice(0, 2); return shuffle([...cq, ...bank, ...shuffle(lessonQs(a))].slice(0, HIST_N)); }
   const t = textQs(a), cq = t.filter(q => q.kind === 'cq'), bank = shuffle(t.filter(q => q.kind === 'bank')).slice(0, 3);
   const out = [...cq, ...bank], ms = moments(a);
   for (let j = 0; out.length < HIST_N && j < 4; j++) for (const x of ms) { if (out.length >= HIST_N) break; out.push(...mapQsFor(a, x.m, 1).filter(q => !out.some(o => o.f === q.f))); }
@@ -2779,7 +2829,8 @@ const passMark = n => Math.ceil(n * 0.8);
 
 // The map story for one moment: the map's headline, then each group in turn, then the key places.
 function startMoment(id, m) {
-  const a = anchorById[id]; if (!a || !a.maps || !a.maps[m]) return;
+  const a = anchorById[id]; if (a && a.lesson) return startUnit(a, m);
+  if (!a || !a.maps || !a.maps[m]) return;
   if (plusLocked(id)) return unlockSheet(id);
   const M = a.maps[m], x = moments(a).find(z => z.m === m), yrs = momYears(x);
   const steps = [{ k: 'intro' }, ...M.groups.slice(0, 6).map((g, gi) => ({ k: 'g', gi })), ...(M.pins && M.pins.length ? [{ k: 'pins' }] : [])];
@@ -2815,6 +2866,98 @@ function startMoment(id, m) {
     $('#mlNext').onclick = next;
     sheet.querySelectorAll('.lk[data-id]').forEach(b => b.onclick = () => { const f = byId[b.dataset.id]; if (f) { buzz(5); toast(f.n); showOnGlobe(f); } });
     keyHandler = e => { if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); next(); } };
+    draw();
+  };
+  show();
+}
+
+// An interactive lesson part: one card at a time (reading, diagrams and quick checks), with the globe showing the
+// map each card names. Checks must be answered to go on; every one counts towards today's points.
+function lessonCard(c) {
+  const P = t => String(t || '').split('\n\n').map(x => `<p class="ml-t">${esc(x)}</p>`).join('');
+  const col = k => PAL[k] || PAL.blue;
+  switch (c.t) {
+    case 'read': return `<p class="prompt">${esc(c.h)}</p>${P(c.p)}`;
+    case 'stat': return `<div class="lc-stat"><b>${esc(c.n)}</b><span>${esc(c.h)}</span></div>${P(c.p)}`;
+    case 'flow': return `<p class="prompt">${esc(c.h)}</p><ol class="lc-flow">${c.steps.map(([k, t]) => `<li><b>${esc(k)}</b><span>${esc(t)}</span></li>`).join('')}</ol>${P(c.p)}`;
+    case 'line': return `<p class="prompt">${esc(c.h)}</p><ol class="lc-line">${c.pts.map(([y, t]) => `<li><b>${esc(y)}</b><span>${esc(t)}</span></li>`).join('')}</ol>`;
+    case 'grid': return `<p class="prompt">${esc(c.h)}</p>${P(c.p)}<div class="lc-grid">${c.items.map(([h, sub, t, k]) => `<div style="--lc:${col(k)}"><b>${esc(h)}</b><small>${esc(sub)}</small><span>${esc(t)}</span></div>`).join('')}</div>`;
+    case 'sides': { const side = ([n, k, l]) => `<div style="--lc:${col(k)}"><b>${esc(n)}</b><ul>${l.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+      return `<p class="prompt">${esc(c.h)}</p><div class="lc-sides">${side(c.l)}<i>vs</i>${side(c.r)}</div>${P(c.p)}`; }
+    case 'bars': { const top = Math.max(...c.rows.map(r => r[1]));
+      return `<p class="prompt">${esc(c.h)}</p><div class="lc-bars">${c.rows.map(([l, v, d]) => `<div><span>${esc(l)}</span><u><s style="width:${Math.max(2, v / top * 100)}%"></s></u><em>${esc(d)}</em></div>`).join('')}</div>${c.note ? `<p class="fine">${esc(c.note)}</p>` : ''}`; }
+    case 'quiz': return `<span class="lc-tag">Quick check</span><p class="prompt">${esc(c.q)}</p><div class="opts col">${c.ord.map((k, j) => `<button class="opt" data-v="${k}"><kbd>${j + 1}</kbd><span>${esc(c.a[k])}</span></button>`).join('')}</div><div class="fb inline" id="fb"></div>`;
+    case 'tf': return `<span class="lc-tag">True or false?</span><p class="prompt lc-tf">${esc(c.s)}</p><div class="opts lc-tfo"><button class="opt" data-v="1"><span>True</span></button><button class="opt" data-v="0"><span>False</span></button></div><div class="fb inline" id="fb"></div>`;
+    case 'order': return `<span class="lc-tag">Put them in order</span><p class="prompt">${esc(c.h)}</p><p class="hint">Tap them from earliest to latest.</p><ol class="lc-ord" id="ordOut"></ol><div class="lc-pool">${c.mix.map(k => `<button class="opt" data-k="${k}"><span>${esc(c.items[k])}</span></button>`).join('')}</div><div class="fb inline" id="fb"></div>`;
+  }
+  return '';
+}
+function startUnit(a, k) {
+  if (plusLocked(a.id)) return unlockSheet(a.id);
+  const U = a.lesson.units[k]; if (!U) return;
+  const x = moments(a)[k], yrs = momYears(x), cards = U.cards, n = cards.length;
+  clearTimeout(advanceT); stopPlay();
+  state.mode = 'era'; state.era = a.id; state.sel = null; state.hq = null; state.target = null; state.flash = null; state.histrun = true;
+  setRound(true); setTab('history'); gainStart();
+  const quit = () => { state.histrun = false; keyHandler = null; state.focusG = null; state.target = null; state.mapI = Math.max(0, U.map || 0); setRound(false); eraSheet(a.id); };
+  let i = 0, right = 0, asked = 0;
+  const answered = new Set();
+  const show = () => {
+    const c = cards[i], check = ['quiz', 'tf', 'order'].includes(c.t);
+    if (c.t === 'quiz' && !c.ord) c.ord = shuffle(c.a.map((_, j) => j));
+    if (c.t === 'order' && !c.mix) { do c.mix = shuffle(c.items.map((_, j) => j)); while (c.mix.every((v, j) => v === j)); }
+    // The globe: the card's map (and group), else the part's.
+    // A card or part with no map (map: null) shows the plain globe.
+    const [m, g] = c.map || (U.map == null ? [-1] : [U.map]);
+    if (m === -1) { state.mapI = -1; state.focusG = null; fitBox(U.box || (a.maps && a.maps[0] ? a.maps[0].box || mapBox(a.maps[0]) : G.views.world)); }
+    else if (a.maps && a.maps[m]) {
+      const M = a.maps[m]; state.mapI = m; state.focusG = g == null ? null : g;
+      const box = g == null ? null : mapBox({ groups: [M.groups[g]] });
+      fitBox(box && box !== G.views.world ? box : M.box || mapBox(M));
+    }
+    setSheet(`<div class="qhead"><button class="qx" id="ulX" aria-label="Close">${IC.x}</button><div class="qbar"><i style="width:${i / n * 100}%"></i></div></div>
+      <span class="pill hist">${esc(yrs ? yrs + ' · ' : '')}${esc(U.title)}</span>
+      <div class="lcard lc-${c.t}">${lessonCard(c)}</div>
+      <div class="ml-nav">${i ? `<button class="btn" id="mlBack" aria-label="Back">${IC.back}</button>` : ''}<button class="btn primary" id="mlNext"${check && !answered.has(i) ? ' disabled' : ''}>${i + 1 < n ? 'Continue' : 'Finish'}</button></div>
+      <button class="flag" data-report="${esc(a.title + ' · ' + U.title + ' · card ' + (i + 1))}">Report an error</button>`);
+    sheet.scrollTop = 0;
+    $('#ulX').onclick = quit;
+    const nextB = $('#mlNext');
+    const next = () => { if (nextB.disabled) return; buzz(5); if (i + 1 < n) { i++; show(); } else { state.histrun = false; keyHandler = null; state.focusG = null; state.mapI = Math.max(0, state.mapI); momentDone(a, k, right, asked); } };
+    nextB.onclick = next;
+    if ($('#mlBack')) $('#mlBack').onclick = () => { buzz(5); i--; show(); };
+    const done = (ok, title, why) => {
+      if (!answered.has(i)) { answered.add(i); asked++; if (ok) right++; practisedToday(ok ? 10 : 0); updateTop(); }
+      verdict(ok, title, esc(why || ''));
+      buzz(ok ? 12 : [20, 40, 20]);
+      nextB.disabled = false; setTimeout(() => nextB.focus({ preventScroll: true }), 30);
+      requestAnimationFrame(() => sheet.scrollTo({ top: sheet.scrollHeight, behavior: 'smooth' }));
+    };
+    keyHandler = e => { if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); next(); } };
+    if (c.t === 'quiz' || c.t === 'tf') {
+      const btns = [...sheet.querySelectorAll('.opt')], ans = c.t === 'quiz' ? c.c : c.v ? 1 : 0;
+      const pick = b => {
+        if (b.disabled) return; btns.forEach(z => z.disabled = true);
+        const ok = +b.dataset.v === ans;
+        btns.find(z => +z.dataset.v === ans).classList.add('good'); if (!ok) b.classList.add('bad');
+        done(ok, ok ? PRAISE[Math.random() * PRAISE.length | 0] : c.t === 'tf' ? `It's ${c.v ? 'true' : 'false'}` : `Answer: ${esc(c.a[c.c])}`, c.why);
+      };
+      btns.forEach(b => b.onclick = () => pick(b));
+      if (answered.has(i)) btns.forEach(z => { z.disabled = true; if (+z.dataset.v === ans) z.classList.add('good'); });
+      else keyHandler = e => { const d = +e.key; if (d >= 1 && d <= btns.length) pick(btns[d - 1]); else if (e.key === 'Enter') { e.preventDefault(); next(); } };
+    }
+    if (c.t === 'order') {
+      const out = $('#ordOut'), pool = [...sheet.querySelectorAll('.lc-pool .opt')];
+      let at = 0, slips = 0;
+      const place = (kk, flawless) => { out.insertAdjacentHTML('beforeend', `<li class="${flawless ? 'ok' : 'fix'}"><b>${at + 1}</b><span>${esc(c.items[kk])}</span></li>`); at++; };
+      if (answered.has(i)) { pool.forEach(b => b.remove()); c.items.forEach((_, kk) => place(kk, true)); }
+      pool.forEach(b => b.onclick = () => {
+        const kk = +b.dataset.k;
+        if (kk !== at) { slips++; buzz([20, 40, 20]); b.classList.add('bad'); setTimeout(() => b.classList.remove('bad'), 450); return; }
+        buzz(8); b.remove(); place(kk, true);
+        if (at === c.items.length) done(slips === 0, slips === 0 ? 'Perfect order!' : `In order, with ${slips} slip${slips > 1 ? 's' : ''}`, slips ? 'Each wrong tap shook. The list above is the right order.' : '');
+      });
+    }
     draw();
   };
   show();
@@ -2882,14 +3025,14 @@ function histRun(a, qs, opts = {}) {
 }
 // A moment finished: it counts as today's lesson.
 function momentDone(a, m, right, n) {
-  histSet(a.id, r => { if (!r.m.includes(m)) r.m.push(m); });
+  histSet(a.id, r => { const k = a.lesson ? 'u' : 'm', l = r[k] || (r[k] = []); if (!l.includes(m)) l.push(m); });
   markDay('learn');
-  const M = a.maps[m], x = moments(a).find(z => z.m === m), st = modState(a), nx = st.cur;
+  const x = moments(a).find(z => z.m === m), M = a.lesson ? x.M : a.maps[m], st = modState(a), nx = st.cur;
   state.mode = 'summary'; state.target = null; state.focusG = null;
-  setSheet(`<div class="done"><span class="badge">${ART.trophy}</span><div class="title">${esc(momYears(x) || M.tab)} done</div><div class="sub">${esc(M.title)}${n ? ` · ${right} of ${n} right` : ''}</div></div>
+  setSheet(`<div class="done"><span class="badge">${ART.trophy}</span><div class="title">${a.lesson ? `Part ${moments(a).indexOf(x) + 1} complete` : `${esc(momYears(x) || M.tab)} done`}</div><div class="sub">${esc(M.title)}${n ? ` · ${right} of ${n} right` : ''}</div></div>
     ${rewardBlock()}
     ${remindCard() || saveCard(false)}
-    <div class="goalbar"><div class="gb-top"><b>${esc(a.title)}</b><span>${st.done} of ${st.n} moments</span></div><div class="gb-bar"><i style="width:${st.done / (st.n + 1) * 100}%"></i></div></div>
+    <div class="goalbar"><div class="gb-top"><b>${esc(a.title)}</b><span>${st.done} of ${st.n} ${a.lesson ? 'parts' : 'moments'}</span></div><div class="gb-bar"><i style="width:${st.done / (st.n + 1) * 100}%"></i></div></div>
     ${nx ? `<button class="btn primary" id="mdNext">Next: ${esc(momYears(nx) ? momYears(nx) + ', ' : '')}${esc(nx.M.tab)}</button>` : `<button class="btn primary" id="mdQuiz">${IC.trophy}Take the final quiz</button>`}
     <button class="btn" id="mdBack">Back to the chapter</button>${repFoot(`${a.title} · ${M.tab} · moment results`)}`);
   buzz([10, 60, 10]); celebrate(true);
@@ -2906,18 +3049,18 @@ function startFinal(id) {
 }
 function finalDone(a, right, n) {
   const pass = right >= passMark(n), was = chDone(a.id);
-  histSet(a.id, r => { r.best = Math.max(r.best || 0, right); if (pass) { r.done = 1; for (const x of moments(a)) if (!r.m.includes(x.m)) r.m.push(x.m); } if (right === n) r.crown = 1; });
+  histSet(a.id, r => { r.best = Math.max(r.best || 0, right); if (pass) { r.done = 1; const k = a.lesson ? 'u' : 'm', l = r[k] || (r[k] = []); for (const x of moments(a)) if (!l.includes(x.m)) l.push(x.m); } if (right === n) r.crown = 1; });
   const cb = store.cqBest || (store.cqBest = {}); cb[a.id] = Math.max(cb[a.id] || 0, Math.min(right, (a.quiz || []).length));
   markDay('learn');
   state.mode = 'summary'; state.target = null; state.focusG = null;
   const t = trackOf(a), TL = trackList(t), c = chCount(t), next = TL.slice(TL.indexOf(a) + 1).find(x => !chDone(x.id) && !plusLocked(x.id));
   const facts = textQs(a).length;
-  setSheet(pass ? `<div class="done"><span class="badge crown">${right === n ? '👑' : ART.trophy}</span><div class="title">${esc(a.title)} complete</div><div class="sub">Final quiz: ${right} of ${n}${right === n ? ' · a perfect score' : ''}</div></div>
+  setSheet(pass ? `<div class="done"><span class="badge crown">${right === n ? '👑' : ART.trophy}</span><div class="title">Module complete</div><div class="sub">${esc(a.title)} · final quiz ${right} of ${n}${right === n ? ' · a perfect score' : ''}</div></div>
       ${rewardBlock()}
       ${t === 'plus' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
       ${facts ? `<div class="md-note"><b>${IC.check}Added to your daily refresher</b><small>${facts} key facts will come back over the coming days, just before you'd forget them.</small></div>` : ''}
       ${next ? `<button class="md-next" id="fdNext"><small>Up next on the timeline</small><b>${esc(next.title)} ${IC.next}</b><small>${esc(next.years)}</small></button>` : ''}
-      <button class="btn primary" id="fdBack">Continue</button>${repFoot(`${a.title} · final quiz · results`)}`
+      <button class="btn primary" id="fdBack">Continue</button>${a.story ? `<button class="btn" id="fdRead">${IC.book || ''}Read the full summary</button>` : ''}${repFoot(`${a.title} · final quiz · results`)}`
     : `<div class="done"><span class="badge">${ART.medal}</span><div class="title">${right} of ${n} right</div><div class="sub">You need ${passMark(n)} to complete ${esc(a.title)}</div></div>
       ${rewardBlock()}
       <p class="hint" style="text-align:center">Replay a moment or reread the chapter, then try again. Every question you missed comes back in your daily refresher.</p>
@@ -2925,28 +3068,30 @@ function finalDone(a, right, n) {
   buzz(pass ? [10, 60, 10] : 10); celebrate(pass);
   if ($('#fdNext')) $('#fdNext').onclick = () => { setRound(false); eraSheet(next.id); };
   if ($('#fdAgain')) $('#fdAgain').onclick = () => startFinal(a.id);
+  if ($('#fdRead')) $('#fdRead').onclick = () => { setRound(false); eraSheet(a.id); requestAnimationFrame(() => { const s = sheet.querySelector('.chs'); if (s) sheet.scrollTo({ top: sheet.scrollTop + s.getBoundingClientRect().top - sheet.getBoundingClientRect().top - 8 }); }); };
   $('#fdBack').onclick = () => { setRound(false); eraSheet(a.id); };
   setRound(true); draw();
 }
 // The top of a chapter: the time scrubber (tap a year to see its map), the moments and the final quiz.
 function modBlock(a) {
   const { ms, r, cur, done, n } = modState(a); if (!n) return '';
-  const curI = cur ? ms.indexOf(cur) : n, onMap = state.mapI || 0;
-  const stop = (x, k) => { const s = r.m.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
+  const curI = cur ? ms.indexOf(cur) : n, onMap = a.lesson ? -9 : state.mapI || 0;
+  const dl = doneList(a, r);
+  const stop = (x, k) => { const s = dl.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
     return `<button class="ms-stop ${s}${x.m === onMap ? ' on' : ''}" data-mstop="${x.m}" aria-label="${esc((momYears(x) || '') + ' ' + x.M.tab)}"><i></i><b>${esc(momYears(x) || x.M.tab)}</b><small>${esc(x.M.tab)}</small></button>`; };
-  const card = (x, k) => { const s = r.m.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
-    return `<button class="mom ${s}" data-mom="${x.m}"${s === 'lock' ? ' aria-disabled="true"' : ''}><b class="m-yr">${esc(momYears(x) || '•')}</b><span><b>${esc(x.M.title)}${s === 'done' ? ' ✓' : ''}</b><small>${s === 'done' ? 'Completed · tap to replay' : s === 'now' ? `Moment ${k + 1} of ${n} · about 3 minutes` : `Unlocks after ${esc(momYears(ms[k - 1]) || ms[k - 1].M.tab)}`}</small></span>${s === 'now' ? `<span class="m-go">${PLAY_IC}</span>` : s === 'lock' ? `<span class="m-lk">${IC.lock}</span>` : '<span></span>'}</button>`; };
+  const card = (x, k) => { const s = dl.includes(x.m) ? 'done' : k === curI ? 'now' : 'lock';
+    return `<button class="mom ${s}" data-mom="${x.m}"${s === 'lock' ? ' aria-disabled="true"' : ''}><b class="m-yr">${esc(momYears(x) || '•')}</b><span><b>${esc(x.M.title)}${s === 'done' ? ' ✓' : ''}</b><small>${s === 'done' ? 'Completed · tap to replay' : s === 'now' ? (x.U ? `Part ${k + 1} of ${n} · about ${Math.max(3, Math.round(x.U.cards.length * .4))} minutes` : `Moment ${k + 1} of ${n} · about 3 minutes`) : `Unlocks after ${esc(momYears(ms[k - 1]) || ms[k - 1].M.tab)}`}</small></span>${s === 'now' ? `<span class="m-go">${PLAY_IC}</span>` : s === 'lock' ? `<span class="m-lk">${IC.lock}</span>` : '<span></span>'}</button>`; };
   const fq = r.done ? `Completed · best ${r.best} of ${HIST_N}${r.crown ? ' 👑' : ''}` : r.best ? `Best ${r.best} of ${HIST_N} · pass with ${passMark(HIST_N)}` : `${HIST_N} questions · pass with ${passMark(HIST_N)}`;
   return `<div class="mod">
     ${n > 1 ? `<div class="ms-scrub" style="--n:${n}"><u><s style="width:${n > 1 ? Math.min(100, done / (n - 1) * 100) : 0}%"></s></u>${ms.map(stop).join('')}</div>` : ''}
     ${ms.map(card).join('')}
     <button class="mom quiz${r.done ? ' done' : ''}" id="modQuiz"><b class="m-yr">${r.crown ? '👑' : '🏆'}</b><span><b>Test what you learned</b><small>${fq}</small></span>${IC.next}</button>
-    ${a.story ? `<button class="link mod-read" id="modRead">Read the full chapter ↓</button>` : ''}</div>`;
+    ${!a.story ? '' : !a.lesson || r.done ? `<button class="link mod-read" id="modRead">${a.lesson ? 'Read the full summary ↓' : 'Read the full chapter ↓'}</button>` : `<p class="mod-lock">${IC.lock}The full summary unlocks when you complete the module</p>`}</div>`;
 }
 function bindMod(a) {
-  sheet.querySelectorAll('[data-mstop]').forEach(b => b.onclick = () => { buzz(5); eraSheet(a.id, false, +b.dataset.mstop); });
+  sheet.querySelectorAll('[data-mstop]').forEach(b => b.onclick = () => { buzz(5); const k = +b.dataset.mstop; eraSheet(a.id, false, a.lesson ? a.lesson.units[k].map || 0 : k); });
   sheet.querySelectorAll('[data-mom]').forEach(b => b.onclick = () => {
-    if (b.classList.contains('lock')) { buzz(10); return toast('Finish the moment before it first'); }
+    if (b.classList.contains('lock')) { buzz(10); return toast(a.lesson ? 'Finish the part before it first' : 'Finish the moment before it first'); }
     buzz(8); startMoment(a.id, +b.dataset.mom);
   });
   if ($('#modQuiz')) $('#modQuiz').onclick = () => { buzz(8); startFinal(a.id); };
@@ -4715,7 +4860,7 @@ function mergeProgress(a, b) {
   out.cq = cq;
   out.cqBest = maxMap(a.cqBest, b.cqBest); out.hqBest = maxMap(a.hqBest, b.hqBest);
   // History modules: moments done on either device, the best final quiz, completed and crowned if either says so.
-  if (a.hist || b.hist) { out.hist = { ...(a.hist || {}) }; for (const [k, y] of Object.entries(b.hist || {})) { const x = out.hist[k]; out.hist[k] = !x ? y : { m: [...new Set([...(x.m || []), ...(y.m || [])])], best: Math.max(x.best || 0, y.best || 0), done: x.done || y.done || undefined, crown: x.crown || y.crown || undefined, t: Math.max(x.t || 0, y.t || 0) }; } }
+  if (a.hist || b.hist) { out.hist = { ...(a.hist || {}) }; for (const [k, y] of Object.entries(b.hist || {})) { const x = out.hist[k]; out.hist[k] = !x ? y : { m: [...new Set([...(x.m || []), ...(y.m || [])])], u: [...new Set([...(x.u || []), ...(y.u || [])])], best: Math.max(x.best || 0, y.best || 0), done: x.done || y.done || undefined, crown: x.crown || y.crown || undefined, t: Math.max(x.t || 0, y.t || 0) }; } }
   out.histLast = (a.hist && a.hist[a.histLast] && a.hist[a.histLast].t || 0) >= (b.hist && b.hist[b.histLast] && b.hist[b.histLast].t || 0) ? a.histLast || b.histLast : b.histLast;
   // Today's count and this week's XP: the later day or week wins; the same one keeps the higher number.
   const newer = (x, y, key, num) => !x || !y ? x || y : x[key] !== y[key] ? (x[key] > y[key] ? x : y) : { [key]: x[key], [num]: Math.max(x[num] || 0, y[num] || 0) };
