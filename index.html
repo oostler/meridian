@@ -550,6 +550,9 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .done .badge.crown { font-size: 72px; line-height: 92px; text-align: center; }
 .chapter .mst.part { color: var(--orange); }
 .chapter.cdone .yr { background: var(--green); border-color: var(--green); color: #fff; }
+.chapter.cnew .yr { background: var(--surface); border: 2px dashed color-mix(in srgb, var(--sc) 55%, var(--line)); color: var(--ink-3); }
+.chapter.cpart .yr { border: 0; color: color-mix(in srgb, var(--sc) 62%, var(--ink)); background: radial-gradient(closest-side, var(--surface) calc(100% - 5px), transparent calc(100% - 4px)), conic-gradient(var(--sc) calc(var(--p) * 1%), color-mix(in srgb, var(--sc) 18%, var(--line)) 0); }
+.chapter.cdone .yr { position: relative; box-shadow: 0 2px 0 color-mix(in srgb, var(--green) 60%, #000); }
 .chapter .freeb.pop { background: var(--gold-d); }
 /* Learn: choose geography or history */
 .lc-top { display: flex; justify-content: space-between; align-items: baseline; }
@@ -2347,9 +2350,9 @@ function historySheet() {
       const hd = plus ? (a.cat && (!k || list[k - 1].cat !== a.cat) ? `<h4 class="sec" style="--sc:var(--gold)">${PLUS_CAT[a.cat] || ''}<span class="sec-n">${n}</span></h4>` : '') : !a.track && SECTION[a.id] ? `<h4 class="sec" style="--sc:${secColor[a.id]}">${SECTION[a.id]}</h4>` : '';
       const lk = plusLocked(a.id), free = plus && !hasPlus() && a.id === PLUS_FREE;
       const r = histRec(a.id), nm = (a.maps || []).length, k2 = lk ? 0 : r.m.filter(m => m < nm).length;
-      const prog = lk ? '' : r.done ? `<em class="mst all">${r.crown ? '👑 ' : IC.check}Completed</em>` : k2 ? `<em class="mst part">${k2} of ${nm} moment${nm > 1 ? 's' : ''}</em>` : '';
+      const prog = lk ? '' : r.done ? `<em class="mst all">${r.crown ? '👑 ' : IC.check}Completed</em>` : k2 >= nm ? `<em class="mst part">Final quiz to go</em>` : k2 ? `<em class="mst part">${k2} of ${nm} moment${nm > 1 ? 's' : ''}</em>` : '';
       const pop = a.id === 'ww2' && !store.hist ? `<em class="freeb pop">Popular start</em>` : '';
-      return `${hd}<button class="chapter tile${lk ? ' locked' : ''}${r.done && !lk ? ' cdone' : ''}" style="--sc:${secColor[a.id]}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}${pop}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
+      return `${hd}<button class="chapter tile${lk ? ' locked' : ''}${lk ? '' : r.done ? ' cdone' : k2 ? ' cpart' : ' cnew'}" style="--sc:${secColor[a.id]};--p:${nm ? Math.round(k2 / nm * 100) : 0}" data-era="${a.id}"><span class="yr">${esc(a.years.replace('–', '–\n'))}</span><span>${free ? `<em class="freeb">Free preview</em>` : ''}${pop}<b>${esc(a.title)}</b><small>${esc(sub)}</small>${prog}</span>${lk ? `<span class="lk-ic" aria-label="Locked">${IC.lock}</span>` : IC.next}</button>`;
     }).join('')}</div>`);
   bindEras();
   $('#goTime').onclick = () => { buzz(8); timeSheet(); fitTime(); };
