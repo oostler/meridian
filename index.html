@@ -3143,9 +3143,11 @@ function startUnit(a, k) {
     // The globe. A card's own scene (g: countries to light, pins, routes, a frame) comes first; else the card's
     // chapter map (and group), else the part's; a part with no map (map: null) shows the plain globe.
     let fitTo = null;
-    state.lmap = c.g ? lessonScene(c.g) : null;
+    // In a country's history the country itself is always lit, unless the card lights something else.
+    const cg = a.ctry ? { box: ctryBox(byId[a.ctry]), ...(c.g || {}), hl: c.g && c.g.hl && c.g.hl.length ? c.g.hl : [['blue', [a.ctry], '']] } : c.g;
+    state.lmap = cg ? lessonScene(cg) : null;
     const [m, g] = c.map || (U.map == null ? [-1] : [U.map]);
-    if (state.lmap) { state.focusG = null; const bx = c.g.box || minBox(mapBox(state.lmap)); fitTo = (bx === G.views.world && U.box ? U.box : bx); }
+    if (state.lmap) { state.focusG = null; const bx = cg.box || minBox(mapBox(state.lmap)); fitTo = (bx === G.views.world && U.box ? U.box : bx); }
     else if (m === -1) { state.mapI = -1; state.focusG = null; fitTo = (U.box || (a.maps && a.maps[0] ? a.maps[0].box || mapBox(a.maps[0]) : G.views.world)); }
     else if (a.maps && a.maps[m]) {
       const M = a.maps[m]; state.mapI = m; state.focusG = g == null ? null : g;
