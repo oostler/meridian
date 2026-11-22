@@ -3168,7 +3168,9 @@ function startUnit(a, k) {
     nextB.onclick = next;
     if ($('#mlBack')) $('#mlBack').onclick = () => { buzz(5); i--; show(); };
     const done = (ok, title, why, soft) => {
-      if (!answered.has(i)) { answered.add(i); asked++; if (ok) right++; practisedToday(ok ? 10 : 0); updateTop(); }
+      if (!answered.has(i)) { answered.add(i); asked++; if (ok) right++; practisedToday(ok ? 10 : 0); updateTop();
+        // Lesson questions join the daily refresher, so what you learn comes back before you forget it.
+        if (c.t === 'quiz' || c.t === 'tf') rememberCQ(a.id, `L${k}.${i}`, ok); }
       const fb = verdict(ok || soft, title, esc(why || '')); if (soft && !ok) fb.classList.add('soft');
       buzz(ok ? 12 : [20, 40, 20]);
       nextB.disabled = false; setTimeout(() => nextB.focus({ preventScroll: true }), 30);
@@ -3492,9 +3494,19 @@ function reviewDue() {
   const now = Date.now();
   const places = quizItems().filter(f => { const p = prog(f.id); return p.s >= 1 && dueAt(p) <= now; }).sort((x, y) => dueAt(prog(x.id)) - dueAt(prog(y.id)));
   const hist = Object.entries(store.cq || {}).filter(([, v]) => v.due <= now).sort((x, y) => x[1].due - y[1].due)
-    .map(([k]) => { const [id, i] = k.split('#'), x = id === 'bank' && BANK.hist[+i]; return x ? { a: anchorById[x.ch], i: +i, x: bankQ(x), bn: +i } : { a: anchorById[id], i: +i }; })
-    .filter(h => h.a && (h.x || h.a.quiz && h.a.quiz[h.i]) && !plusLocked(h.a.id));
+    .map(([k]) => { const [id, i] = k.split('#'), x = id === 'bank' && BANK.hist[+i];
+      if (x) return { a: anchorById[x.ch], i: +i, x: bankQ(x), bn: +i };
+      if (i[0] === 'L') return lessonQ(id, i, k);
+      return { a: anchorById[id], i: +i }; })
+    .filter(h => h && h.a && (h.x || h.a.quiz && h.a.quiz[h.i]) && !plusLocked(h.a.id));
   return { places: places.slice(0, 8), hist: hist.slice(0, 5) };
+}
+// A question from an interactive lesson (key "chapter#Lunit.card"), as a review question; true/false has two options.
+function lessonQ(id, i, key) {
+  const a = id.startsWith('ct-') ? ctryAnchor(id.slice(3)) : anchorById[id], [u, j] = i.slice(1).split('.').map(Number);
+  const c = a && a.lesson && a.lesson.units[u] && a.lesson.units[u].cards[j];
+  if (!c || (c.t !== 'quiz' && c.t !== 'tf')) return null;
+  return { a, i, lk: key, x: c.t === 'quiz' ? { q: c.q, a: c.a, c: c.c, why: c.why } : { q: 'True or false: ' + c.s, a: ['True', 'False'], c: c.v ? 0 : 1, why: c.why, tf: 1 } };
 }
 function reviewCard() {
   const { places, hist } = reviewDue(), n = places.length + hist.length;
@@ -3512,7 +3524,7 @@ function startReview() {
   nextQ();
 }
 function askHist(item) {
-  const { a, i, x } = item.h, Q = x || a.quiz[i], order = shuffle([0, 1, 2, 3]);
+  const { a, i, x } = item.h, Q = x || a.quiz[i], order = Q.tf ? [0, 1] : shuffle(Q.a.map((_, k) => k));
   setSheet(`${qhead('hist')}<p class="prompt">${esc(Q.q)}</p>
     <div class="opts col">${order.map((k, n) => `<button class="opt" data-k="${k}"><kbd>${n + 1}</kbd><span>${esc(Q.a[k])}</span></button>`).join('')}</div>
     <div class="fb inline" id="fb"></div>`);
@@ -3526,7 +3538,7 @@ function askHist(item) {
     if (!ok) b.classList.add('bad');
     const key = x ? 'b:' + Q.q : a.id + '#' + i;
     if (!session.first.has(key)) session.first.set(key, ok);
-    if (!x) rememberCQ(a.id, i, ok); else if (item.h.bn != null) rememberCQ('bank', item.h.bn, ok);
+    if (!x) rememberCQ(a.id, i, ok); else if (item.h.bn != null) rememberCQ('bank', item.h.bn, ok); else if (item.h.lk) rememberCQ(a.id, i, ok);
     if (!ok && session.review) requeue(item, 3);
     practisedToday(ok ? 10 : 0); updateTop();
     session.done++;
