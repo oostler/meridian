@@ -52,7 +52,7 @@ window.__geo = fetch('geo-live.json').then(r => { if (!r.ok) throw new Error(r.s
 :root {
   --bg: #ffffff; --surface: #f6f7f9; --ink: #3a3f47; --ink-2: #6f7681; --ink-3: #b2b8c2; --line: #e6e8ec;
   --green: #2dbe60; --green-d: #1f9b4b; --green-l: #d9f7e4;
-  --blue: #2a9df4; --blue-d: #1b7fd0; --blue-l: #ddf0fe;
+  --blue: #2a9df4; --blue-d: #1b7fd0; --blue-l: #ddf0fe; --link: #1565c0;
   --red: #ff5b5b; --red-d: #e53e3e; --red-l: #ffe0e0;
   --gold: #ffc51f; --gold-d: #e0a400; --gold-l: #fff4cf;
   --orange: #ff9a1f; --purple: #a875ff; --purple-d: #8656e6;
@@ -67,7 +67,7 @@ window.__geo = fetch('geo-live.json').then(r => { if (!r.ok) throw new Error(r.s
 }
 :root[data-theme="dark"] {
   --bg: #0f1829; --surface: #16223a; --ink: #eef3ff; --ink-2: #a3b2c9; --ink-3: #5d6e88; --line: #24324d;
-  --green: #3ad37a; --green-d: #24a95c; --green-l: #143a2d; --blue: #4fb0ff; --blue-d: #2a8ae0; --blue-l: #17304d;
+  --green: #3ad37a; --green-d: #24a95c; --green-l: #143a2d; --blue: #4fb0ff; --blue-d: #2a8ae0; --blue-l: #17304d; --link: #4fb0ff;
   --red: #ff6b6b; --red-d: #e04b4b; --red-l: #4a1f26; --gold: #ffc451; --gold-d: #e0a42c; --gold-l: #3d3315;
   --orange: #ff9d4d; --purple: #a58bff; --purple-d: #8a6cf0;
   --space: var(--stars), radial-gradient(120% 90% at 50% 40%, #1b3a63 0%, #0f2240 55%, #070f1f 100%);
@@ -382,60 +382,61 @@ h1, h2, h3 { margin: 0; }
 .setrow b .ptag { margin-left: 6px; vertical-align: 2px; }
 .chapter .freeb { display: block; width: fit-content; font-style: normal; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--green); border-radius: 999px; padding: 1px 8px; margin-bottom: 3px; }
 .sec .sec-n { margin-left: 6px; font-size: 11px; color: var(--ink-3); }
-.pwall { display: grid; gap: 10px; padding: 18px; border-radius: 22px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #ffd84d 0%, var(--gold) 35%, var(--orange) 100%); box-shadow: 0 5px 0 var(--gold-d); }
+.pwall { display: grid; gap: 10px; padding: 18px; border-radius: 22px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #c25e00 0%, #b45309 40%, #8a3410 100%); box-shadow: 0 5px 0 #6b2a0c; }
 .pwall .ptag { background: rgba(255, 255, 255, .25); }
 .pwall h3 { margin: 0; font-size: 22px; line-height: 1.15; font-weight: 900; text-shadow: 0 1px 0 rgba(0, 0, 0, .08); }
-.pwall p { margin: 0; font-weight: 800; font-size: 15px; line-height: 1.4; opacity: .95; }
+.pwall p { margin: 0; font-weight: 800; font-size: 15px; line-height: 1.4; }
 .pstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .pstats div { background: rgba(255, 255, 255, .2); border-radius: 14px; padding: 8px 6px; text-align: center; }
 .pstats b { display: block; font-size: 22px; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .pstats span { display: block; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; opacity: .9; }
-.btn.pbtn { background: #fff; border-color: #fff; color: var(--gold-d); box-shadow: 0 4px 0 rgba(0, 0, 0, .15); }
+.btn.pbtn { background: #fff; border-color: #fff; color: #8a3410; box-shadow: 0 4px 0 rgba(0, 0, 0, .2); }
 .pwall .unlock { gap: 6px; }
 .pprice { margin: 0; text-align: center; color: #fff; font-weight: 800; }
 .pprice b { font-size: 28px; font-weight: 900; }
 .pprice small { opacity: .9; font-weight: 700; }
-.pfine { margin: 0; text-align: center; font-size: 13px; font-weight: 800; opacity: .9; }
+.pfine { margin: 0; text-align: center; font-size: 13px; font-weight: 800; }
 .pwall.nets { text-align: center; justify-items: center; gap: 12px; }
 .nets-art { width: 110px; height: 74px; margin: 2px 0 -4px; }
 .pwall.nets h3 { margin: 0; font-size: 24px; line-height: 1.15; }
-.nets-why1 { margin: -4px 0 0; font-size: 14px; font-weight: 800; opacity: .95; }
-.nets-freq { display: inline-flex; background: rgba(0,0,0,.14); border-radius: 999px; padding: 3px; }
+.nets-why1 { margin: -4px 0 0; font-size: 14px; font-weight: 800; }
+.nets-freq { display: inline-flex; background: rgba(0,0,0,.25); border-radius: 999px; padding: 3px; }
 .nets-freq button { border: 0; background: none; color: #fff; font: inherit; font-weight: 900; font-size: 14px; padding: 7px 16px; border-radius: 999px; cursor: pointer; }
-.nets-freq button.on { background: #fff; color: var(--ink); }
+.nets-freq button.on { background: #fff; color: #5a2208; }
 .nets-amts.four { grid-template-columns: repeat(4, 1fr); }
 .nets-amts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 6px; }
 .nets-amt { position: relative; display: grid; gap: 1px; padding: 12px 4px 10px; border-radius: 16px; border: 2px solid rgba(255,255,255,.6); background: rgba(255,255,255,.16); color: #fff; font: inherit; cursor: pointer; }
-.nets-amt b { font-size: 22px; font-weight: 900; } .nets-amt span { font-size: 12px; font-weight: 800; opacity: .9; }
+.nets-amt b { font-size: 22px; font-weight: 900; } .nets-amt span { font-size: 12px; font-weight: 800; }
 .nets-amt em { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 10px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; background: var(--green, #2bb24c); color: #fff; padding: 2px 7px; border-radius: 8px; white-space: nowrap; }
-.nets-amt.on { background: #fff; color: var(--ink); border-color: #fff; box-shadow: 0 4px 0 var(--gold-d); }
+.nets-amt.on { background: #fff; color: #5a2208; border-color: #fff; box-shadow: 0 4px 0 #6b2a0c; }
 a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .nets-count { width: 100%; }
 .lives { display: grid; gap: 6px; width: 100%; background: rgba(255,255,255,.18); border-radius: 14px; padding: 10px 12px; text-align: left; }
 .lv-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .lv { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 14px; color: #fff;
   background: conic-gradient(#fff var(--p), rgba(255,255,255,.28) 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.7); }
-.lv.ok { background: var(--green, #2bb24c); box-shadow: none; } .lv-more { font-size: 13px; }
-.lv-txt { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; } .lv-txt span { font-weight: 800; opacity: .9; white-space: nowrap; }
+.lv.ok { background: #15803d; box-shadow: inset 0 0 0 2px #fff; } .lv-more { font-size: 13px; }
+.lv-txt { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; } .lv-txt span { font-weight: 800; white-space: nowrap; }
 .lv-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,.3); overflow: hidden; } .lv-bar i { display: block; height: 100%; background: #fff; border-radius: 4px; }
-.lv-fine { font-size: 11px; font-weight: 700; opacity: .85; }
+.lv-fine { font-size: 12px; font-weight: 700; }
 .lives.dark { background: rgba(255,255,255,.12); }
 .story { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 16px 18px 20px; border-radius: 22px; color: #fff; min-height: 470px; align-content: start; }
-.st-night { background: linear-gradient(160deg, #1d2a5c, #3b2a6e); } .st-net { background: linear-gradient(160deg, #0f8a6a, #22b28a); } .st-us { background: linear-gradient(160deg, var(--gold), var(--orange)); }
+.st-night { background: linear-gradient(160deg, #1d2a5c, #3b2a6e); } .st-net { background: linear-gradient(160deg, #0a5c47, #0b6e55); } .st-us { background: linear-gradient(160deg, #b45309, #8a3410); }
 .st-top { display: flex; width: 100%; justify-content: space-between; align-items: center; } .st-dots { display: flex; gap: 6px; } .st-dots i { width: 28px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.35); } .st-dots i.on { background: #fff; }
-.st-skip { color: #fff !important; opacity: .8; }
+.st-skip { color: #fff !important; }
 .st-art { width: 100%; max-width: 260px; height: auto; margin: 6px 0; }
-.story h3 { margin: 0; font-size: 25px; line-height: 1.15; } .story p { margin: 0; font-size: 16px; font-weight: 700; opacity: .92; } .story small { font-size: 11px; opacity: .7; }
+.story h3 { margin: 0; font-size: 25px; line-height: 1.15; } .story p { margin: 0; font-size: 16px; font-weight: 700; } .story small { font-size: 12px; font-weight: 700; }
 .st-lives { width: 100%; margin: 8px 0; } .st-next { width: 100%; margin-top: auto; }
 .st-why { display: block; margin: 8px auto 0; }
 .nets-wait { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .nets-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: netspin .8s linear infinite; flex: none; }
 @keyframes netspin { to { transform: rotate(360deg); } }
-.nets-more { margin-top: 4px; font-size: 14px; color: var(--ink-2); } .nets-more summary { cursor: pointer; font-weight: 800; text-align: center; color: var(--ink-3); }
+.nets-more { margin-top: 4px; font-size: 14px; color: var(--ink-2); } .nets-more summary { cursor: pointer; font-weight: 800; text-align: center; color: var(--ink-2); }
 .nets-more ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
-.nets-beta { text-align: center; opacity: .8; }
-.hm-card.nets-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; text-align: left; background: #fff7e0; border-color: var(--gold); }
-.nc-ic { font-size: 26px; } .nets-card small { display: block; }
+.nets-beta { text-align: center; color: var(--ink-2); }
+.hm-card.nets-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; text-align: left; background: var(--gold-l); border-color: var(--gold); }
+#hmNets { color: var(--ink); }
+.nc-ic { font-size: 26px; } .nets-card small { display: block; color: var(--ink-2); }
 .md-note.nets-ask { text-align: left; width: 100%; cursor: pointer; font: inherit; }
 table.dash { width: 100%; border-collapse: collapse; font-size: 13px; } table.dash th, table.dash td { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: right; } table.dash td:first-child, table.dash th:first-child { text-align: left; font-weight: 800; }
 
@@ -784,7 +785,7 @@ body.cloud #tabs button { font-size: 10px; letter-spacing: .03em; }
 .hpin { display: flex; align-items: center; gap: 5px; border: 0; background: none; padding: 0; font: 800 12px var(--font); color: #1d3640; white-space: nowrap; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; cursor: pointer; }
 .hpin i { width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2.5px solid #1d3640; flex: none; }
 .picked { border-top: 2px solid var(--line); padding-top: 14px; display: grid; gap: 12px; }
-.back { display: flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--blue); font-size: 14px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; padding: 4px 0; justify-self: start; }
+.back { display: flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--link, var(--blue)); font-size: 14px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; padding: 4px 0; justify-self: start; }
 .back .ic { width: 18px; height: 18px; }
 
 /* ---- quiz ---- */
@@ -968,6 +969,7 @@ body.timed #scopeBtn, body.timed #streakBtn, body.timed #ringBtn, body.timed #to
 .td-st { display: inline-flex; align-items: center; gap: 4px; color: var(--orange); font-weight: 900; font-size: 16px; }
 .td-st.off { color: var(--ink-3); }
 .td-st .ic { width: 18px; height: 18px; }
+.td-st em { color: var(--link, var(--blue)) !important; }
 .td-st em { font-style: normal; margin-left: 6px; color: var(--blue); font-size: 14px; }
 .td-segs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .td-segs i { height: 8px; border-radius: 4px; background: var(--line); transition: background .3s; }
@@ -2962,7 +2964,8 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   const bindAmts = () => sheet.querySelectorAll('.nets-amt').forEach(b => b.onclick = () => { buzz(5); pick = +b.dataset.usd; draw(); });
   sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); bindAmts(); draw(); });
   bindAmts(); draw();
-  const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give) { store.ent = { until, nets: 1 }; save(); } buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
+  const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
+    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
   // Verified unlocking needs an account (so Plus follows the player); until it's connected, confirming is enough.
   if (NETS_VERIFY && !NATIVE && !myUid() && !give) {
     go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to give</button>`;
@@ -4898,7 +4901,11 @@ function todayCard() {
 // Players against malaria: a small card on the home screen (not a pop-up), with the real count of nets funded.
 function netsCard() {
   if (!NETS_LIVE) return '';
-  return `<button class="hm-card nets-card" id="goNets"><span class="nc-ic">🦟</span><span><b>Fund malaria nets</b><small id="hmNets">100% goes to the Against Malaria Foundation</small></span>${IC.next}</button>`;
+  // Their own impact first (people keep giving to a cause they've already invested in), and a gentle renewal a month
+  // before a year of Plus runs out.
+  const g = store.gave, e = store.ent, renew = e && e.nets && !g?.monthly && e.until - Date.now() < 30 * DAY && e.until > Date.now();
+  const title = renew ? 'Keep Plus: fund nets again' : g ? `You’ve funded about ${netsOf(g.usd)} nets 🎉` : 'Fund malaria nets';
+  return `<button class="hm-card nets-card" id="goNets"><span class="nc-ic">🦟</span><span><b>${title}</b><small id="hmNets">${g ? 'Thank you! Give again anytime.' : '100% goes to the Against Malaria Foundation'}</small></span>${IC.next}</button>`;
 }
 // The daily refresher: what you've learned that is due to fade (places, chapter facts), a couple of minutes a day.
 function refreshCard() {
@@ -5185,6 +5192,7 @@ function dailyChallenge(kind = 'geo', no) {
       <div id="ddSave">${first && !arc ? remindCard() : ''}</div>
       ${first && !arc ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}${vsBlock ? 'Send them your result' : 'Challenge a friend'}</button>
+      ${NETS_LIVE && !arc && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="dyNets"><b>🦟 Enjoying Globe Genius?</b><small>Pass it on: ${fmtUsd(NET_USD)} funds a malaria net. 100% goes to the Against Malaria Foundation.</small></button>` : ''}
       <h4 class="home-h">${arc ? `Leaderboard for ${ddDate(d.no)}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
@@ -5199,6 +5207,7 @@ function dailyChallenge(kind = 'geo', no) {
     bindRemind();
     $('#dyDone').onclick = leave;
     $('#dyShare').onclick = () => { buzz(8); shareResult(kind, d); };
+    if ($('#dyNets')) { store.naskDay = dayKey(); save(); netsSeen('src-daily'); $('#dyNets').onclick = () => { buzz(8); const go = () => netsSheet(null, homeSheet, 'daily'); store.netsStory ? go() : netsStory(go); }; }
     // Count this run once, then fetch everyone's results (including it) for the curve and the board.
     const bin = Math.min(DQ_BINS, Math.floor(score / DQ_BIN));
     const send = !arc && !d.sent && CLOUD && CLOUD.dailySubmit
