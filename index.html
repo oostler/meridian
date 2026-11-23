@@ -411,20 +411,20 @@ h1, h2, h3 { margin: 0; }
 .nets-amt.on { background: #fff; color: #5a2208; border-color: #fff; box-shadow: 0 4px 0 #6b2a0c; }
 a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .nets-count { width: 100%; }
-.lives { display: grid; gap: 8px; width: 100%; background: rgba(0,0,0,.18); border-radius: 16px; padding: 12px 14px; text-align: left; }
-.lv-total { display: grid; } .lv-total b { font-size: 34px; line-height: 1; font-weight: 900; letter-spacing: -.01em; font-variant-numeric: tabular-nums; } .lv-total span { font-size: 13px; font-weight: 800; }
-.lv-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; } .lv-head em { font-style: normal; font-size: 13px; font-weight: 900; }
-.lv-bars { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
-.lv-bars .lf { height: 22px; } .lv-bars .lf span { line-height: 22px; }
-.lv-now .lf { height: 34px; border-radius: 10px; } .lv-now .lf i { border-radius: 10px; } .lv-now .lf span { line-height: 34px; font-size: 14px; }
-.lf { position: relative; height: 26px; border-radius: 8px; background: rgba(255,255,255,.88); overflow: hidden; }
-.lf i { position: absolute; inset: 0 auto 0 0; width: var(--w); background: #fbbf24; border-radius: 8px; transition: width .9s cubic-bezier(.2,.8,.2,1); }
-.lf.ok i { background: #15803d; }
-.lf span { position: relative; display: block; text-align: center; font-size: 11px; font-weight: 900; line-height: 26px; color: #5a2208; white-space: nowrap; }
-.lf.ok span { color: #fff; }
-.lf:not(.ok) i { animation: lfpulse 1.8s ease-in-out infinite; }
-@keyframes lfpulse { 50% { opacity: .75; } }
-.lv-next { font-size: 14px; font-weight: 800; } .lv-next b { font-size: 16px; } .lv-you { color: #fde68a; }
+.npop-bg { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 20px; background: rgba(10,15,30,.55); opacity: 0; transition: opacity .2s; }
+.npop-bg.in { opacity: 1; } .npop-bg.out { opacity: 0; }
+.npop { position: relative; width: min(400px, 100%); display: grid; gap: 12px; text-align: center; padding: 22px 18px 16px; border-radius: 24px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #c25e00 0%, #b45309 40%, #8a3410 100%); box-shadow: 0 20px 60px rgba(0,0,0,.35); transform: translateY(16px) scale(.97); transition: transform .25s cubic-bezier(.2,.9,.3,1.2); }
+.npop-bg.in .npop { transform: none; }
+.npop h3 { margin: 0; padding: 0 34px; font-size: 24px; font-weight: 900; } .npop p { margin: 0; font-size: 15px; font-weight: 700; }
+.npop-x { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(0,0,0,.2); color: #fff; display: grid; place-items: center; cursor: pointer; } .npop-x .ic { width: 18px; height: 18px; }
+.npop-no { color: #fff !important; font-weight: 800; }
+.lives { display: grid; gap: 10px; width: 100%; background: rgba(0,0,0,.2); border-radius: 18px; padding: 14px; text-align: left; }
+.lv-stats { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 6px; }
+.lv-stats div { display: grid; } .lv-stats b { font-size: 26px; line-height: 1.05; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -.01em; } .lv-stats span { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+.lv-people { display: flex; align-items: flex-end; gap: 4px; }
+.fig { width: 34px; height: 48px; } .lv-more { font-size: 15px; font-weight: 900; align-self: center; margin-right: 2px; }
+.lv-next { display: grid; margin-left: 8px; align-self: center; } .lv-next b { font-size: 22px; font-weight: 900; color: #fde68a; line-height: 1; } .lv-next span { font-size: 12px; font-weight: 800; }
+.lv-you { margin: 0; font-size: 14px; font-weight: 700; } .lv-you b { color: #fde68a; }
 .lv-fine { font-size: 12px; font-weight: 700; }
 .lives.dark { background: rgba(0,0,0,.2); }
 .story { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 16px 18px 20px; border-radius: 22px; color: #fff; min-height: 470px; align-content: start; }
@@ -440,7 +440,7 @@ a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 @keyframes netspin { to { transform: rotate(360deg); } }
 .nets-more { margin-top: 4px; font-size: 14px; color: var(--ink-2); } .nets-more summary { cursor: pointer; font-weight: 800; text-align: center; color: var(--ink-2); }
 .nets-more ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
-.nets-beta { text-align: center; color: var(--ink-2); }
+.fine.nets-beta { text-align: center; color: var(--ink-2); }
 .hm-card.nets-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; text-align: left; background: var(--gold-l); border-color: var(--gold); }
 #hmNets { color: var(--ink); }
 .nc-ic { font-size: 26px; } .nets-card small { display: block; color: var(--ink-2); }
@@ -2917,29 +2917,28 @@ function netsRaised() {
   setTimeout(() => { raisedP = null; }, 60000);
   return raisedP;
 }
-// The players' total: big dollars raised, then lives saved as mini bars, one per life: full with a check for each
-// life saved, and the next one filling up with the dollars still needed. Goal-gradient: the next life is always
-// close and always visible, so the bar never "finishes"; the total counts up when shown.
+// The players' impact, at a glance: three big numbers (dollars, nets, lives) and a row of people, one figure per
+// life saved (solid, with a check) and the next one filling up from the feet. People, not progress bars: a figure
+// reads as a person saved; the half-filled one is the life every gift is working on right now (goal-gradient).
+let figN = 0;
+const figSvg = (p, k) => { const id = 'fg' + (++figN), pc = Math.round(Math.max(0, Math.min(1, p)) * 100);
+  return `<svg class="fig${p >= 1 ? ' ok' : ''}" viewBox="0 0 40 56" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="${pc}%" stop-color="${p >= 1 ? '#fff' : '#fbbf24'}"/><stop offset="${pc}%" stop-color="rgba(255,255,255,.18)"/></linearGradient></defs>
+    <circle cx="20" cy="13" r="10" fill="url(#${id})" stroke="#fff" stroke-width="2"/><path d="M4 54c0-14 7-24 16-24s16 10 16 24z" fill="url(#${id})" stroke="#fff" stroke-width="2"/>${p >= 1 ? '<circle cx="32" cy="46" r="8" fill="#15803d" stroke="#fff" stroke-width="2"/><path d="M28 46l3 3 5-6" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>' : ''}</svg>`; };
 function livesRow(usd, dark) {
-  const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 5), left = (1 - part) * LIFE_USD;
-  const bar = (p, n) => `<div class="lf${p >= 1 ? ' ok' : ''}"><i style="--w:${Math.max(p >= 1 ? 100 : 4, Math.round(p * 100))}%"></i><span>${p >= 1 ? `✓ Life ${n}` : `Life ${n} · ${p < .01 ? 'starting now' : Math.round(p * 100) + '%'}`}</span></div>`;
+  const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 5), nets = Math.floor(usd / NET_USD);
   const some = usd >= NET_USD;
   return `<div class="lives${dark ? ' dark' : ''}">
-    ${some ? `<div class="lv-total"><b data-count="${Math.round(usd)}">${fmtUsd(usd)}</b><span>raised by Globe Genius players</span></div>` : `<div class="lv-total"><b>Be one of the first</b><span>Globe Genius players vs malaria</span></div>`}
-    <div class="lv-head"><b>${done ? `${done} li${done > 1 ? 'ves' : 'fe'} saved` : 'Lives saved'}</b>${done > show ? `<em>+${done - show} more ✓</em>` : ''}</div>
-    ${show ? `<div class="lv-bars">${Array.from({ length: show }, (_, k) => bar(1, done - show + k + 1)).join('')}</div>` : ''}
-    <div class="lv-now">${bar(part, done + 1)}</div>
-    <div class="lv-next"><b>${fmtUsd(left)}</b> more saves life ${done + 1}<span class="lv-you" id="lvYou"></span></div>
-    <small class="lv-fine">About ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell estimate)</small></div>`;
+    <div class="lv-stats"><div><b data-count="${Math.round(usd)}" data-fmt="usd">${fmtUsd(usd)}</b><span>raised</span></div><div><b data-count="${nets}">${nets.toLocaleString('en')}</b><span>nets</span></div><div><b>${done}</b><span>li${done === 1 ? 'fe' : 'ves'} saved</span></div></div>
+    <div class="lv-people">${done > show ? `<b class="lv-more">+${done - show}</b>` : ''}${Array.from({ length: show }, () => figSvg(1)).join('')}${figSvg(part)}<div class="lv-next"><b>${some ? Math.round(part * 100) + '%' : 'Starting'}</b><span>to the next life</span></div></div>
+    <p class="lv-you" id="lvYou"></p>
+    <small class="lv-fine">${some ? 'Raised by Globe Genius players. ' : 'Be one of the first Globe Genius players to give. '}About ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell).</small></div>`;
 }
 // Count the total up from zero and grow the bars when they come into view.
 function animateLives(root) {
   if (!root || reduceMotion) return;
-  const b = root.querySelector('[data-count]');
-  if (b) { const to = +b.dataset.count, t0 = performance.now(), D = 1100;
-    const step = t => { const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3); b.textContent = fmtUsd(to * e); if (k < 1 && b.isConnected) requestAnimationFrame(step); };
-    requestAnimationFrame(step); }
-  root.querySelectorAll('.lf i').forEach((x, k) => { x.style.width = '0'; setTimeout(() => { x.style.width = ''; }, 60 + k * 90); });
+  root.querySelectorAll('[data-count]').forEach(b => { const to = +b.dataset.count, usd = b.dataset.fmt === 'usd', t0 = performance.now(), D = 1100;
+    const step = t => { const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3), v = to * e; b.textContent = usd ? fmtUsd(v) : Math.round(v).toLocaleString('en'); if (k < 1 && b.isConnected) requestAnimationFrame(step); };
+    requestAnimationFrame(step); });
 }
 function netsMeter(t) {
   const usd = (t && t.usd) || 0, n = Math.floor(usd / NET_USD), lives = Math.floor(usd / LIFE_USD);
@@ -2987,13 +2986,13 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
     go.href = netsLink(pick, monthly, src);
     // What the chosen gift does to the bar: a concrete, felt share of the next life (efficacy beats statistics).
     const yr = monthly ? pick * 12 : pick, you = $('#lvYou');
-    if (you) you.textContent = ` · your ${fmtUsd(pick)}${monthly ? ' a month' : ''} adds ${yr / LIFE_USD * 100 >= 1 ? Math.round(yr / LIFE_USD * 100) : (yr / LIFE_USD * 100).toFixed(1)}%${monthly ? ' a year' : ''}`;
+    if (you) you.innerHTML = `Your ${fmtUsd(pick)}${monthly ? ' a month' : ''} = <b>${netsOf(yr)} nets${monthly ? ' a year' : ''}</b>, <b>+${yr / LIFE_USD * 100 >= 1 ? Math.round(yr / LIFE_USD * 100) : (yr / LIFE_USD * 100).toFixed(1)}%</b> of the next life`;
   };
   const bindAmts = () => sheet.querySelectorAll('.nets-amt').forEach(b => b.onclick = () => { buzz(5); pick = +b.dataset.usd; draw(); });
   sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); bindAmts(); draw(); });
   bindAmts(); draw();
   const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
-    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
+    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; store.gaveAt = Date.now(); save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
   // Verified unlocking needs an account (so Plus follows the player); until it's connected, confirming is enough.
   if (NETS_VERIFY && !NATIVE && !myUid() && !give) {
     go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to give</button>`;
@@ -3038,6 +3037,39 @@ function netsStory(then, back = homeSheet) {
     $('#stSkip').onclick = () => { buzz(5); then(); };
   };
   show();
+}
+// Pop-ups at key moments: right after a good daily round, a streak milestone, a finished chapter, or the news that
+// players have saved another life. Rules, so they help rather than annoy: never on opening the app or mid-quiz, not in
+// a player's first two days, at most one every 3 days (life news: at most once a day), never within a month of giving.
+const STREAK_MS = [3, 7, 14, 30, 50, 100, 200, 365];
+function netsMoment(kind, ctx = {}) {
+  // Owner preview: ?preview=nets&pop=daily|streak|chapter|life shows that pop-up.
+  const forced = NETS_PREVIEW && new URLSearchParams(location.search).get('pop') === kind;
+  if (!NETS_LIVE || (NETS_PREVIEW && !forced) || $('#npop')) return false;
+  const now = Date.now(), last = store.npop || 0, gaveRecently = store.gaveAt && now - store.gaveAt < 30 * DAY;
+  if (forced) {}
+  else if (kind === 'life') { if (now - last < DAY) return false; }
+  else if ((store.days || []).length < 2 || now - last < 3 * DAY || gaveRecently) return false;
+  const T = {
+    daily: ['Great round! 🌍', `Turn today’s win into a net: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
+    streak: [`🔥 ${ctx.n}-day streak!`, `Celebrate it: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
+    chapter: ['Chapter complete! 🎓', `Pass it on: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
+    life: [`Players just saved life #${ctx.n} 🎉`, 'Help start the next one. 100% goes to the Against Malaria Foundation.'],
+  }[kind];
+  if (!T) return false;
+  store.npop = now; store.naskDay = dayKey(); save(); netsSeen('src-pop' + kind);
+  const el = document.createElement('div'); el.id = 'npop'; el.className = 'npop-bg';
+  el.innerHTML = `<div class="npop" role="dialog" aria-modal="true" aria-labelledby="npopH"><button class="npop-x" aria-label="Close">${IC.x}</button>
+    <h3 id="npopH">${T[0]}</h3><p>${T[1]}</p><div id="npopL"></div>
+    <button class="btn pbtn" id="npopGo">Fund a net</button><button class="link npop-no" id="npopNo">Not now</button></div>`;
+  document.body.append(el);
+  const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 200); };
+  netsRaised().then(t => { const L = el.querySelector('#npopL'); if (L) { L.innerHTML = livesRow(t.usd, true); animateLives(L); } }, () => {});
+  el.querySelector('.npop-x').onclick = el.querySelector('#npopNo').onclick = () => { buzz(5); close(); };
+  el.onclick = e => { if (e.target === el) close(); };
+  el.querySelector('#npopGo').onclick = () => { buzz(8); close(); setRound(false); const go = () => netsSheet(null, homeSheet, 'pop' + kind); store.netsStory ? go() : netsStory(go); };
+  requestAnimationFrame(() => el.classList.add('in'));
+  return true;
 }
 // Thank-you: what the gift did, and an easy way to tell friends.
 function netsThanks(usd, wasMonthly, back) {
@@ -3576,6 +3608,7 @@ function finalDone(a, right, n) {
       <button class="btn primary" id="fdAgain">Try again</button><button class="btn" id="fdBack">Back to the chapter</button>${repFoot(`${a.title} · final quiz · results`)}`);
   buzz(pass ? [10, 60, 10] : 10); celebrate(pass);
   if ($('#fdNext')) $('#fdNext').onclick = () => { setRound(false); eraSheet(next.id); };
+  if (pass) setTimeout(() => netsMoment('chapter'), 1600);
   if ($('#fdNets')) { store.naskDay = dayKey(); save(); netsSeen('src-done'); $('#fdNets').onclick = () => { buzz(8); setRound(false); netsSheet(null, () => eraSheet(a.id), 'done'); }; }
   if ($('#fdAgain')) $('#fdAgain').onclick = () => startFinal(a.id);
   if ($('#fdRead')) $('#fdRead').onclick = () => { setRound(false); eraSheet(a.id); requestAnimationFrame(() => { const s = sheet.querySelector('.chs'); if (s) sheet.scrollTo({ top: sheet.scrollTop + s.getBoundingClientRect().top - sheet.getBoundingClientRect().top - 8 }); }); };
@@ -4956,7 +4989,7 @@ function bindDaily() {
   if ($('#tdPlay')) $('#tdPlay').onclick = () => { const k = $('#tdPlay').dataset.next; if (k === 'learn') learn(); else { buzz(8); dailyChallenge(k); } };
   if ($('#goNets')) { netsSeen('src-home'); $('#goNets').onclick = () => { buzz(8); store.netsStory ? netsSheet(null, homeSheet, 'home') : netsStory(() => netsSheet(null, homeSheet, 'home')); };
     const fill = (k = 0) => { if (!$('#hmNets')) return; if (!CLOUD && !NETS.apiKey) return k < 8 && setTimeout(() => fill(k + 1), 1500);
-      netsRaised().then(t => { const el = $('#hmNets'); if (el && t.usd >= NET_USD) el.innerHTML = `${fmtUsd(t.usd)} raised · ${Math.floor(t.usd / LIFE_USD) ? `${Math.floor(t.usd / LIFE_USD)} lives saved ✓` : `${fmtUsd(LIFE_USD - t.usd % LIFE_USD)} to save a life`}`; }, () => {}); };
+      netsRaised().then(t => { const lives = Math.floor(t.usd / LIFE_USD); if (store.seenLives == null) { store.seenLives = lives; save(); } else if (lives > store.seenLives) { store.seenLives = lives; save(); setTimeout(() => netsMoment('life', { n: lives }), 1200); } const el = $('#hmNets'); if (el && t.usd >= NET_USD) el.innerHTML = `${fmtUsd(t.usd)} raised · ${Math.floor(t.usd / LIFE_USD) ? `${Math.floor(t.usd / LIFE_USD)} lives saved ✓` : `${fmtUsd(LIFE_USD - t.usd % LIFE_USD)} to save a life`}`; }, () => {}); };
     fill(); }
   if ($('#goHistCard')) $('#goHistCard').onclick = () => { buzz(8); goHistory(anchorById[store.histLast]); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
@@ -5235,6 +5268,7 @@ function dailyChallenge(kind = 'geo', no) {
     bindRemind();
     $('#dyDone').onclick = leave;
     $('#dyShare').onclick = () => { buzz(8); shareResult(kind, d); };
+    if (!arc) setTimeout(() => { const st = streak(); if (STREAK_MS.includes(st) && store.nstreak !== st && netsMoment('streak', { n: st })) { store.nstreak = st; save(); } else netsMoment('daily'); }, 1400);
     if ($('#dyNets')) { store.naskDay = dayKey(); save(); netsSeen('src-daily'); $('#dyNets').onclick = () => { buzz(8); const go = () => netsSheet(null, homeSheet, 'daily'); store.netsStory ? go() : netsStory(go); }; }
     // Count this run once, then fetch everyone's results (including it) for the curve and the board.
     const bin = Math.min(DQ_BINS, Math.floor(score / DQ_BIN));
@@ -5777,6 +5811,7 @@ readVs(); markFounder(); applyFreeze(); remindersSoon(); if (NATIVE) setTimeout(
 // obvious first tap. The iPhone app keeps its short onboarding.
 const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
 if (!NATIVE && new URLSearchParams(location.search).has('daily')) { const no = +new URLSearchParams(location.search).get('daily') || dailyNo(); const go = () => CLOUD || !window.MERIDIAN_FIREBASE ? dailyJson(no) : setTimeout(go, 300); go(); }
+else if (NETS_PREVIEW && new URLSearchParams(location.search).get('pop')) { homeSheet(); setTimeout(() => netsMoment(new URLSearchParams(location.search).get('pop'), { n: 7 }), 900); }
 else if (NETS_PREVIEW) netsSheet(null, homeSheet, 'preview');
 else if (!NATIVE && new URLSearchParams(location.search).has('stats')) { const go = () => CLOUD ? statsSheet() : setTimeout(go, 300); go(); }
 else if (firstVisit && NATIVE) onboarding();
