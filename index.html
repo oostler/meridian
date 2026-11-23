@@ -3010,7 +3010,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
       <li>You give on Every.org, a charity platform. Your gift goes to AMF (Every.org passes on card fees, which you can choose to cover); we never receive any of it. Every.org sends your receipt.</li>
       <li>AMF spends 100% of public donations on nets.</li>
       <li>GiveWell, the charity evaluator, rates AMF a top charity: among the most cost-effective ways to save a life.</li>
-      <li>A net costs about ${fmtUsd(NET_USD)} and protects about ${NET_PPL} people from malaria for around three years.</li>
+      <li>A net costs about ${fmtUsd(NET_USD)} to buy and deliver (AMF puts it at $4–6) and protects about ${NET_PPL} people from malaria for around three years.</li>
       <li>${give ? 'Thank you for already supporting.' : 'Plus unlocks every deep dive and country history, your stats and private leagues for a year.'} Monthly gifts can be cancelled anytime in your <a href="https://www.every.org/" target="_blank" rel="noopener">Every.org account</a>.</li></ul></details>
     <p class="fine nets-beta">Under 18? Ask a parent or guardian before giving.</p>
     ${NETS_VERIFY || NETS_PREVIEW || give ? '' : `<p class="fine nets-beta">Beta: automatic unlocking is coming soon. For now, Plus unlocks when you confirm your gift.</p>`}
@@ -3075,7 +3075,7 @@ function netsStory(then, back = homeSheet) {
   store.netsStory = 1; save(); netsSeen('src-story');
   const S = [
     { c: 'st-night', art: ART_NIGHT, h: 'Nearly every minute, malaria kills a child under five.', p: 'About 450,000 young children a year, almost all in Africa.', fine: 'WHO World Malaria Report 2024' },
-    { c: 'st-net', art: ART_NET, h: 'A $5 bed net stops it.', p: 'Mosquitoes bite at night. One treated net protects 2 people for about 3 years.', fine: 'Against Malaria Foundation' },
+    { c: 'st-net', art: ART_NET, h: 'A $5 bed net stops it.', p: 'Mosquitoes bite at night. About $5 buys and delivers a treated net that protects 2 people for about 3 years.', fine: 'Against Malaria Foundation; GiveWell' },
     { c: 'st-us', art: '<div id="stLives" class="st-lives"></div>', h: 'Globe Genius players are saving lives.', p: 'Bed nets are among the most cost-effective ways to save a life. Your gift goes straight to the Against Malaria Foundation.', fine: 'GiveWell rates AMF a top charity' },
   ];
   let k = 0;
