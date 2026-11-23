@@ -4767,7 +4767,7 @@ function dailyQs3(no, kind) {
   if (kind === 'geo') {
     // Seven from the map (spot it, capitals, borders, sizes), three on rivers, mountains, landmarks and records.
     // From day 30 (23 November 2026) all ten come from the map, with nothing on rivers, mountains or landmarks.
-    if (no >= DQ_CONCEPT) return dailyQsOld(no, 'geo').map(q => ({ ...q, ctx: '' }));
+    if (no >= DQ_CONCEPT) return dailyGeoMap(no);
     const quota = { 'On the globe': 2, Capitals: 2, Borders: 1, Population: 1, Size: 1 }, mine = [];
     for (const q of dailyQsOld(no, 'geo')) if ((quota[q.ctx] || 0) > 0) { quota[q.ctx]--; mine.push({ ...q, ctx: '' }); }
     const bank = [...bankDeal(BANK.geo, no, 3, 9001), ...bankDeal(BANK.geo, no + 9999, Math.max(0, 7 - mine.length), 9002)].map(fromBank);
@@ -4794,6 +4794,60 @@ function dailyQs3(no, kind) {
   }
   const bank = bankDeal(no < DQ_CORE ? BANK.hist : BANK.hist.filter(x => anchorById[x.ch] && core(anchorById[x.ch])), no, 10 - maps.length, 4242).map(fromBank);
   return [...maps, ...bank].map((q, i) => ({ q, k: q.lvl * 10 + r() })).sort((a, b) => a.k - b.k).map(x => x.q);
+}
+// The daily geography challenge from day 30: only the map. Where countries are, their capitals and their borders:
+// the core skill the app builds. No population, area, rivers, mountains or landmarks. Ten questions, easiest first:
+// spot the country (3), capitals (3), which borders X, which does NOT border X, the only neighbour, landlocked.
+// Landlocked countries (UN list; the Caspian-shore countries are left out, as "landlocked" is debatable there).
+const LANDLOCKED = new Set(['AFG', 'AND', 'ARM', 'AUT', 'BLR', 'BTN', 'BOL', 'BWA', 'BFA', 'BDI', 'CAF', 'TCD', 'CZE', 'SWZ', 'ETH', 'HUN', 'KGZ', 'LAO', 'LSO', 'LIE', 'MWI', 'MLI', 'MDA', 'MNG', 'NPL', 'NER', 'MKD', 'PRY', 'RWA', 'SMR', 'SRB', 'SVK', 'SSD', 'CHE', 'TJK', 'UGA', 'UZB', 'VAT', 'ZMB', 'ZWE', 'XKX']);
+function dailyGeoMap(no) {
+  const r = seeded(no * 7919 + 3);
+  const rs = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(r() * a.length)];
+  const W = SCOPES.find(s => s.id === 'world').items.filter(f => f.k === 'c'), inW = new Set(W.map(f => f.id));
+  const byPop = W.slice().sort((a, b) => (b.pop || 0) - (a.pop || 0));
+  // Difficulty: early questions use well-known countries, later ones the whole world.
+  const tier = i => i < 3 ? byPop.slice(0, 45) : i < 7 ? byPop.slice(0, 110) : byPop;
+  const nbs = f => (f.nb || []).filter(id => inW.has(id)).map(id => byId[id]).filter(Boolean);
+  const near = (f, pool, n, ok = () => true) => rs(pool.filter(x => x !== f && ok(x)).sort((a, b) => dist(a, f) - dist(b, f)).slice(0, n)).slice(0, 3);
+  const mc = (right, wrong) => { const opts = rs([right, ...wrong]); return { opts, c: opts.indexOf(right) }; };
+  const used = new Set(), fresh = (pool, ok = () => true) => { const f = rs(pool.filter(x => !used.has(x.id) && ok(x)))[0]; if (f) used.add(f.id); return f; };
+  const nearN = i => i < 3 ? 14 : i < 7 ? 9 : 6;
+  const make = {
+    spot: i => { const f = fresh(tier(i)); const { opts, c } = mc(f, near(f, W, nearN(i))); return { q: 'Which country is highlighted?', opts: opts.map(o => o.n), c, show: f, why: `That's ${f.n}${f.cap[0] ? `, capital ${f.cap[0]}` : ''}.` }; },
+    cap: i => { const f = fresh(tier(i), x => x.cap[0]); const { opts, c } = mc(f, near(f, W, nearN(i), x => x.cap[0])); return { q: `What is the capital of <em>${esc(f.n)}</em>?`, opts: opts.map(o => o.cap[0]), c, after: f, why: `${f.cap[0]} is the capital of ${f.n}.` }; },
+    capOf: i => { const f = fresh(tier(i), x => x.cap[0]); const { opts, c } = mc(f, near(f, W, nearN(i))); return { q: `<em>${esc(f.cap[0])}</em> is the capital of which country?`, opts: opts.map(o => o.n), c, after: f, why: `${f.cap[0]} is the capital of ${f.n}.` }; },
+    border: i => {
+      const f = fresh(tier(i), x => nbs(x).length >= 1), right = pick(nbs(f));
+      const { opts, c } = mc(right, near(f, W, nearN(i) + 2, x => x !== right && !nbs(f).includes(x)));
+      return { q: `Which of these borders <em>${esc(f.n)}</em>?`, opts: opts.map(o => o.n), c, after: f, why: `${f.n} borders ${nbs(f).map(x => x.n).join(', ')}.` };
+    },
+    notBorder: i => {
+      // Three real neighbours and one nearby country that isn't one.
+      const f = fresh(tier(i), x => nbs(x).length >= 3), three = rs(nbs(f)).slice(0, 3);
+      const odd = near(f, W, 8, x => !nbs(f).includes(x))[0];
+      if (!odd) return make.border(i);
+      const opts = rs([...three, odd]);
+      return { q: `Which of these does NOT border <em>${esc(f.n)}</em>?`, opts: opts.map(o => o.n), c: opts.indexOf(odd), after: f, why: `${f.n}’s neighbours: ${nbs(f).map(x => x.n).join(', ')}. ${odd.n} isn’t one.` };
+    },
+    only: i => {
+      // A country with exactly one land neighbour: "Which is the only country that borders Portugal?"
+      const f = fresh(byPop.slice(0, 150), x => nbs(x).length === 1);
+      if (!f) return make.border(i);
+      const right = nbs(f)[0], { opts, c } = mc(right, near(f, W, 8, x => x !== right && x !== f));
+      return { q: `Which is the only country that borders <em>${esc(f.n)}</em>?`, opts: opts.map(o => o.n), c, after: f, why: `${f.n}’s only land neighbour is ${right.n}.` };
+    },
+    landlocked: i => {
+      // One landlocked country among three nearby countries with a coastline.
+      const f = fresh(tier(i + 2), x => LANDLOCKED.has(x.id));
+      if (!f) return make.border(i);
+      const { opts, c } = mc(f, near(f, W, 10, x => !LANDLOCKED.has(x.id) && !['AZE', 'KAZ', 'TKM'].includes(x.id)));
+      return { q: 'Which of these countries is landlocked?', opts: opts.map(o => o.n), c, after: f, why: `${f.n} has no coastline.${nbs(f).length ? ` It borders ${nbs(f).map(x => x.n).join(', ')}.` : ''}` };
+    },
+  };
+  const [x1, x2] = rs(['only', 'landlocked']);
+  const plan = ['spot', 'cap', 'spot', 'capOf', 'border', 'spot', 'cap', x1, 'notBorder', x2];
+  return plan.map((k, i) => ({ ctx: '', ...make[k](i) }));
 }
 function dailyQsOld(no, kind = 'geo') {
   const r = seeded(no * 7919 + (kind === 'hist' ? 17 : 3));
