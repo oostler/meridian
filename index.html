@@ -411,6 +411,12 @@ h1, h2, h3 { margin: 0; }
 .nets-amt.on { background: #fff; color: #5a2208; border-color: #fff; box-shadow: 0 4px 0 #6b2a0c; }
 a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .nets-count { width: 100%; }
+.don { font-size: .95em; margin-left: 3px; white-space: nowrap; }
+.nets-more-amts { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; width: 100%; }
+.nets-amt.big b { font-size: 19px; } .nets-amt.big b small { font-size: 12px; } .nets-amt.other { border-style: dashed; }
+.nets-bigway { grid-column: 1 / -1; margin: 2px 0 0; font-size: 13px !important; font-weight: 700 !important; } .nets-bigway a { color: #fff; text-decoration: underline; }
+.tier-card { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--gold-l); border: 2px solid var(--gold); text-align: left; }
+.tier-e { font-size: 34px; } .tier-card b { display: block; font-size: 17px; } .tier-card small { color: var(--ink-2); font-weight: 700; font-size: 13px; }
 .npop-bg { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 20px; background: rgba(10,15,30,.55); opacity: 0; transition: opacity .2s; }
 .npop-bg.in { opacity: 1; } .npop-bg.out { opacity: 0; }
 .npop { position: relative; width: min(400px, 100%); display: grid; gap: 12px; text-align: center; padding: 22px 18px 16px; border-radius: 24px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #c25e00 0%, #b45309 40%, #8a3410 100%); box-shadow: 0 20px 60px rgba(0,0,0,.35); transform: translateY(16px) scale(.97); transition: transform .25s cubic-bezier(.2,.9,.3,1.2); }
@@ -424,6 +430,7 @@ a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .lv-people { display: flex; align-items: flex-end; gap: 4px; }
 .fig { width: 34px; height: 48px; } .lv-more { font-size: 15px; font-weight: 900; align-self: center; margin-right: 2px; }
 .lv-next { display: grid; margin-left: 8px; align-self: center; } .lv-next b { font-size: 22px; font-weight: 900; color: #fde68a; line-height: 1; } .lv-next span { font-size: 12px; font-weight: 800; }
+.lv-first { display: grid; } .lv-first b { font-size: 24px; font-weight: 900; } .lv-first span { font-size: 13px; font-weight: 800; }
 .lv-you { margin: 0; font-size: 14px; font-weight: 700; } .lv-you b { color: #fde68a; }
 .lv-fine { font-size: 12px; font-weight: 700; }
 .lives.dark { background: rgba(0,0,0,.2); }
@@ -850,6 +857,7 @@ body:not(.in-round) .verdict { padding-bottom: 14px; }
 .done .badge { width: 92px; height: 92px; animation: pop .6s var(--ease); }
 .done .badge svg { width: 100%; height: 100%; }
 .done .title { color: var(--gold-d); font-size: 28px; }
+.nets-thx .title { color: #8a3410; } [data-theme="dark"] .nets-thx .title { color: #fbbf24; }
 .done .sub { color: var(--ink-2); font-weight: 800; }
 @keyframes pop { 0% { transform: scale(.3) rotate(-12deg); opacity: 0; } 70% { transform: scale(1.08) rotate(3deg); } }
 .sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
@@ -2379,6 +2387,8 @@ function settingsSheet() {
     <div class="setrow"><b>Daily goal</b><div class="seg">${GOALS.map(([n, name]) => `<button data-goal-set="${n}" aria-pressed="${store.goal === n}">${name}</button>`).join('')}</div><p class="hint" style="margin:0">${store.goal ? `${store.goal} answers a day` : 'No goal set'}</p></div>
     ${CLOUD ? `<div class="setrow"><b>Account</b><p class="hint">${ME ? `Signed in as ${esc(ME.name || 'you')}${ME.tag ? ` #${ME.tag}` : ''}.` : 'Sign in to join the leaderboard and race friends.'}</p>
       ${ME ? `<button class="btn" id="accName">Change name</button><button class="btn" id="accOut">Sign out</button><div id="accDel"><button class="link quiet" id="accDelAsk" style="color:var(--red)">Delete account</button></div>` : `<button class="btn primary" id="accIn">Sign in or create a profile</button>`}</div>` : ''}
+    ${NETS_ASK && store.gave && ME ? `<div class="setrow"><b>Supporter badge</b><p class="hint">Your ${tierName(tierOf(store.gave.usd)) || 'supporter'} badge next to your name on leaderboards.</p>
+      <button class="btn" id="donSet">${store.donHide ? 'Show my badge' : 'Hide my badge'}</button></div>` : ''}
     ${PLUS_OPEN ? '' : NATIVE && !store.plus ? '' : `<div class="setrow"><b>Deep dives</b><p class="hint">${store.plus ? 'Deep dives are unlocked on this device.' : 'Longer stories with their own maps and quizzes. Coming soon.'}</p>
       <button class="btn" id="plusSet">${store.plus ? 'Lock deep dives' : `${IC.star}Coming soon`}</button></div>`}
     ${PLUS_LIVE ? `<div class="setrow"><b>Globe Genius Plus</b><p class="hint">${store.founder ? 'You’re a founding member: Plus is yours, free, for good.' : hasPlus() ? 'Your Plus membership is active. Thank you.' : 'Deep dives, every past challenge, streak repair, your stats and private leagues.'}</p>
@@ -2416,6 +2426,7 @@ function settingsSheet() {
     });
     $('#accDelGo').onclick = () => { $('#accDelGo').disabled = true; del(); };
   };
+  if ($('#donSet')) $('#donSet').onclick = () => { buzz(5); store.donHide = !store.donHide; save(); if (CLOUD && CLOUD.donorHide) CLOUD.donorHide(store.donHide).catch(() => {}); toast(store.donHide ? 'Badge hidden' : 'Badge shown'); settingsSheet(); };
   if ($('#plusSet')) $('#plusSet').onclick = () => { buzz(5); if (store.plus) { store.plus = false; save(); histIdx = null; toast('Deep dives locked'); settingsSheet(); } else { showTab('history'); unlockSheet(); } };
   sheet.querySelectorAll('[data-sound-set]').forEach(b => b.onclick = () => { store.sound = b.dataset.soundSet === 'on'; save(); if (store.sound) sfx('right'); settingsSheet(); });
   sheet.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { buzz(5); store.theme = b.dataset.themeSet; save(); applyTheme(); settingsSheet(); });
@@ -2921,6 +2932,21 @@ function netsRaised() {
   setTimeout(() => { raisedP = null; }, 60000);
   return raisedP;
 }
+// Supporter tiers by lifetime giving. Status is a strong, honest motivator: a badge next to your name on every
+// leaderboard, and "$75 to Silver" makes the next gift a level-up. Public badges come only from confirmed gifts (the
+// server writes donors/{uid}); the player's own tier on their screen also counts gifts they confirmed themselves.
+const TIERS = [
+  { k: 'life', min: 5500, e: '🛡️', n: 'Lifesaver' }, { k: 'diamond', min: 1000, e: '💎', n: 'Diamond' },
+  { k: 'gold', min: 500, e: '🥇', n: 'Gold' }, { k: 'silver', min: 100, e: '🥈', n: 'Silver' },
+  { k: 'bronze', min: 25, e: '🥉', n: 'Bronze' }, { k: 'net', min: 5, e: '🦟', n: 'Supporter' },
+];
+const tierOf = usd => TIERS.find(t => usd >= t.min) || null;
+const tierNext = usd => [...TIERS].reverse().find(t => usd < t.min) || null;
+const tierName = t => t ? `${t.e} ${t.n}${t.k === 'net' ? '' : ' supporter'}` : '';
+// Badges for everyone on the boards, loaded once a session from donors/{uid} (server-written, public).
+let DONORS = {};
+function loadDonors() { if (CLOUD && CLOUD.donors) CLOUD.donors().then(m => { DONORS = m || {}; }, () => {}); }
+const donBadge = uid => { const d = uid && DONORS[uid], t = d && !d.hide && TIERS.find(x => x.k === d.t); return t ? ` <span class="don" title="${t.n} supporter${d.lives > 1 ? ` · ${d.lives} lives` : ''}">${t.e}${t.k === 'life' && d.lives > 1 ? `×${d.lives}` : ''}</span>` : ''; };
 // The players' impact, at a glance: three big numbers (dollars, nets, lives) and a row of people, one figure per
 // life saved (solid, with a check) and the next one filling up from the feet. People, not progress bars: a figure
 // reads as a person saved; the half-filled one is the life every gift is working on right now (goal-gradient).
@@ -2932,7 +2958,7 @@ function livesRow(usd, dark) {
   const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 5), nets = Math.floor(usd / NET_USD);
   const some = usd >= NET_USD;
   return `<div class="lives${dark ? ' dark' : ''}">
-    <div class="lv-stats"><div><b data-count="${Math.round(usd)}" data-fmt="usd">${fmtUsd(usd)}</b><span>raised</span></div><div><b data-count="${nets}">${nets.toLocaleString('en')}</b><span>nets</span></div><div><b>${done}</b><span>li${done === 1 ? 'fe' : 'ves'} saved</span></div></div>
+    ${some ? `<div class="lv-stats"><div><b data-count="${Math.round(usd)}" data-fmt="usd">${fmtUsd(usd)}</b><span>raised</span></div><div><b data-count="${nets}">${nets.toLocaleString('en')}</b><span>nets</span></div><div><b>${done}</b><span>li${done === 1 ? 'fe' : 'ves'} saved</span></div></div>` : `<div class="lv-first"><b>Be one of the first</b><span>Globe Genius players vs malaria</span></div>`}
     <div class="lv-people">${done > show ? `<b class="lv-more">+${done - show}</b>` : ''}${Array.from({ length: show }, () => figSvg(1)).join('')}${figSvg(part)}<div class="lv-next"><b>${some ? Math.round(part * 100) + '%' : 'Starting'}</b><span>to the next life</span></div></div>
     <p class="lv-you" id="lvYou"></p>
     <small class="lv-fine">${some ? 'Raised by Globe Genius players. ' : 'Be one of the first Globe Genius players to give. '}About ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell).</small></div>`;
@@ -2954,6 +2980,8 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
   const give = hasPlus() && !NETS_PREVIEW, v = netsVariant();
   netsSeen('v-' + v); netsSeen('src-' + src);
   const MONTH = NETS.monthly || [2, 5, 10], ONCE = NETS.once || [5, 10, 25, 50], DEF_M = NETS.defMonthly || 5, DEF_O = NETS.defOnce || 25;
+  // For the generous: bigger amounts one tap away, "save a whole life", and any amount at all.
+  const MORE_O = NETS.moreOnce || [100, 250, 1000, LIFE_USD], MORE_M = NETS.moreMonthly || [25, 50, 100];
   let monthly = startMonthly != null ? !!startMonthly : v === 'monthly', pick = monthly ? DEF_M : DEF_O;
   const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? DEF_M : DEF_O;
   const sub = u => monthly ? `${netsOf(u * 12)} nets a year` : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`;
@@ -2967,6 +2995,8 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
       <p class="nets-why1">${give ? '' : 'Fund malaria nets. '}100% goes to the Against Malaria Foundation.</p>
       <div class="nets-freq" role="tablist"><button data-f="o" role="tab">One-time</button><button data-f="m" role="tab">Monthly</button></div>
       <div class="nets-amts${monthly ? '' : ' four'}" id="pwAmts" role="radiogroup" aria-label="Amount">${amts().map(btn).join('')}</div>
+      <div class="nets-more-amts" id="pwMore" hidden></div>
+      <button class="link plink" id="pwBig">Give more</button>
       <a class="btn pbtn nets-go" id="pwGo" href="#" target="_blank" rel="noopener"><span id="pwGoTxt"></span></a>
       <div class="nets-count" id="pwCount" hidden></div>
       <div id="pwAfter"></div>
@@ -2990,10 +3020,19 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
     go.href = netsLink(pick, monthly, src);
     // What the chosen gift does to the bar: a concrete, felt share of the next life (efficacy beats statistics).
     const yr = monthly ? pick * 12 : pick, you = $('#lvYou');
-    if (you) you.innerHTML = `Your ${fmtUsd(pick)}${monthly ? ' a month' : ''} = <b>${netsOf(yr)} nets${monthly ? ' a year' : ''}</b>, <b>+${yr / LIFE_USD * 100 >= 1 ? Math.round(yr / LIFE_USD * 100) : (yr / LIFE_USD * 100).toFixed(1)}%</b> of the next life`;
+    const before = (store.gave && store.gave.usd) || 0, tNow = tierOf(before), tAfter = tierOf(before + yr), up = tAfter && (!tNow || tAfter.min > tNow.min);
+    if (you) you.innerHTML = `Your ${fmtUsd(pick)}${monthly ? ' a month' : ''} = <b>${netsOf(yr)} nets${monthly ? ' a year' : ''}</b>, <b>+${yr / LIFE_USD * 100 >= 1 ? Math.round(yr / LIFE_USD * 100) : (yr / LIFE_USD * 100).toFixed(1)}%</b> of the next life${up ? ` · makes you <b>${tierName(tAfter)}</b>` : ''}`;
+    sheet.querySelectorAll('.nets-amt').forEach(b => b.classList.toggle('on', +b.dataset.usd === pick));
   };
   const bindAmts = () => sheet.querySelectorAll('.nets-amt').forEach(b => b.onclick = () => { buzz(5); pick = +b.dataset.usd; draw(); });
-  sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); bindAmts(); draw(); });
+  const bigBtn = u => `<button class="nets-amt big${u === pick ? ' on' : ''}" data-usd="${u}"><b>${fmtUsd(u)}${monthly ? '<small>/mo</small>' : ''}</b><span>${u === LIFE_USD && !monthly ? 'save a whole life' : sub(u)}</span></button>`;
+  const showMore = () => { const m = $('#pwMore'); m.hidden = false; $('#pwBig').hidden = true;
+    m.innerHTML = `${(monthly ? MORE_M : MORE_O).map(bigBtn).join('')}<button class="nets-amt big other" id="pwOther"><b>Any</b><span>your amount</span></button>
+      <p class="nets-bigway">Giving $1,000 or more? You can also give stock, crypto or from a donor-advised fund on <a href="${netsLink(0, false, 'big').split('?')[0]}" target="_blank" rel="noopener">our Every.org page</a>.</p>`;
+    bindAmts();
+    $('#pwOther').onclick = () => { const x = Math.round(+String(prompt('How much would you like to give, in US dollars?', String(pick)) || '').replace(/[^0-9.]/g, '') || 0); if (x > 0) { pick = x; buzz(5); draw(); } }; };
+  $('#pwBig').onclick = () => { buzz(5); showMore(); };
+  sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); if (!$('#pwMore').hidden) showMore(); bindAmts(); draw(); });
   bindAmts(); draw();
   const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
     const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; store.gaveAt = Date.now(); store.ntap = null; store.ndis = 0; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
@@ -3102,9 +3141,10 @@ function netsMoment(kind, ctx = {}) {
 }
 // Thank-you: what the gift did, and an easy way to tell friends.
 function netsThanks(usd, wasMonthly, back) {
-  const yr = wasMonthly ? usd * 12 : usd, n = netsOf(yr), ppl = n * NET_PPL;
-  setSheet(`<div class="done"><span class="badge">${ART.trophy}</span><div class="title">Thank you!</div>
+  const yr = wasMonthly ? usd * 12 : usd, n = netsOf(yr), ppl = n * NET_PPL, tot = (store.gave && store.gave.usd) || yr, t = tierOf(tot), nx = tierNext(tot);
+  setSheet(`<div class="done nets-thx"><span class="badge">${ART.trophy}</span><div class="title">Thank you!</div>
       <div class="sub">${wasMonthly ? `Every year, that’s about <b>${n} nets</b>` : `That’s about <b>${n} net${n > 1 ? 's' : ''}</b>`}, protecting about <b>${ppl} people</b> from malaria.</div></div>
+    ${t ? `<div class="tier-card"><span class="tier-e">${t.e}</span><div><b>You’re a ${t.n}${t.k === 'net' ? '' : ' supporter'}!</b><small>${NETS_VERIFY ? 'Your badge shows next to your name on every leaderboard. ' : ''}${nx ? `${fmtUsd(nx.min - tot)} more to ${nx.e} ${nx.n}.` : 'The highest tier. Thank you.'}</small></div></div>` : ''}
     <button class="btn primary" id="ntShare">${IC.share}Tell your friends</button>
     <button class="btn" id="ntGo">Continue</button>`);
   $('#ntShare').onclick = () => { buzz(8); shareOut({ text: `I just funded ${n} malaria net${n > 1 ? 's' : ''} with Globe Genius. 100% goes to the Against Malaria Foundation.`, url: 'https://globegenius.io' }); };
@@ -4999,7 +5039,7 @@ function netsCard() {
     : renew ? ['Keep Plus: fund nets again', 'Your year of Plus ends soon', 'renew']
     : st === 'upsell' ? ['Make it monthly?', `Keep protecting families every month, from ${low}`, 'upsell']
     : st === 'monthly' ? ['Monthly supporter ✓', `About ${n} nets a year, protecting ${n * NET_PPL} people. Thank you!`, 'more']
-    : g ? [`You’ve funded about ${n} nets 🎉`, `They protect about ${n * NET_PPL} people tonight. Give again anytime.`, 'more']
+    : g ? [`${tierOf(g.usd) ? tierOf(g.usd).e + ' ' : ''}You’ve funded about ${n} nets`, tierNext(g.usd) ? `${fmtUsd(tierNext(g.usd).min - g.usd)} more to ${tierNext(g.usd).e} ${tierNext(g.usd).n}. They protect about ${n * NET_PPL} people tonight.` : `They protect about ${n * NET_PPL} people tonight. Thank you!`, 'more']
     : camp ? [camp.title, camp.line, 'new']
     : ['Fund malaria nets', '100% goes to the Against Malaria Foundation', 'new'];
   return `<button class="hm-card nets-card" id="goNets" data-act="${act}"><span class="nc-ic">🦟</span><span><b>${t}</b><small id="hmNets"${g || st === 'pending' ? ' data-keep="1"' : ''}>${sub}</small></span>${IC.next}</button>`;
@@ -5342,7 +5382,7 @@ function dailyChallenge(kind = 'geo', no) {
     const el = $('#ddBoard'); if (!el) return;
     const rows = v && v.rows || [];
     const me = ME && v && v.me;
-    el.innerHTML = (rows.length ? `<ol class="dd-lb">${rows.map((r, k) => `<li class="${ME && r.uid === ME.uid ? 'me' : ''}"><span class="dl-r">${k + 1}</span><span class="dl-n">${isHidden(r.uid) ? '<span class="pl-hid">Hidden player</span>' : ME && r.uid === ME.uid || !r.uid ? `${esc(r.name)}<i>#${esc(r.tag || '')}</i>` : `<span class="pl" data-pl="${esc(r.uid)}" data-pln="${esc(r.name + ' #' + (r.tag || ''))}">${esc(r.name)}<i>#${esc(r.tag || '')}</i></span>`}</span><b>${r.score}</b></li>`).join('')}</ol>` : '<p class="hint">No names on today\'s board yet. Be the first.</p>')
+    el.innerHTML = (rows.length ? `<ol class="dd-lb">${rows.map((r, k) => `<li class="${ME && r.uid === ME.uid ? 'me' : ''}"><span class="dl-r">${k + 1}</span><span class="dl-n">${isHidden(r.uid) ? '<span class="pl-hid">Hidden player</span>' : ME && r.uid === ME.uid || !r.uid ? `${esc(r.name)}<i>#${esc(r.tag || '')}</i>` : `<span class="pl" data-pl="${esc(r.uid)}" data-pln="${esc(r.name + ' #' + (r.tag || ''))}">${esc(r.name)}<i>#${esc(r.tag || '')}</i></span>`}${isHidden(r.uid) ? '' : donBadge(r.uid)}</span><b>${r.score}</b></li>`).join('')}</ol>` : '<p class="hint">No names on today\'s board yet. Be the first.</p>')
       + (me && me.rank > rows.length ? `<ol class="dd-lb" start="${me.rank}"><li class="me"><span class="dl-r">${me.rank}</span><span class="dl-n">You</span><b>${me.score}</b></li></ol>` : '')
       + (!ME && CLOUD && !arc ? `<button class="btn" id="ddIn">${IC.trophy}Put your name on the board</button>` : '');
     if ($('#ddIn')) $('#ddIn').onclick = () => signInSheet({ then: () => dailyChallenge(kind) });
@@ -5420,7 +5460,7 @@ const FORCE_SIGNIN = window.MERIDIAN_FORCE_SIGNIN !== false;
 // Sign in with Apple needs an Apple Developer account; the button shows once the config says "apple": true.
 const APPLE = !!(window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.apple);
 function cloudReady() {
-  CLOUD = window.MeridianCloud;
+  CLOUD = window.MeridianCloud; setTimeout(loadDonors, 1500);
   document.body.classList.add('cloud');
   CLOUD.onUser(p => {
     const wasNamed = !!(ME && ME.name); ME = p; authKnown = true; if (p && p.uid) setTimeout(refreshPlus, 500); if (p && p.name && store.lgInvite) setTimeout(leagueInvite, 300);
@@ -5637,8 +5677,8 @@ function nameSheet() {
 const avatar = (name, uid) => `<span class="av" style="--h:${[...(uid || name || 'x')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360}">${esc((name || '?')[0].toUpperCase())}</span>`;
 const isHidden = uid => !!uid && (store.blocked || []).includes(uid);
 const who = r => isHidden(r.uid) ? `<span class="pl-hid">Hidden player</span>`
-  : ME && r.uid === ME.uid || !r.uid ? `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`
-  : `<span class="pl" data-pl="${esc(r.uid)}" data-pln="${esc(r.name + ' #' + (r.tag || ''))}">${esc(r.name)} <small>#${esc(r.tag || '')}</small></span>`;
+  : (ME && r.uid === ME.uid || !r.uid ? `${esc(r.name)} <small>#${esc(r.tag || '')}</small>`
+  : `<span class="pl" data-pl="${esc(r.uid)}" data-pln="${esc(r.name + ' #' + (r.tag || ''))}">${esc(r.name)} <small>#${esc(r.tag || '')}</small></span>`) + donBadge(r.uid);
 function competeSheet(kind = state.board === 'all' ? 'all' : 'week') {
   state.mode = 'explore'; state.target = null; state.board = kind;
   setRound(false); setTab('compete');
