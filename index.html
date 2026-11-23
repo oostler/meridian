@@ -2755,6 +2755,8 @@ const PLUS_CFG = window.MERIDIAN_PLUS || {};
 // The money goes straight to the charity; Globe Genius never receives it. On the web (and wherever an outside link is
 // allowed) the server confirms each donation (firebase/functions netsHook) and unlocks the account automatically.
 // In the iPhone app the donation happens in Safari and Plus unlocks on the player's word (Apple guideline 3.2.2(iv)).
+// globegenius.io/?preview=nets shows the owner the donation screen before it's switched on (nothing unlocks).
+const NETS_PREVIEW = !NATIVE && new URLSearchParams(location.search).get('preview') === 'nets';
 const NETS = PLUS_CFG.nets || {}, NETS_LIVE = !!NETS.live || !!(NETS.start && NETS.url && Date.now() >= Date.parse(NETS.start));
 const PLUS_LIVE = NETS_LIVE || !!PLUS_CFG.live || !!(PLUS_CFG.start && (PLUS_CFG.ios || PLUS_CFG.web) && Date.now() >= Date.parse(PLUS_CFG.start));
 const PLUS_OPEN = !PLUS_LIVE;
@@ -2868,8 +2870,8 @@ function netsMeter(t, mode) {
 const netsOf = usd => Math.max(1, Math.round(usd / NET_USD));
 function netsSheet(reason, back = homeSheet, src = 'wall') {
   // Players who already have Plus (or are founders) can still give: the same sheet, without the unlock.
-  const give = hasPlus(), v = netsVariant();
-  netsSeen('v-' + v); netsSeen('src-' + src);
+  const give = hasPlus() && !NETS_PREVIEW, v = NETS_PREVIEW && ['impact', 'life', 'give'].includes(new URLSearchParams(location.search).get('v')) ? new URLSearchParams(location.search).get('v') : netsVariant();
+  if (!NETS_PREVIEW) { netsSeen('v-' + v); netsSeen('src-' + src); }
   const LIST = [[IC.clock, 'All 76 deep dives', 'Religions, empires, wars and big ideas, each with maps and a quiz.'], [IC.globe, 'Every country’s full history', 'All 194 countries, told as if you were about to visit.'],
     [IC.flame, 'Streak repair', 'Missed a day? Get your streak back.'], [IC.target, 'Your stats', 'Your scores and strongest topics over time.'], [IC.trophy, 'Private leagues', 'A daily leaderboard for your friends, family or class.']];
   // The recommended gift is $24 for the year: "just $2 a month". Small per-period framing ("pennies a day") makes the
@@ -2880,7 +2882,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   let monthly = false, pick = REC;
   const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? REC_M : REC;
   const amtBtn = u => `<button class="nets-amt${u === pick ? ' on' : ''}${u === rec() ? ' rec' : ''}" role="radio" aria-checked="${u === pick}" data-usd="${u}">${u === rec() ? '<em>Recommended</em>' : ''}<b>${fmtUsd(u)}</b><span>${monthly ? 'a month' : u === REC ? '$2 a month' : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`}</span></button>`;
-  setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
+  setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>${NETS_PREVIEW ? `<p class="md-note"><b>Preview</b><small>This is how the donation screen will look once it's switched on. Try ?preview=nets&v=life or &v=give for the other versions. Donating here doesn't unlock anything yet.</small></p>` : ''}
     <div class="pwall"><span class="ptag">${give ? '🦟 Players against malaria' : `${IC.star}Globe Genius Plus`}</span>
       ${give ? `<h3>Fund more mosquito nets</h3><p>Every dollar goes to the <b>Against Malaria Foundation</b>, none to us.</p>`
         : v === 'life' ? `<h3>Help save a life from malaria, and unlock Plus</h3><p>Give ${fmtUsd(NET_MIN)} or more to the <b>Against Malaria Foundation</b> and Plus unlocks for a year. Together, Globe Genius players are funding nets one life at a time. Every dollar goes to the charity, none to us.</p>`
@@ -2921,7 +2923,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   draw();
   const unlocked = (until, usd) => { clearInterval(poll); store.ent = { until, nets: 1 }; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, back); };
   // On the web the donation must be linked to an account, so Plus follows the player to every device.
-  if (!NATIVE && !myUid() && !give) {
+  if (!NATIVE && !myUid() && !give && !NETS_PREVIEW) {
     go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to continue</button>`; $('#pwOther').hidden = true;
     after.innerHTML = '<p class="pfine">Sign in first, so Plus is linked to your profile and works everywhere.</p>';
     $('#pwIn').onclick = () => signInSheet({ then: () => netsSheet(reason, back) });
@@ -5672,6 +5674,7 @@ readVs(); markFounder(); applyFreeze(); remindersSoon(); if (NATIVE) setTimeout(
 // obvious first tap. The iPhone app keeps its short onboarding.
 const firstVisit = needsOnboarding(), invited = new URLSearchParams(location.search).get('race');
 if (!NATIVE && new URLSearchParams(location.search).has('daily')) { const no = +new URLSearchParams(location.search).get('daily') || dailyNo(); const go = () => CLOUD || !window.MERIDIAN_FIREBASE ? dailyJson(no) : setTimeout(go, 300); go(); }
+else if (NETS_PREVIEW) netsSheet(null, homeSheet, 'preview');
 else if (!NATIVE && new URLSearchParams(location.search).has('stats')) { const go = () => CLOUD ? statsSheet() : setTimeout(go, 300); go(); }
 else if (firstVisit && NATIVE) onboarding();
 else {
