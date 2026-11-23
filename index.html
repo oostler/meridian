@@ -411,15 +411,22 @@ h1, h2, h3 { margin: 0; }
 .nets-amt.on { background: #fff; color: #5a2208; border-color: #fff; box-shadow: 0 4px 0 #6b2a0c; }
 a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .nets-count { width: 100%; }
-.lives { display: grid; gap: 6px; width: 100%; background: rgba(255,255,255,.18); border-radius: 14px; padding: 10px 12px; text-align: left; }
-.lv-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.lv { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 14px; color: #fff;
-  background: conic-gradient(#fff var(--p), rgba(255,255,255,.28) 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.7); }
-.lv.ok { background: #15803d; box-shadow: inset 0 0 0 2px #fff; } .lv-more { font-size: 13px; }
-.lv-txt { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; } .lv-txt span { font-weight: 800; white-space: nowrap; }
-.lv-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,.3); overflow: hidden; } .lv-bar i { display: block; height: 100%; background: #fff; border-radius: 4px; }
+.lives { display: grid; gap: 8px; width: 100%; background: rgba(0,0,0,.18); border-radius: 16px; padding: 12px 14px; text-align: left; }
+.lv-total { display: grid; } .lv-total b { font-size: 34px; line-height: 1; font-weight: 900; letter-spacing: -.01em; font-variant-numeric: tabular-nums; } .lv-total span { font-size: 13px; font-weight: 800; }
+.lv-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; } .lv-head em { font-style: normal; font-size: 13px; font-weight: 900; }
+.lv-bars { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
+.lv-bars .lf { height: 22px; } .lv-bars .lf span { line-height: 22px; }
+.lv-now .lf { height: 34px; border-radius: 10px; } .lv-now .lf i { border-radius: 10px; } .lv-now .lf span { line-height: 34px; font-size: 14px; }
+.lf { position: relative; height: 26px; border-radius: 8px; background: rgba(255,255,255,.88); overflow: hidden; }
+.lf i { position: absolute; inset: 0 auto 0 0; width: var(--w); background: #fbbf24; border-radius: 8px; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+.lf.ok i { background: #15803d; }
+.lf span { position: relative; display: block; text-align: center; font-size: 11px; font-weight: 900; line-height: 26px; color: #5a2208; white-space: nowrap; }
+.lf.ok span { color: #fff; }
+.lf:not(.ok) i { animation: lfpulse 1.8s ease-in-out infinite; }
+@keyframes lfpulse { 50% { opacity: .75; } }
+.lv-next { font-size: 14px; font-weight: 800; } .lv-next b { font-size: 16px; } .lv-you { color: #fde68a; }
 .lv-fine { font-size: 12px; font-weight: 700; }
-.lives.dark { background: rgba(255,255,255,.12); }
+.lives.dark { background: rgba(0,0,0,.2); }
 .story { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 16px 18px 20px; border-radius: 22px; color: #fff; min-height: 470px; align-content: start; }
 .st-night { background: linear-gradient(160deg, #1d2a5c, #3b2a6e); } .st-net { background: linear-gradient(160deg, #0a5c47, #0b6e55); } .st-us { background: linear-gradient(160deg, #b45309, #8a3410); }
 .st-top { display: flex; width: 100%; justify-content: space-between; align-items: center; } .st-dots { display: flex; gap: 6px; } .st-dots i { width: 28px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.35); } .st-dots i.on { background: #fff; }
@@ -427,7 +434,7 @@ a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .st-art { width: 100%; max-width: 260px; height: auto; margin: 6px 0; }
 .story h3 { margin: 0; font-size: 25px; line-height: 1.15; } .story p { margin: 0; font-size: 16px; font-weight: 700; } .story small { font-size: 12px; font-weight: 700; }
 .st-lives { width: 100%; margin: 8px 0; } .st-next { width: 100%; margin-top: auto; }
-.st-why { display: block; margin: 8px auto 0; }
+.st-why { display: block; margin: 8px auto 0; color: var(--link, var(--blue)) !important; }
 .nets-wait { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .nets-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: netspin .8s linear infinite; flex: none; }
 @keyframes netspin { to { transform: rotate(360deg); } }
@@ -2898,6 +2905,9 @@ const netsOf = usd => Math.max(1, Math.round(usd / NET_USD));
 // server keeps from Every.org's donation notifications. Cached for the session.
 let raisedP = null;
 function netsRaised() {
+  // Owner preview: ?preview=nets&raised=12480 shows how the total looks at any amount.
+  const fake = NETS_PREVIEW && +new URLSearchParams(location.search).get('raised');
+  if (fake) return Promise.resolve({ usd: fake, donors: 0 });
   if (raisedP) return raisedP;
   const ours = () => CLOUD && CLOUD.netsTotal ? CLOUD.netsTotal().then(t => ({ usd: (t && t.usd) || 0, donors: (t && t.gifts) || 0 })) : Promise.resolve({ usd: 0, donors: 0 });
   const theirs = NETS.fundraiser && NETS.apiKey
@@ -2907,14 +2917,29 @@ function netsRaised() {
   setTimeout(() => { raisedP = null; }, 60000);
   return raisedP;
 }
-// Lives saved as a row of circles: a check for each life saved, the next one filling up, and the dollars to go.
-// Goal-gradient: people give more as a visible goal comes within reach, so the next life's remaining amount is the hero.
+// The players' total: big dollars raised, then lives saved as mini bars, one per life: full with a check for each
+// life saved, and the next one filling up with the dollars still needed. Goal-gradient: the next life is always
+// close and always visible, so the bar never "finishes"; the total counts up when shown.
 function livesRow(usd, dark) {
-  const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 7);
-  const circ = (p, k) => `<i class="lv${p >= 1 ? ' ok' : ''}" style="--p:${Math.round(p * 100)}%" aria-hidden="true">${p >= 1 ? '✓' : ''}</i>`;
-  return `<div class="lives${dark ? ' dark' : ''}"><div class="lv-row">${done > show ? `<b class="lv-more">+${done - show}</b>` : ''}${Array.from({ length: show }, (_, k) => circ(1, k)).join('')}${circ(part, show)}</div>
-    <div class="lv-txt"><b>${done ? `${done} li${done > 1 ? 'ves' : 'fe'} saved` : usd >= NET_USD ? 'Saving our first life' : 'Be one of the first'}</b><span>${fmtUsd((1 - part) * LIFE_USD)} to save ${done ? 'the next' : 'a life'}</span></div>
-    <div class="lv-bar"><i style="width:${Math.max(3, part * 100)}%"></i></div><small class="lv-fine">${usd >= NET_USD ? `${fmtUsd(usd)} raised by players · ` : ''}about ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell)</small></div>`;
+  const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 5), left = (1 - part) * LIFE_USD;
+  const bar = (p, n) => `<div class="lf${p >= 1 ? ' ok' : ''}"><i style="--w:${Math.max(p >= 1 ? 100 : 4, Math.round(p * 100))}%"></i><span>${p >= 1 ? `✓ Life ${n}` : `Life ${n} · ${p < .01 ? 'starting now' : Math.round(p * 100) + '%'}`}</span></div>`;
+  const some = usd >= NET_USD;
+  return `<div class="lives${dark ? ' dark' : ''}">
+    ${some ? `<div class="lv-total"><b data-count="${Math.round(usd)}">${fmtUsd(usd)}</b><span>raised by Globe Genius players</span></div>` : `<div class="lv-total"><b>Be one of the first</b><span>Globe Genius players vs malaria</span></div>`}
+    <div class="lv-head"><b>${done ? `${done} li${done > 1 ? 'ves' : 'fe'} saved` : 'Lives saved'}</b>${done > show ? `<em>+${done - show} more ✓</em>` : ''}</div>
+    ${show ? `<div class="lv-bars">${Array.from({ length: show }, (_, k) => bar(1, done - show + k + 1)).join('')}</div>` : ''}
+    <div class="lv-now">${bar(part, done + 1)}</div>
+    <div class="lv-next"><b>${fmtUsd(left)}</b> more saves life ${done + 1}<span class="lv-you" id="lvYou"></span></div>
+    <small class="lv-fine">About ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell estimate)</small></div>`;
+}
+// Count the total up from zero and grow the bars when they come into view.
+function animateLives(root) {
+  if (!root || reduceMotion) return;
+  const b = root.querySelector('[data-count]');
+  if (b) { const to = +b.dataset.count, t0 = performance.now(), D = 1100;
+    const step = t => { const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3); b.textContent = fmtUsd(to * e); if (k < 1 && b.isConnected) requestAnimationFrame(step); };
+    requestAnimationFrame(step); }
+  root.querySelectorAll('.lf i').forEach((x, k) => { x.style.width = '0'; setTimeout(() => { x.style.width = ''; }, 60 + k * 90); });
 }
 function netsMeter(t) {
   const usd = (t && t.usd) || 0, n = Math.floor(usd / NET_USD), lives = Math.floor(usd / LIFE_USD);
@@ -2953,13 +2978,16 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   let poll = null, tries = 0;
   $('#pwBack').onclick = () => { clearInterval(poll); back(); };
   $('#pwWhy').onclick = () => { clearInterval(poll); buzz(5); netsStory(() => netsSheet(reason, back, src), back); };
-  netsRaised().then(t => { const el = $('#pwCount'); if (!el) return; el.innerHTML = livesRow(t.usd); el.hidden = false; }, () => {});
+  netsRaised().then(t => { const el = $('#pwCount'); if (!el) return; el.innerHTML = livesRow(t.usd); el.hidden = false; animateLives(el); draw(); }, () => {});
   const after = $('#pwAfter'), go = $('#pwGo');
   const draw = () => {
     sheet.querySelectorAll('.nets-amt').forEach(b => { const on = +b.dataset.usd === pick; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
     sheet.querySelectorAll('.nets-freq button').forEach(b => b.classList.toggle('on', (b.dataset.f === 'm') === monthly));
     $('#pwGoTxt').textContent = `Give ${fmtUsd(pick)}${monthly ? ' a month' : ''}`;
     go.href = netsLink(pick, monthly, src);
+    // What the chosen gift does to the bar: a concrete, felt share of the next life (efficacy beats statistics).
+    const yr = monthly ? pick * 12 : pick, you = $('#lvYou');
+    if (you) you.textContent = ` · your ${fmtUsd(pick)}${monthly ? ' a month' : ''} adds ${yr / LIFE_USD * 100 >= 1 ? Math.round(yr / LIFE_USD * 100) : (yr / LIFE_USD * 100).toFixed(1)}%${monthly ? ' a year' : ''}`;
   };
   const bindAmts = () => sheet.querySelectorAll('.nets-amt').forEach(b => b.onclick = () => { buzz(5); pick = +b.dataset.usd; draw(); });
   sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); bindAmts(); draw(); });
@@ -3005,7 +3033,7 @@ function netsStory(then, back = homeSheet) {
     setSheet(`<div class="story ${x.c}"><div class="st-top"><div class="st-dots">${S.map((_, j) => `<i class="${j <= k ? 'on' : ''}"></i>`).join('')}</div><button class="link st-skip" id="stSkip">Skip</button></div>
       ${x.art}<h3>${x.h}</h3><p>${x.p}</p>${x.fine ? `<small>${x.fine}</small>` : ''}
       <button class="btn pbtn st-next" id="stNext">${k < S.length - 1 ? 'Next' : 'Fund a net'}</button></div>`);
-    if (k === 2) netsRaised().then(t => { const el = $('#stLives'); if (el) el.innerHTML = livesRow(t.usd, true); }, () => {});
+    if (k === 2) netsRaised().then(t => { const el = $('#stLives'); if (el) { el.innerHTML = livesRow(t.usd, true); animateLives(el); } }, () => {});
     $('#stNext').onclick = () => { buzz(6); if (++k < S.length) show(); else then(); };
     $('#stSkip').onclick = () => { buzz(5); then(); };
   };
