@@ -2979,14 +2979,14 @@ function netsMeter(t) {
   return `<b>${n.toLocaleString('en')}</b> nets funded by players${lives ? ` · about <b>${lives}</b> li${lives > 1 ? 'ves' : 'fe'} saved` : ''}`;
 }
 const NET_ART = `<svg class="nets-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M20 70V44c0-22 18-38 40-38s40 16 40 38v26" fill="rgba(255,255,255,.22)" stroke="#fff" stroke-width="3"/><path d="M60 6v64M40 10l-6 60M80 10l6 60M22 30h76M20 48h80" stroke="#fff" stroke-width="1.5" opacity=".7"/><rect x="14" y="62" width="92" height="12" rx="6" fill="#fff"/><circle cx="44" cy="56" r="7" fill="#ffe1b3"/><circle cx="70" cy="57" r="6" fill="#f5c890"/></svg>`;
-function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
+function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly, opts = {}) {
   // Players who already have Plus can still give: the same sheet, without the unlock.
   const give = hasPlus() && !NETS_PREVIEW, v = netsVariant();
   netsSeen('v-' + v); netsSeen('src-' + src);
   const MONTH = NETS.monthly || [2, 5, 10], ONCE = NETS.once || [5, 10, 25, 50], DEF_M = NETS.defMonthly || 5, DEF_O = NETS.defOnce || 25;
   // For the generous: bigger amounts one tap away, "save a whole life", and any amount at all.
   const MORE_O = NETS.moreOnce || [100, 250, 1000, LIFE_USD], MORE_M = NETS.moreMonthly || [25, 50, 100];
-  let monthly = startMonthly != null ? !!startMonthly : v === 'monthly', pick = monthly ? DEF_M : DEF_O;
+  let monthly = startMonthly != null ? !!startMonthly : v === 'monthly', pick = opts.amount || (monthly ? DEF_M : DEF_O);
   const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? DEF_M : DEF_O;
   const sub = u => monthly ? `${netsOf(u * 12)} nets a year` : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`;
   const btn = u => `<button class="nets-amt${u === pick ? ' on' : ''}" role="radio" aria-checked="${u === pick}" data-usd="${u}"><b>${fmtUsd(u)}</b><span>${sub(u)}</span></button>`;
@@ -2996,7 +2996,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
     <div class="pwall nets">
       ${NET_ART}
       <h3>${give ? (store.gave ? 'Fund more malaria nets' : 'Fund malaria nets') : HEAD[reason] || 'Unlock Globe Genius Plus'}</h3>
-      <p class="nets-why1">${give ? '' : 'Fund malaria nets. '}It goes to the Against Malaria Foundation. We never receive any of it.</p>
+      <p class="nets-why1">${opts.streak ? `Fund a net and your ${opts.streak}-day streak is back, with Plus unlocked. ` : give ? '' : 'Fund malaria nets. '}It goes to the Against Malaria Foundation. We never receive any of it.</p>
       <div class="nets-freq" role="tablist"><button data-f="o" role="tab">One-time</button><button data-f="m" role="tab">Monthly</button></div>
       <div class="nets-amts${monthly ? '' : ' four'}" id="pwAmts" role="radiogroup" aria-label="Amount">${amts().map(btn).join('')}</div>
       <div class="nets-more-amts" id="pwMore" hidden></div>
@@ -3041,7 +3041,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
   $('#pwBig').onclick = () => { buzz(5); showMore(); };
   sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); if (!$('#pwMore').hidden) showMore(); bindAmts(); draw(); });
   bindAmts(); draw();
-  const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
+  const done = (until, usd, wasMonthly) => { clearInterval(poll); if (opts.onGive) opts.onGive(); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
     const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += usd; g.n++; if (wasMonthly) { g.monthly = 1; g.mo = usd; } store.gaveAt = Date.now(); store.ntap = null; store.ndis = 0; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
   // Verified unlocking needs an account (so Plus follows the player); until it's connected, confirming is enough.
   if (NETS_VERIFY && !NATIVE && !myUid() && !give) {
@@ -4965,7 +4965,8 @@ function brokenStreak() {
 }
 function repairCard() {
   const b = brokenStreak(); if (!b) return '';
-  return `<div class="rep-card"><span>💔</span><div><b>Your ${b.n}-day streak ended</b><small>Repair it and keep going${hasPlus() ? '' : ' with Plus'}.</small></div>
+  const nets = NETS_LIVE && !hasPlus();
+  return `<div class="rep-card"><span>💔</span><div><b>Your ${b.n}-day streak ended</b><small>${nets ? `Save it by funding a ${fmtUsd(NET_MIN)} malaria net.` : `Repair it and keep going${hasPlus() ? '' : ' with Plus'}.`}</small></div>
     <button class="btn primary" id="repBtn">Repair</button><button class="link quiet" id="repNo" aria-label="Let it go">✕</button></div>`;
 }
 function bindRepair() {
@@ -4973,8 +4974,11 @@ function bindRepair() {
   $('#repNo').onclick = () => { store.repairSeen = b.gaps[0]; save(); homeSheet(); };
   $('#repBtn').onclick = () => {
     buzz(8);
+    const fix = () => { const f = freezes(); f.used.push(...b.gaps); save(); updateTop(); toast(`🔥 Streak repaired: ${streak()} days`, 2600); };
+    // Loss aversion, used kindly: the streak comes back the moment they fund a net (and Plus unlocks too).
+    if (!hasPlus() && NETS_LIVE) return netsSheet('repair', homeSheet, 'repair', false, { amount: NET_MIN, onGive: fix, streak: b.n });
     if (!hasPlus()) return paywallSheet('repair', homeSheet);
-    const f = freezes(); f.used.push(...b.gaps); save(); updateTop(); toast(`🔥 Streak repaired: ${streak()} days`, 2600); homeSheet();
+    fix(); homeSheet();
   };
 }
 // Your stats (Plus): from your daily results on this device and your account.
