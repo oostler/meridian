@@ -3004,6 +3004,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
     <button class="link st-why" id="pwWhy">Why malaria nets?</button>
     <details class="nets-more"><summary>How it works</summary><ul>
       <li>You give on Every.org, a charity platform. It goes straight to AMF; we never touch it. Every.org sends your receipt.</li>
+      <li>GiveWell, the charity evaluator, rates AMF a top charity: among the most cost-effective ways to save a life.</li>
       <li>A net costs about ${fmtUsd(NET_USD)} and protects about ${NET_PPL} people from malaria for around three years.</li>
       <li>${give ? 'Thank you for already supporting.' : 'Plus unlocks every deep dive and country history, your stats and private leagues for a year.'} Monthly gifts can be cancelled anytime in your <a href="https://www.every.org/" target="_blank" rel="noopener">Every.org account</a>.</li></ul></details>
     ${NETS_VERIFY || NETS_PREVIEW || give ? '' : `<p class="fine nets-beta">Beta: automatic unlocking is coming soon. For now, Plus unlocks when you confirm your gift.</p>`}
@@ -3020,7 +3021,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
     go.href = netsLink(pick, monthly, src);
     // What the chosen gift does to the bar: a concrete, felt share of the next life (efficacy beats statistics).
     const yr = monthly ? pick * 12 : pick, you = $('#lvYou');
-    const before = (store.gave && store.gave.usd) || 0, tNow = tierOf(before), tAfter = tierOf(before + yr), up = tAfter && (!tNow || tAfter.min > tNow.min);
+    const before = (store.gave && store.gave.usd) || 0, tNow = tierOf(before), tAfter = tierOf(before + pick), up = tAfter && (!tNow || tAfter.min > tNow.min);
     if (you) you.innerHTML = `Your ${fmtUsd(pick)}${monthly ? ' a month' : ''} = <b>${netsOf(yr)} nets${monthly ? ' a year' : ''}</b>, <b>+${yr / LIFE_USD * 100 >= 1 ? Math.round(yr / LIFE_USD * 100) : (yr / LIFE_USD * 100).toFixed(1)}%</b> of the next life${up ? ` · makes you <b>${tierName(tAfter)}</b>` : ''}`;
     sheet.querySelectorAll('.nets-amt').forEach(b => b.classList.toggle('on', +b.dataset.usd === pick));
   };
@@ -3035,7 +3036,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
   sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); if (!$('#pwMore').hidden) showMore(); bindAmts(); draw(); });
   bindAmts(); draw();
   const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
-    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; store.gaveAt = Date.now(); store.ntap = null; store.ndis = 0; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
+    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += usd; g.n++; if (wasMonthly) { g.monthly = 1; g.mo = usd; } store.gaveAt = Date.now(); store.ntap = null; store.ndis = 0; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
   // Verified unlocking needs an account (so Plus follows the player); until it's connected, confirming is enough.
   if (NETS_VERIFY && !NATIVE && !myUid() && !give) {
     go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to give</button>`;
@@ -3069,7 +3070,7 @@ function netsStory(then, back = homeSheet) {
   const S = [
     { c: 'st-night', art: ART_NIGHT, h: 'Nearly every minute, malaria kills a child under five.', p: 'About 450,000 young children a year, almost all in Africa.', fine: 'WHO World Malaria Report 2024' },
     { c: 'st-net', art: ART_NET, h: 'A $5 bed net stops it.', p: 'Mosquitoes bite at night. One treated net protects 2 people for about 3 years.', fine: 'Against Malaria Foundation' },
-    { c: 'st-us', art: '<div id="stLives" class="st-lives"></div>', h: 'Globe Genius players are saving lives.', p: 'Every gift brings the next one closer. 100% goes to the Against Malaria Foundation.', fine: '' },
+    { c: 'st-us', art: '<div id="stLives" class="st-lives"></div>', h: 'Globe Genius players are saving lives.', p: 'Bed nets are among the most cost-effective ways to save a life. 100% goes to the Against Malaria Foundation.', fine: 'GiveWell rates AMF a top charity' },
   ];
   let k = 0;
   const show = () => {
@@ -3091,6 +3092,7 @@ const STREAK_MS = [3, 7, 14, 30, 50, 100, 200, 365];
 const NET_CAMPAIGNS = NETS.campaigns || [
   { from: '2026-12-01', to: '2026-12-01', title: 'It’s Giving Tuesday 💛', line: 'Today the world gives. Join in: fund a malaria net.' },
   { from: '2026-12-24', to: '2026-12-31', title: 'Give the gift of a net 🎁', line: 'End the year by protecting a family from malaria.' },
+  { from: '2027-01-01', to: '2027-01-07', title: 'New year, new lives saved 🎆', line: 'Start the year by funding a malaria net.' },
   { from: '2027-04-22', to: '2027-04-25', title: 'World Malaria Day 🌍', line: 'Help Globe Genius players fund nets this week.' },
 ];
 const netsCampaign = () => { const d = dayKey(); return NET_CAMPAIGNS.find(c => d >= c.from && d <= c.to) || null; };
@@ -3116,7 +3118,7 @@ function netsMoment(kind, ctx = {}) {
   else if (kind === 'life') { if (now - last < DAY || stage === 'pending') return false; }
   else if ((store.days || []).length < 2 || now - last < wait || stage === 'monthly' || (store.gaveAt && now - store.gaveAt < 30 * DAY)) return false;
   const T = {
-    daily: ['Great round! 🌍', `Turn today’s win into a net: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
+    daily: ['Nice work today! 🌍', `Turn today’s learning into a net: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
     streak: [`🔥 ${ctx.n}-day streak!`, `Celebrate it: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
     chapter: ['Chapter complete! 🎓', `Pass it on: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
     life: [`Players just saved life #${ctx.n} 🎉`, 'Help start the next one. 100% goes to the Against Malaria Foundation.'],
@@ -3141,7 +3143,7 @@ function netsMoment(kind, ctx = {}) {
 }
 // Thank-you: what the gift did, and an easy way to tell friends.
 function netsThanks(usd, wasMonthly, back) {
-  const yr = wasMonthly ? usd * 12 : usd, n = netsOf(yr), ppl = n * NET_PPL, tot = (store.gave && store.gave.usd) || yr, t = tierOf(tot), nx = tierNext(tot);
+  const yr = wasMonthly ? usd * 12 : usd, n = netsOf(yr), ppl = n * NET_PPL, tot = (store.gave && store.gave.usd) || usd, t = tierOf(tot), nx = tierNext(tot);
   setSheet(`<div class="done nets-thx"><span class="badge">${ART.trophy}</span><div class="title">Thank you!</div>
       <div class="sub">${wasMonthly ? `Every year, that’s about <b>${n} nets</b>` : `That’s about <b>${n} net${n > 1 ? 's' : ''}</b>`}, protecting about <b>${ppl} people</b> from malaria.</div></div>
     ${t ? `<div class="tier-card"><span class="tier-e">${t.e}</span><div><b>You’re a ${t.n}${t.k === 'net' ? '' : ' supporter'}!</b><small>${NETS_VERIFY ? 'Your badge shows next to your name on every leaderboard. ' : ''}${nx ? `${fmtUsd(nx.min - tot)} more to ${nx.e} ${nx.n}.` : 'The highest tier. Thank you.'}</small></div></div>` : ''}
@@ -5038,7 +5040,7 @@ function netsCard() {
   const [t, sub, act] = st === 'pending' ? ['Did your gift go through?', `Finish funding your ${netsOf(store.ntap.usd * (store.ntap.m ? 12 : 1))} nets`, 'pending']
     : renew ? ['Keep Plus: fund nets again', 'Your year of Plus ends soon', 'renew']
     : st === 'upsell' ? ['Make it monthly?', `Keep protecting families every month, from ${low}`, 'upsell']
-    : st === 'monthly' ? ['Monthly supporter ✓', `About ${n} nets a year, protecting ${n * NET_PPL} people. Thank you!`, 'more']
+    : st === 'monthly' ? ['Monthly supporter ✓', `About ${netsOf((g.mo || g.usd) * 12)} nets a year, protecting ${netsOf((g.mo || g.usd) * 12) * NET_PPL} people. Thank you!`, 'more']
     : g ? [`${tierOf(g.usd) ? tierOf(g.usd).e + ' ' : ''}You’ve funded about ${n} nets`, tierNext(g.usd) ? `${fmtUsd(tierNext(g.usd).min - g.usd)} more to ${tierNext(g.usd).e} ${tierNext(g.usd).n}. They protect about ${n * NET_PPL} people tonight.` : `They protect about ${n * NET_PPL} people tonight. Thank you!`, 'more']
     : camp ? [camp.title, camp.line, 'new']
     : ['Fund malaria nets', '100% goes to the Against Malaria Foundation', 'new'];
