@@ -2793,7 +2793,11 @@ const PLUS_CFG = window.MERIDIAN_PLUS || {};
 // In the iPhone app the donation happens in Safari and Plus unlocks on the player's word (Apple guideline 3.2.2(iv)).
 // globegenius.io/?preview=nets shows the owner the donation screen before it's switched on (nothing unlocks).
 const NETS_PREVIEW = !NATIVE && new URLSearchParams(location.search).get('preview') === 'nets';
-const NETS = PLUS_CFG.nets || {}, NETS_LIVE = (NATIVE ? !!NETS.ios : true) && (!!NETS.live || !!(NETS.start && NETS.url && Date.now() >= Date.parse(NETS.start)));
+const NETS = PLUS_CFG.nets || {}, NETS_ON = !!NETS.live || !!(NETS.start && NETS.url && Date.now() >= Date.parse(NETS.start));
+// Two separate switches. NETS_LIVE: Plus sits behind a donation (web only; Apple doesn't allow unlocking with an outside
+// payment). NETS_ASK: the asks, pop-ups and reminders to fund nets. In the iPhone app (nets.ios) Plus stays free and the
+// asks open AMF's page in Safari, which Apple allows for a free app raising money for a charity (guideline 3.2.2).
+const NETS_LIVE = !NATIVE && NETS_ON, NETS_ASK = NETS_ON && (!NATIVE || !!NETS.ios);
 // Until Every.org's donation notifications are connected (nets.verify), the web also unlocks on the player's word,
 // and says the automatic unlock is coming.
 const NETS_VERIFY = !!NETS.verify && !!NETS.token;
@@ -2945,12 +2949,12 @@ function netsMeter(t) {
   return `<b>${n.toLocaleString('en')}</b> nets funded by players${lives ? ` · about <b>${lives}</b> li${lives > 1 ? 'ves' : 'fe'} saved` : ''}`;
 }
 const NET_ART = `<svg class="nets-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M20 70V44c0-22 18-38 40-38s40 16 40 38v26" fill="rgba(255,255,255,.22)" stroke="#fff" stroke-width="3"/><path d="M60 6v64M40 10l-6 60M80 10l6 60M22 30h76M20 48h80" stroke="#fff" stroke-width="1.5" opacity=".7"/><rect x="14" y="62" width="92" height="12" rx="6" fill="#fff"/><circle cx="44" cy="56" r="7" fill="#ffe1b3"/><circle cx="70" cy="57" r="6" fill="#f5c890"/></svg>`;
-function netsSheet(reason, back = homeSheet, src = 'wall') {
+function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
   // Players who already have Plus can still give: the same sheet, without the unlock.
   const give = hasPlus() && !NETS_PREVIEW, v = netsVariant();
   netsSeen('v-' + v); netsSeen('src-' + src);
   const MONTH = NETS.monthly || [2, 5, 10], ONCE = NETS.once || [5, 10, 25, 50], DEF_M = NETS.defMonthly || 5, DEF_O = NETS.defOnce || 25;
-  let monthly = v === 'monthly', pick = monthly ? DEF_M : DEF_O;
+  let monthly = startMonthly != null ? !!startMonthly : v === 'monthly', pick = monthly ? DEF_M : DEF_O;
   const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? DEF_M : DEF_O;
   const sub = u => monthly ? `${netsOf(u * 12)} nets a year` : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`;
   const btn = u => `<button class="nets-amt${u === pick ? ' on' : ''}" role="radio" aria-checked="${u === pick}" data-usd="${u}"><b>${fmtUsd(u)}</b><span>${sub(u)}</span></button>`;
@@ -2959,8 +2963,8 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
     <div class="pwall nets">
       ${NET_ART}
-      <h3>${give ? 'Fund more malaria nets' : HEAD[reason] || 'Unlock Globe Genius Plus'}</h3>
-      <p class="nets-why1">Fund malaria nets. 100% goes to the Against Malaria Foundation.</p>
+      <h3>${give ? (store.gave ? 'Fund more malaria nets' : 'Fund malaria nets') : HEAD[reason] || 'Unlock Globe Genius Plus'}</h3>
+      <p class="nets-why1">${give ? '' : 'Fund malaria nets. '}100% goes to the Against Malaria Foundation.</p>
       <div class="nets-freq" role="tablist"><button data-f="o" role="tab">One-time</button><button data-f="m" role="tab">Monthly</button></div>
       <div class="nets-amts${monthly ? '' : ' four'}" id="pwAmts" role="radiogroup" aria-label="Amount">${amts().map(btn).join('')}</div>
       <a class="btn pbtn nets-go" id="pwGo" href="#" target="_blank" rel="noopener"><span id="pwGoTxt"></span></a>
@@ -2972,7 +2976,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
       <li>You give on Every.org, a charity platform. It goes straight to AMF; we never touch it. Every.org sends your receipt.</li>
       <li>A net costs about ${fmtUsd(NET_USD)} and protects about ${NET_PPL} people from malaria for around three years.</li>
       <li>${give ? 'Thank you for already supporting.' : 'Plus unlocks every deep dive and country history, your stats and private leagues for a year.'} Monthly gifts can be cancelled anytime in your <a href="https://www.every.org/" target="_blank" rel="noopener">Every.org account</a>.</li></ul></details>
-    ${NETS_VERIFY || NETS_PREVIEW ? '' : `<p class="fine nets-beta">Beta: automatic unlocking is coming soon. For now, Plus unlocks when you confirm your gift.</p>`}
+    ${NETS_VERIFY || NETS_PREVIEW || give ? '' : `<p class="fine nets-beta">Beta: automatic unlocking is coming soon. For now, Plus unlocks when you confirm your gift.</p>`}
     ${NETS_PREVIEW ? `<p class="fine nets-beta">Preview of the donation screen.</p>` : ''}`);
   let poll = null, tries = 0;
   $('#pwBack').onclick = () => { clearInterval(poll); back(); };
@@ -2992,7 +2996,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); bindAmts(); draw(); });
   bindAmts(); draw();
   const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give || hasPlus()) { store.ent = { until: Math.max(until, (store.ent && store.ent.until) || 0), nets: 1 }; }
-    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; store.gaveAt = Date.now(); save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
+    const g = store.gave || (store.gave = { usd: 0, n: 0 }); g.usd += wasMonthly ? usd * 12 : usd; g.n++; if (wasMonthly) g.monthly = 1; store.gaveAt = Date.now(); store.ntap = null; store.ndis = 0; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
   // Verified unlocking needs an account (so Plus follows the player); until it's connected, confirming is enough.
   if (NETS_VERIFY && !NATIVE && !myUid() && !give) {
     go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to give</button>`;
@@ -3004,6 +3008,8 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   go.onclick = () => {
     buzz(8); go.href = netsLink(pick, monthly, src);
     const m = monthly, usd = pick;
+    // Remember the tap: if no gift is confirmed, the next visit gently asks whether it went through.
+    store.ntap = { at: Date.now(), usd, m: m ? 1 : 0 }; save();
     if (NETS_VERIFY && !NATIVE) {
       after.innerHTML = `<p class="pfine nets-wait"><span class="spin"></span>Waiting for your gift… this unlocks by itself.</p>`;
       clearInterval(poll); tries = 0; poll = setInterval(check, 6000);
@@ -3042,14 +3048,34 @@ function netsStory(then, back = homeSheet) {
 // players have saved another life. Rules, so they help rather than annoy: never on opening the app or mid-quiz, not in
 // a player's first two days, at most one every 3 days (life news: at most once a day), never within a month of giving.
 const STREAK_MS = [3, 7, 14, 30, 50, 100, 200, 365];
+// Giving seasons: during these, asks can appear daily and lead with the campaign. Dates are local, inclusive.
+const NET_CAMPAIGNS = NETS.campaigns || [
+  { from: '2026-12-01', to: '2026-12-01', title: 'It’s Giving Tuesday 💛', line: 'Today the world gives. Join in: fund a malaria net.' },
+  { from: '2026-12-24', to: '2026-12-31', title: 'Give the gift of a net 🎁', line: 'End the year by protecting a family from malaria.' },
+  { from: '2027-04-22', to: '2027-04-25', title: 'World Malaria Day 🌍', line: 'Help Globe Genius players fund nets this week.' },
+];
+const netsCampaign = () => { const d = dayKey(); return NET_CAMPAIGNS.find(c => d >= c.from && d <= c.to) || null; };
+// The player's giving stage decides what we say (like Duolingo tailoring reminders): never given, tapped give but
+// didn't confirm, just gave, one-time donor ready for a monthly ask, monthly donor, past donor.
+function netsStage() {
+  const g = store.gave, now = Date.now(), since = store.gaveAt ? (now - store.gaveAt) / DAY : null;
+  if (store.ntap && (!store.gaveAt || store.gaveAt < store.ntap.at) && now - store.ntap.at > 3600e3 && now - store.ntap.at < 7 * DAY) return 'pending';
+  if (g && g.monthly) return 'monthly';
+  if (g && !store.nups && since >= 14 && since < 120) return 'upsell';
+  if (g && since < 30) return 'fresh';
+  if (g) return 'donor';
+  return 'new';
+}
 function netsMoment(kind, ctx = {}) {
   // Owner preview: ?preview=nets&pop=daily|streak|chapter|life shows that pop-up.
   const forced = NETS_PREVIEW && new URLSearchParams(location.search).get('pop') === kind;
-  if (!NETS_LIVE || (NETS_PREVIEW && !forced) || $('#npop')) return false;
-  const now = Date.now(), last = store.npop || 0, gaveRecently = store.gaveAt && now - store.gaveAt < 30 * DAY;
+  if (!NETS_ASK || (NETS_PREVIEW && !forced) || $('#npop')) return false;
+  const now = Date.now(), last = store.npop || 0, stage = netsStage(), camp = netsCampaign();
+  // Back off when ignored: 3 days, then 6, 12, up to 30 after each "Not now" in a row; a campaign shortens it to a day.
+  const wait = camp ? DAY : Math.min(30, 3 * Math.pow(2, store.ndis || 0)) * DAY;
   if (forced) {}
-  else if (kind === 'life') { if (now - last < DAY) return false; }
-  else if ((store.days || []).length < 2 || now - last < 3 * DAY || gaveRecently) return false;
+  else if (kind === 'life') { if (now - last < DAY || stage === 'pending') return false; }
+  else if ((store.days || []).length < 2 || now - last < wait || stage === 'monthly' || (store.gaveAt && now - store.gaveAt < 30 * DAY)) return false;
   const T = {
     daily: ['Great round! 🌍', `Turn today’s win into a net: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
     streak: [`🔥 ${ctx.n}-day streak!`, `Celebrate it: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
@@ -3057,6 +3083,8 @@ function netsMoment(kind, ctx = {}) {
     life: [`Players just saved life #${ctx.n} 🎉`, 'Help start the next one. 100% goes to the Against Malaria Foundation.'],
   }[kind];
   if (!T) return false;
+  if (camp && kind !== 'life') { T[0] = camp.title; T[1] = camp.line; }
+  else if (store.gave && kind !== 'life') T[1] = `Last time you funded about ${netsOf(store.gave.usd)} nets. Add a few more?`;
   store.npop = now; store.naskDay = dayKey(); save(); netsSeen('src-pop' + kind);
   const el = document.createElement('div'); el.id = 'npop'; el.className = 'npop-bg';
   el.innerHTML = `<div class="npop" role="dialog" aria-modal="true" aria-labelledby="npopH"><button class="npop-x" aria-label="Close">${IC.x}</button>
@@ -3065,9 +3093,10 @@ function netsMoment(kind, ctx = {}) {
   document.body.append(el);
   const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 200); };
   netsRaised().then(t => { const L = el.querySelector('#npopL'); if (L) { L.innerHTML = livesRow(t.usd, true); animateLives(L); } }, () => {});
-  el.querySelector('.npop-x').onclick = el.querySelector('#npopNo').onclick = () => { buzz(5); close(); };
-  el.onclick = e => { if (e.target === el) close(); };
-  el.querySelector('#npopGo').onclick = () => { buzz(8); close(); setRound(false); const go = () => netsSheet(null, homeSheet, 'pop' + kind); store.netsStory ? go() : netsStory(go); };
+  const nope = () => { buzz(5); store.ndis = (store.ndis || 0) + 1; save(); close(); };
+  el.querySelector('.npop-x').onclick = el.querySelector('#npopNo').onclick = nope;
+  el.onclick = e => { if (e.target === el) nope(); };
+  el.querySelector('#npopGo').onclick = () => { buzz(8); store.ndis = 0; save(); close(); setRound(false); const go = () => netsSheet(null, homeSheet, 'pop' + kind); store.netsStory ? go() : netsStory(go); };
   requestAnimationFrame(() => el.classList.add('in'));
   return true;
 }
@@ -3599,7 +3628,7 @@ function finalDone(a, right, n) {
       ${rewardBlock()}
       ${t === 'country' ? ctryGoal() : ''}${t === 'plus' || t === 'country' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
       ${facts ? `<div class="md-note"><b>${IC.check}Added to your daily refresher</b><small>${facts} key facts will come back over the coming days, just before you'd forget them.</small></div>` : ''}
-      ${NETS_LIVE && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="fdNets"><b>🦟 Pass it on</b><small>${fmtUsd(NET_USD)} funds a malaria net.</small></button>` : ''}
+      ${NETS_ASK && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="fdNets"><b>🦟 Pass it on</b><small>${fmtUsd(NET_USD)} funds a malaria net.</small></button>` : ''}
       ${next ? `<button class="md-next" id="fdNext"><small>Up next on the timeline</small><b>${esc(next.title)} ${IC.next}</b><small>${esc(next.years)}</small></button>` : ''}
       <button class="btn primary" id="fdBack">Continue</button>${a.story ? `<button class="btn" id="fdRead">${IC.book || ''}Read the full summary</button>` : ''}${repFoot(`${a.title} · final quiz · results`)}`
     : `<div class="done"><span class="badge">${ART.medal}</span><div class="title">${right} of ${n} right</div><div class="sub">You need ${passMark(n)} to complete ${esc(a.title)}</div></div>
@@ -4961,12 +4990,19 @@ function todayCard() {
 }
 // Players against malaria: a small card on the home screen (not a pop-up), with the real count of nets funded.
 function netsCard() {
-  if (!NETS_LIVE) return '';
-  // Their own impact first (people keep giving to a cause they've already invested in), and a gentle renewal a month
-  // before a year of Plus runs out.
-  const g = store.gave, e = store.ent, renew = e && e.nets && !g?.monthly && e.until - Date.now() < 30 * DAY && e.until > Date.now();
-  const title = renew ? 'Keep Plus: fund nets again' : g ? `You’ve funded about ${netsOf(g.usd)} nets 🎉` : 'Fund malaria nets';
-  return `<button class="hm-card nets-card" id="goNets"><span class="nc-ic">🦟</span><span><b>${title}</b><small id="hmNets">${g ? 'Thank you! Give again anytime.' : '100% goes to the Against Malaria Foundation'}</small></span>${IC.next}</button>`;
+  if (!NETS_ASK) return '';
+  // One card, its message chosen by the player's giving stage (a card, never a pop-up, on opening the app).
+  const g = store.gave, e = store.ent, st = netsStage(), camp = netsCampaign(), n = g ? netsOf(g.usd) : 0;
+  const renew = !NATIVE && e && e.nets && !(g && g.monthly) && e.until - Date.now() < 30 * DAY && e.until > Date.now();
+  const low = fmtUsd((NETS.monthly || [2])[0]);
+  const [t, sub, act] = st === 'pending' ? ['Did your gift go through?', `Finish funding your ${netsOf(store.ntap.usd * (store.ntap.m ? 12 : 1))} nets`, 'pending']
+    : renew ? ['Keep Plus: fund nets again', 'Your year of Plus ends soon', 'renew']
+    : st === 'upsell' ? ['Make it monthly?', `Keep protecting families every month, from ${low}`, 'upsell']
+    : st === 'monthly' ? ['Monthly supporter ✓', `About ${n} nets a year, protecting ${n * NET_PPL} people. Thank you!`, 'more']
+    : g ? [`You’ve funded about ${n} nets 🎉`, `They protect about ${n * NET_PPL} people tonight. Give again anytime.`, 'more']
+    : camp ? [camp.title, camp.line, 'new']
+    : ['Fund malaria nets', '100% goes to the Against Malaria Foundation', 'new'];
+  return `<button class="hm-card nets-card" id="goNets" data-act="${act}"><span class="nc-ic">🦟</span><span><b>${t}</b><small id="hmNets"${g || st === 'pending' ? ' data-keep="1"' : ''}>${sub}</small></span>${IC.next}</button>`;
 }
 // The daily refresher: what you've learned that is due to fade (places, chapter facts), a couple of minutes a day.
 function refreshCard() {
@@ -4987,9 +5023,12 @@ function bindDaily() {
   const learn = () => { buzz(8); learnSheet(); sheet.scrollTop = 0; };
   if ($('#goToday')) $('#goToday').onclick = learn;
   if ($('#tdPlay')) $('#tdPlay').onclick = () => { const k = $('#tdPlay').dataset.next; if (k === 'learn') learn(); else { buzz(8); dailyChallenge(k); } };
-  if ($('#goNets')) { netsSeen('src-home'); $('#goNets').onclick = () => { buzz(8); store.netsStory ? netsSheet(null, homeSheet, 'home') : netsStory(() => netsSheet(null, homeSheet, 'home')); };
+  if ($('#goNets')) { netsSeen('src-home'); $('#goNets').onclick = () => { buzz(8); const act = $('#goNets').dataset.act;
+      if (act === 'upsell') { store.nups = 1; save(); return netsSheet(null, homeSheet, 'upsell', true); }
+      if (act === 'pending') return netsSheet(null, homeSheet, 'pending', !!(store.ntap && store.ntap.m));
+      store.netsStory ? netsSheet(null, homeSheet, 'home') : netsStory(() => netsSheet(null, homeSheet, 'home')); };
     const fill = (k = 0) => { if (!$('#hmNets')) return; if (!CLOUD && !NETS.apiKey) return k < 8 && setTimeout(() => fill(k + 1), 1500);
-      netsRaised().then(t => { const lives = Math.floor(t.usd / LIFE_USD); if (store.seenLives == null) { store.seenLives = lives; save(); } else if (lives > store.seenLives) { store.seenLives = lives; save(); setTimeout(() => netsMoment('life', { n: lives }), 1200); } const el = $('#hmNets'); if (el && t.usd >= NET_USD) el.innerHTML = `${fmtUsd(t.usd)} raised · ${Math.floor(t.usd / LIFE_USD) ? `${Math.floor(t.usd / LIFE_USD)} lives saved ✓` : `${fmtUsd(LIFE_USD - t.usd % LIFE_USD)} to save a life`}`; }, () => {}); };
+      netsRaised().then(t => { const lives = Math.floor(t.usd / LIFE_USD); if (store.seenLives == null) { store.seenLives = lives; save(); } else if (lives > store.seenLives) { store.seenLives = lives; save(); setTimeout(() => netsMoment('life', { n: lives }), 1200); } const el = $('#hmNets'); if (el && !el.dataset.keep && t.usd >= NET_USD) el.innerHTML = `${fmtUsd(t.usd)} raised · ${Math.floor(t.usd / LIFE_USD) ? `${Math.floor(t.usd / LIFE_USD)} lives saved ✓` : `${fmtUsd(LIFE_USD - t.usd % LIFE_USD)} to save a life`}`; }, () => {}); };
     fill(); }
   if ($('#goHistCard')) $('#goHistCard').onclick = () => { buzz(8); goHistory(anchorById[store.histLast]); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
@@ -5253,7 +5292,7 @@ function dailyChallenge(kind = 'geo', no) {
       <div id="ddSave">${first && !arc ? remindCard() : ''}</div>
       ${first && !arc ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}${vsBlock ? 'Send them your result' : 'Challenge a friend'}</button>
-      ${NETS_LIVE && !arc && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="dyNets"><b>🦟 Enjoying Globe Genius?</b><small>Pass it on: ${fmtUsd(NET_USD)} funds a malaria net. 100% goes to the Against Malaria Foundation.</small></button>` : ''}
+      ${NETS_ASK && !arc && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="dyNets"><b>🦟 Enjoying Globe Genius?</b><small>Pass it on: ${fmtUsd(NET_USD)} funds a malaria net. 100% goes to the Against Malaria Foundation.</small></button>` : ''}
       <h4 class="home-h">${arc ? `Leaderboard for ${ddDate(d.no)}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
@@ -5834,7 +5873,7 @@ else hideSplash();
 };
 </script>
 
-<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":true,"start":"","url":"https://www.every.org/againstmalaria","token":"","perNet":5,"min":5,"verify":false,"hash":"#donate","nonprofit":"againstmalaria","fundraiser":"","apiKey":""}};</script>
+<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":true,"start":"","url":"https://www.every.org/againstmalaria","token":"","perNet":5,"min":5,"verify":false,"hash":"#donate","nonprofit":"againstmalaria","fundraiser":"","apiKey":"","ios":true}};</script>
 <script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com","gsi":true}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script>
 // Start once the map data has arrived and the deferred map library has run (it runs before DOMContentLoaded).
