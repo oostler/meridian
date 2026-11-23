@@ -2913,7 +2913,8 @@ const NET_PPL = 2;
 const LIFE_USD = NETS.life || 5500;
 const NV = NETS.variants || ['monthly', 'once'];
 const netsVariant = () => NV.includes(store.nv) ? store.nv : (store.nv = NV[Math.random() * NV.length | 0], save(), store.nv);
-const netsSeen = key => { if (!NETS_PREVIEW && CLOUD && CLOUD.netsSeen) CLOUD.netsSeen(key).catch(() => {}); };
+const seenOnce = new Set();
+const netsSeen = key => { if (NETS_PREVIEW || seenOnce.has(key) || !CLOUD || !CLOUD.netsSeen) return; seenOnce.add(key); CLOUD.netsSeen(key).catch(() => {}); };
 const netsOf = usd => Math.max(1, Math.round(usd / NET_USD));
 // "1,234 nets funded by players" (and lives, once a whole one is reached), from the server's real total.
 // Total raised: the fundraiser's own total from Every.org (public API, cents) when configured, else the count our
@@ -2945,7 +2946,10 @@ const tierNext = usd => [...TIERS].reverse().find(t => usd < t.min) || null;
 const tierName = t => t ? `${t.e} ${t.n}${t.k === 'net' ? '' : ' supporter'}` : '';
 // Badges for everyone on the boards, loaded once a session from donors/{uid} (server-written, public).
 let DONORS = {};
-function loadDonors() { if (CLOUD && CLOUD.donors) CLOUD.donors().then(m => { DONORS = m || {}; }, () => {}); }
+function loadDonors() {
+  try { const c = JSON.parse(localStorage.getItem('gg:donors') || 'null'); if (c && Date.now() - c.at < 6 * 3600e3) { DONORS = c.m || {}; return; } } catch (e) {}
+  if (CLOUD && CLOUD.donors) CLOUD.donors().then(m => { DONORS = m || {}; try { localStorage.setItem('gg:donors', JSON.stringify({ at: Date.now(), m: DONORS })); } catch (e) {} }, () => {});
+}
 const donBadge = uid => { const d = uid && DONORS[uid], t = d && !d.hide && TIERS.find(x => x.k === d.t); return t ? ` <span class="don" title="${t.n} supporter${d.lives > 1 ? ` · ${d.lives} lives` : ''}">${t.e}${t.k === 'life' && d.lives > 1 ? `×${d.lives}` : ''}</span>` : ''; };
 // The players' impact, at a glance: three big numbers (dollars, nets, lives) and a row of people, one figure per
 // life saved (solid, with a check) and the next one filling up from the feet. People, not progress bars: a figure
@@ -2958,10 +2962,10 @@ function livesRow(usd, dark) {
   const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 5), nets = Math.floor(usd / NET_USD);
   const some = usd >= NET_USD;
   return `<div class="lives${dark ? ' dark' : ''}">
-    ${some ? `<div class="lv-stats"><div><b data-count="${Math.round(usd)}" data-fmt="usd">${fmtUsd(usd)}</b><span>raised</span></div><div><b data-count="${nets}">${nets.toLocaleString('en')}</b><span>nets</span></div><div><b>${done}</b><span>li${done === 1 ? 'fe' : 'ves'} saved</span></div></div>` : `<div class="lv-first"><b>Be one of the first</b><span>Globe Genius players vs malaria</span></div>`}
+    ${some ? `<div class="lv-stats"><div><b data-count="${Math.round(usd)}" data-fmt="usd">${fmtUsd(usd)}</b><span>raised</span></div><div><b data-count="${nets}">${nets.toLocaleString('en')}</b><span>nets</span></div><div><b>${done}</b><span>li${done === 1 ? 'fe' : 'ves'} saved*</span></div></div>` : `<div class="lv-first"><b>Be one of the first</b><span>Globe Genius players vs malaria</span></div>`}
     <div class="lv-people">${done > show ? `<b class="lv-more">+${done - show}</b>` : ''}${Array.from({ length: show }, () => figSvg(1)).join('')}${figSvg(part)}<div class="lv-next"><b>${some ? Math.round(part * 100) + '%' : 'Starting'}</b><span>to the next life</span></div></div>
     <p class="lv-you" id="lvYou"></p>
-    <small class="lv-fine">${some ? 'Raised by Globe Genius players. ' : 'Be one of the first Globe Genius players to give. '}About ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell).</small></div>`;
+    <small class="lv-fine">${some ? 'Raised by Globe Genius players. ' : 'Be one of the first Globe Genius players to give. '}*Estimate: about ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell).</small></div>`;
 }
 // Count the total up from zero and grow the bars when they come into view.
 function animateLives(root) {
@@ -2992,7 +2996,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
     <div class="pwall nets">
       ${NET_ART}
       <h3>${give ? (store.gave ? 'Fund more malaria nets' : 'Fund malaria nets') : HEAD[reason] || 'Unlock Globe Genius Plus'}</h3>
-      <p class="nets-why1">${give ? '' : 'Fund malaria nets. '}100% goes to the Against Malaria Foundation.</p>
+      <p class="nets-why1">${give ? '' : 'Fund malaria nets. '}It goes to the Against Malaria Foundation. We never receive any of it.</p>
       <div class="nets-freq" role="tablist"><button data-f="o" role="tab">One-time</button><button data-f="m" role="tab">Monthly</button></div>
       <div class="nets-amts${monthly ? '' : ' four'}" id="pwAmts" role="radiogroup" aria-label="Amount">${amts().map(btn).join('')}</div>
       <div class="nets-more-amts" id="pwMore" hidden></div>
@@ -3003,10 +3007,12 @@ function netsSheet(reason, back = homeSheet, src = 'wall', startMonthly) {
     </div>
     <button class="link st-why" id="pwWhy">Why malaria nets?</button>
     <details class="nets-more"><summary>How it works</summary><ul>
-      <li>You give on Every.org, a charity platform. It goes straight to AMF; we never touch it. Every.org sends your receipt.</li>
+      <li>You give on Every.org, a charity platform. Your gift goes to AMF (Every.org passes on card fees, which you can choose to cover); we never receive any of it. Every.org sends your receipt.</li>
+      <li>AMF spends 100% of public donations on nets.</li>
       <li>GiveWell, the charity evaluator, rates AMF a top charity: among the most cost-effective ways to save a life.</li>
       <li>A net costs about ${fmtUsd(NET_USD)} and protects about ${NET_PPL} people from malaria for around three years.</li>
       <li>${give ? 'Thank you for already supporting.' : 'Plus unlocks every deep dive and country history, your stats and private leagues for a year.'} Monthly gifts can be cancelled anytime in your <a href="https://www.every.org/" target="_blank" rel="noopener">Every.org account</a>.</li></ul></details>
+    <p class="fine nets-beta">Under 18? Ask a parent or guardian before giving.</p>
     ${NETS_VERIFY || NETS_PREVIEW || give ? '' : `<p class="fine nets-beta">Beta: automatic unlocking is coming soon. For now, Plus unlocks when you confirm your gift.</p>`}
     ${NETS_PREVIEW ? `<p class="fine nets-beta">Preview of the donation screen.</p>` : ''}`);
   let poll = null, tries = 0;
@@ -3070,7 +3076,7 @@ function netsStory(then, back = homeSheet) {
   const S = [
     { c: 'st-night', art: ART_NIGHT, h: 'Nearly every minute, malaria kills a child under five.', p: 'About 450,000 young children a year, almost all in Africa.', fine: 'WHO World Malaria Report 2024' },
     { c: 'st-net', art: ART_NET, h: 'A $5 bed net stops it.', p: 'Mosquitoes bite at night. One treated net protects 2 people for about 3 years.', fine: 'Against Malaria Foundation' },
-    { c: 'st-us', art: '<div id="stLives" class="st-lives"></div>', h: 'Globe Genius players are saving lives.', p: 'Bed nets are among the most cost-effective ways to save a life. 100% goes to the Against Malaria Foundation.', fine: 'GiveWell rates AMF a top charity' },
+    { c: 'st-us', art: '<div id="stLives" class="st-lives"></div>', h: 'Globe Genius players are saving lives.', p: 'Bed nets are among the most cost-effective ways to save a life. Your gift goes straight to the Against Malaria Foundation.', fine: 'GiveWell rates AMF a top charity' },
   ];
   let k = 0;
   const show = () => {
@@ -3121,7 +3127,7 @@ function netsMoment(kind, ctx = {}) {
     daily: ['Nice work today! 🌍', `Turn today’s learning into a net: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
     streak: [`🔥 ${ctx.n}-day streak!`, `Celebrate it: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
     chapter: ['Chapter complete! 🎓', `Pass it on: ${fmtUsd(NET_USD)} protects 2 people from malaria.`],
-    life: [`Players just saved life #${ctx.n} 🎉`, 'Help start the next one. 100% goes to the Against Malaria Foundation.'],
+    life: [`Players just saved life #${ctx.n} 🎉`, 'Help start the next one. Gifts go straight to the Against Malaria Foundation.'],
   }[kind];
   if (!T) return false;
   if (camp && kind !== 'life') { T[0] = camp.title; T[1] = camp.line; }
@@ -3149,7 +3155,7 @@ function netsThanks(usd, wasMonthly, back) {
     ${t ? `<div class="tier-card"><span class="tier-e">${t.e}</span><div><b>You’re a ${t.n}${t.k === 'net' ? '' : ' supporter'}!</b><small>${NETS_VERIFY ? 'Your badge shows next to your name on every leaderboard. ' : ''}${nx ? `${fmtUsd(nx.min - tot)} more to ${nx.e} ${nx.n}.` : 'The highest tier. Thank you.'}</small></div></div>` : ''}
     <button class="btn primary" id="ntShare">${IC.share}Tell your friends</button>
     <button class="btn" id="ntGo">Continue</button>`);
-  $('#ntShare').onclick = () => { buzz(8); shareOut({ text: `I just funded ${n} malaria net${n > 1 ? 's' : ''} with Globe Genius. 100% goes to the Against Malaria Foundation.`, url: 'https://globegenius.io' }); };
+  $('#ntShare').onclick = () => { buzz(8); shareOut({ text: `I just funded ${n} malaria net${n > 1 ? 's' : ''} with Globe Genius. Gifts go straight to the Against Malaria Foundation.`, url: 'https://globegenius.io' }); };
   $('#ntGo').onclick = () => { buzz(5); back(); };
 }
 const plusLocked = id => !hasPlus() && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
@@ -3168,7 +3174,7 @@ function plusHero(list) {
     <p>Religions, empires, wars and big ideas, each told in full with its own maps and quiz.</p>
     <div class="pstats">${plusStats(list).map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
     <button class="btn pbtn" id="plusUnlock">${IC.star}${NETS_LIVE ? 'Fund mosquito nets to unlock' : 'Coming soon'}</button>
-    <p class="pfine">${NETS_LIVE ? 'Every dollar goes to the Against Malaria Foundation. Everything else is free.' : 'Deep dives are on the way. Everything else is free.'}</p>
+    <p class="pfine">${NETS_LIVE ? 'Gifts go straight to the Against Malaria Foundation. Everything else is free.' : 'Deep dives are on the way. Everything else is free.'}</p>
     ${free && free.maps ? `<button class="link plink" id="plusFree">Read a free deep dive: ${esc(free.title)}</button>` : ''}</div>`;
 }
 // The paywall itself. For now an access code opens it; in-app purchase replaces the form later.
@@ -5043,7 +5049,7 @@ function netsCard() {
     : st === 'monthly' ? ['Monthly supporter ✓', `About ${netsOf((g.mo || g.usd) * 12)} nets a year, protecting ${netsOf((g.mo || g.usd) * 12) * NET_PPL} people. Thank you!`, 'more']
     : g ? [`${tierOf(g.usd) ? tierOf(g.usd).e + ' ' : ''}You’ve funded about ${n} nets`, tierNext(g.usd) ? `${fmtUsd(tierNext(g.usd).min - g.usd)} more to ${tierNext(g.usd).e} ${tierNext(g.usd).n}. They protect about ${n * NET_PPL} people tonight.` : `They protect about ${n * NET_PPL} people tonight. Thank you!`, 'more']
     : camp ? [camp.title, camp.line, 'new']
-    : ['Fund malaria nets', '100% goes to the Against Malaria Foundation', 'new'];
+    : ['Fund malaria nets', 'Gifts go straight to the Against Malaria Foundation', 'new'];
   return `<button class="hm-card nets-card" id="goNets" data-act="${act}"><span class="nc-ic">🦟</span><span><b>${t}</b><small id="hmNets"${g || st === 'pending' ? ' data-keep="1"' : ''}>${sub}</small></span>${IC.next}</button>`;
 }
 // The daily refresher: what you've learned that is due to fade (places, chapter facts), a couple of minutes a day.
@@ -5334,7 +5340,7 @@ function dailyChallenge(kind = 'geo', no) {
       <div id="ddSave">${first && !arc ? remindCard() : ''}</div>
       ${first && !arc ? rewardBlock() : ''}
       <button class="btn primary" id="dyShare">${IC.share}${vsBlock ? 'Send them your result' : 'Challenge a friend'}</button>
-      ${NETS_ASK && !arc && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="dyNets"><b>🦟 Enjoying Globe Genius?</b><small>Pass it on: ${fmtUsd(NET_USD)} funds a malaria net. 100% goes to the Against Malaria Foundation.</small></button>` : ''}
+      ${NETS_ASK && !arc && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="dyNets"><b>🦟 Enjoying Globe Genius?</b><small>Pass it on: ${fmtUsd(NET_USD)} funds a malaria net for the Against Malaria Foundation.</small></button>` : ''}
       <h4 class="home-h">${arc ? `Leaderboard for ${ddDate(d.no)}` : 'Today\'s leaderboard'}</h4><div class="dd-board" id="ddBoard"><p class="hint">Loading…</p></div>
       <h4 class="home-h">Your answers</h4><div class="dd-catch">${review}</div>
       <p class="hint" style="text-align:center">${arc ? 'Played from the archive: it doesn\'t count towards that day\'s results.' : `A new ${K.short.toLowerCase()} challenge in ${untilNextDaily()}. Same for everyone.`}</p>
