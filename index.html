@@ -410,7 +410,24 @@ h1, h2, h3 { margin: 0; }
 .nets-amt em { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 10px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; background: var(--green, #2bb24c); color: #fff; padding: 2px 7px; border-radius: 8px; white-space: nowrap; }
 .nets-amt.on { background: #fff; color: var(--ink); border-color: #fff; box-shadow: 0 4px 0 var(--gold-d); }
 a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
-.nets-count { margin: 0; font-size: 13px; font-weight: 700; opacity: .95; }
+.nets-count { width: 100%; }
+.lives { display: grid; gap: 6px; width: 100%; background: rgba(255,255,255,.18); border-radius: 14px; padding: 10px 12px; text-align: left; }
+.lv-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.lv { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 14px; color: #fff;
+  background: conic-gradient(#fff var(--p), rgba(255,255,255,.28) 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.7); }
+.lv.ok { background: var(--green, #2bb24c); box-shadow: none; } .lv-more { font-size: 13px; }
+.lv-txt { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; } .lv-txt span { font-weight: 800; opacity: .9; white-space: nowrap; }
+.lv-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,.3); overflow: hidden; } .lv-bar i { display: block; height: 100%; background: #fff; border-radius: 4px; }
+.lv-fine { font-size: 11px; font-weight: 700; opacity: .85; }
+.lives.dark { background: rgba(255,255,255,.12); }
+.story { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 16px 18px 20px; border-radius: 22px; color: #fff; min-height: 470px; align-content: start; }
+.st-night { background: linear-gradient(160deg, #1d2a5c, #3b2a6e); } .st-net { background: linear-gradient(160deg, #0f8a6a, #22b28a); } .st-us { background: linear-gradient(160deg, var(--gold), var(--orange)); }
+.st-top { display: flex; width: 100%; justify-content: space-between; align-items: center; } .st-dots { display: flex; gap: 6px; } .st-dots i { width: 28px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.35); } .st-dots i.on { background: #fff; }
+.st-skip { color: #fff !important; opacity: .8; }
+.st-art { width: 100%; max-width: 260px; height: auto; margin: 6px 0; }
+.story h3 { margin: 0; font-size: 25px; line-height: 1.15; } .story p { margin: 0; font-size: 16px; font-weight: 700; opacity: .92; } .story small { font-size: 11px; opacity: .7; }
+.st-lives { width: 100%; margin: 8px 0; } .st-next { width: 100%; margin-top: auto; }
+.st-why { display: block; margin: 8px auto 0; }
 .nets-wait { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .nets-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: netspin .8s linear infinite; flex: none; }
 @keyframes netspin { to { transform: rotate(360deg); } }
@@ -2806,7 +2823,7 @@ const PW = { country: 'Every country’s full history', dive: 'Unlock every deep
 function paywallSheet(reason, back = homeSheet) {
   if (hasPlus()) return back();
   if (!PLUS_LIVE) { toast('Plus is coming soon'); return back(); }
-  if (NETS_LIVE) return netsSheet(reason, back);
+  if (NETS_LIVE) return store.netsStory ? netsSheet(reason, back) : netsStory(() => netsSheet(reason, back), back);
   const LIST = [[IC.clock, 'All 76 deep dives', 'Religions, empires, wars and big ideas, each with maps and a quiz.'], [IC.flame, 'Streak repair', 'Missed a day? Get your streak back within 48 hours, plus a second weekly freeze.'],
     [IC.globe, 'Every past challenge', 'Play any day you missed and see how you’d have ranked.'], [IC.target, 'Your stats', 'Your scores, rank and strongest topics over time.'], [IC.trophy, 'Private leagues', 'A daily leaderboard for your friends, family or class.']];
   setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
@@ -2845,7 +2862,8 @@ const fmtUsd = n => '$' + Math.round(n).toLocaleString('en');
 // The donate link: Every.org's page for AMF, the amount, and (when signed in) the player's id, so the server knows
 // whose Plus to unlock. webhook_token makes Every.org report the donation to our server.
 function netsLink(usd, monthly, src) {
-  const u = new URL(NETS.url || 'https://www.every.org/againstmalaria'), uid = myUid();
+  // Gifts go through the Globe Genius fundraiser page when it exists (nets.fundraiser), so they add up there too.
+  const u = new URL(NETS.fundraiser ? `https://www.every.org/${NETS.nonprofit || 'againstmalaria'}/f/${NETS.fundraiser}` : NETS.url || 'https://www.every.org/againstmalaria'), uid = myUid();
   u.searchParams.set('amount', usd); u.searchParams.set('frequency', monthly ? 'MONTHLY' : 'ONCE');
   // Every.org's minimum otherwise defaults to $10.
   u.searchParams.set('min_value', monthly ? 2 : NET_MIN);
@@ -2853,7 +2871,7 @@ function netsLink(usd, monthly, src) {
   const v = netsVariant();
   u.searchParams.set('partner_donation_id', (uid || 'anon') + '.' + Date.now());
   u.searchParams.set('partner_metadata', btoa(JSON.stringify({ ...(uid ? { uid } : {}), v, src: src || 'wall', ...(monthly ? { m: 1 } : {}) })));
-  return u.toString() + (NETS.hash || '#/donate');
+  return u.toString() + (NETS.hash || '#donate');
 }
 // The ask. Built from the research in launch/reports/Donation paywall design.md:
 // - one strong reason line, not paragraphs, and not nothing (Wikimedia: cutting all copy cost donations);
@@ -2874,6 +2892,28 @@ const netsVariant = () => NV.includes(store.nv) ? store.nv : (store.nv = NV[Math
 const netsSeen = key => { if (!NETS_PREVIEW && CLOUD && CLOUD.netsSeen) CLOUD.netsSeen(key).catch(() => {}); };
 const netsOf = usd => Math.max(1, Math.round(usd / NET_USD));
 // "1,234 nets funded by players" (and lives, once a whole one is reached), from the server's real total.
+// Total raised: the fundraiser's own total from Every.org (public API, cents) when configured, else the count our
+// server keeps from Every.org's donation notifications. Cached for the session.
+let raisedP = null;
+function netsRaised() {
+  if (raisedP) return raisedP;
+  const ours = () => CLOUD && CLOUD.netsTotal ? CLOUD.netsTotal().then(t => ({ usd: (t && t.usd) || 0, donors: (t && t.gifts) || 0 })) : Promise.resolve({ usd: 0, donors: 0 });
+  const theirs = NETS.fundraiser && NETS.apiKey
+    ? fetch(`https://partners.every.org/v0.2/nonprofit/${NETS.nonprofit || 'againstmalaria'}/fundraiser/${NETS.fundraiser}/raised?apiKey=${encodeURIComponent(NETS.apiKey)}`).then(r => r.ok ? r.json() : null).then(j => j && { usd: (+j.raised || 0) / 100, donors: +j.supporters || 0 }).catch(() => null)
+    : Promise.resolve(null);
+  raisedP = Promise.all([theirs, ours().catch(() => null)]).then(([a, b]) => (a && a.usd >= ((b && b.usd) || 0)) ? a : b || a || { usd: 0, donors: 0 });
+  setTimeout(() => { raisedP = null; }, 60000);
+  return raisedP;
+}
+// Lives saved as a row of circles: a check for each life saved, the next one filling up, and the dollars to go.
+// Goal-gradient: people give more as a visible goal comes within reach, so the next life's remaining amount is the hero.
+function livesRow(usd, dark) {
+  const done = Math.floor(usd / LIFE_USD), part = (usd - done * LIFE_USD) / LIFE_USD, show = Math.min(done, 7);
+  const circ = (p, k) => `<i class="lv${p >= 1 ? ' ok' : ''}" style="--p:${Math.round(p * 100)}%" aria-hidden="true">${p >= 1 ? '✓' : ''}</i>`;
+  return `<div class="lives${dark ? ' dark' : ''}"><div class="lv-row">${done > show ? `<b class="lv-more">+${done - show}</b>` : ''}${Array.from({ length: show }, (_, k) => circ(1, k)).join('')}${circ(part, show)}</div>
+    <div class="lv-txt"><b>${done ? `${done} li${done > 1 ? 'ves' : 'fe'} saved` : usd >= NET_USD ? 'Saving our first life' : 'Be one of the first'}</b><span>${fmtUsd((1 - part) * LIFE_USD)} to save ${done ? 'the next' : 'a life'}</span></div>
+    <div class="lv-bar"><i style="width:${Math.max(3, part * 100)}%"></i></div><small class="lv-fine">${usd >= NET_USD ? `${fmtUsd(usd)} raised by players · ` : ''}about ${fmtUsd(LIFE_USD)} in nets saves a life (GiveWell)</small></div>`;
+}
 function netsMeter(t) {
   const usd = (t && t.usd) || 0, n = Math.floor(usd / NET_USD), lives = Math.floor(usd / LIFE_USD);
   return `<b>${n.toLocaleString('en')}</b> nets funded by players${lives ? ` · about <b>${lives}</b> li${lives > 1 ? 'ves' : 'fe'} saved` : ''}`;
@@ -2883,7 +2923,7 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
   // Players who already have Plus can still give: the same sheet, without the unlock.
   const give = hasPlus() && !NETS_PREVIEW, v = netsVariant();
   netsSeen('v-' + v); netsSeen('src-' + src);
-  const MONTH = NETS.monthly || [2, 5, 10], ONCE = NETS.once || [5, 10, 25, 50], DEF_M = NETS.defMonthly || 5, DEF_O = NETS.defOnce || 10;
+  const MONTH = NETS.monthly || [2, 5, 10], ONCE = NETS.once || [5, 10, 25, 50], DEF_M = NETS.defMonthly || 5, DEF_O = NETS.defOnce || 25;
   let monthly = v === 'monthly', pick = monthly ? DEF_M : DEF_O;
   const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? DEF_M : DEF_O;
   const sub = u => monthly ? `${netsOf(u * 12)} nets a year` : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`;
@@ -2898,9 +2938,10 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
       <div class="nets-freq" role="tablist"><button data-f="o" role="tab">One-time</button><button data-f="m" role="tab">Monthly</button></div>
       <div class="nets-amts${monthly ? '' : ' four'}" id="pwAmts" role="radiogroup" aria-label="Amount">${amts().map(btn).join('')}</div>
       <a class="btn pbtn nets-go" id="pwGo" href="#" target="_blank" rel="noopener"><span id="pwGoTxt"></span></a>
-      <p class="nets-count" id="pwCount" hidden></p>
+      <div class="nets-count" id="pwCount" hidden></div>
       <div id="pwAfter"></div>
     </div>
+    <button class="link st-why" id="pwWhy">Why malaria nets?</button>
     <details class="nets-more"><summary>How it works</summary><ul>
       <li>You give on Every.org, a charity platform. It goes straight to AMF; we never touch it. Every.org sends your receipt.</li>
       <li>A net costs about ${fmtUsd(NET_USD)} and protects about ${NET_PPL} people from malaria for around three years.</li>
@@ -2909,7 +2950,8 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
     ${NETS_PREVIEW ? `<p class="fine nets-beta">Preview of the donation screen.</p>` : ''}`);
   let poll = null, tries = 0;
   $('#pwBack').onclick = () => { clearInterval(poll); back(); };
-  if (CLOUD && CLOUD.netsTotal) CLOUD.netsTotal().then(t => { const el = $('#pwCount'); if (!el || !t || !(t.usd >= NET_USD)) return; el.innerHTML = netsMeter(t); el.hidden = false; }, () => {});
+  $('#pwWhy').onclick = () => { clearInterval(poll); buzz(5); netsStory(() => netsSheet(reason, back, src), back); };
+  netsRaised().then(t => { const el = $('#pwCount'); if (!el) return; el.innerHTML = livesRow(t.usd); el.hidden = false; }, () => {});
   const after = $('#pwAfter'), go = $('#pwGo');
   const draw = () => {
     sheet.querySelectorAll('.nets-amt').forEach(b => { const on = +b.dataset.usd === pick; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
@@ -2940,6 +2982,31 @@ function netsSheet(reason, back = homeSheet, src = 'wall') {
       $('#pwDid').onclick = () => done(Date.now() + 365 * DAY, usd, m);
     }
   };
+}
+// The story before the ask: three quick slides, the first time someone meets the paywall (and from "Why nets?").
+// Problem -> a cheap, concrete fix -> "players like you are already doing it", ending on the real lives-saved row.
+// Facts: WHO World Malaria Report 2024 (597,000 deaths in 2023, about three-quarters children under five, nearly all
+// in Africa); AMF (a net protects about 2 people for about 3 years); GiveWell (about $5,500 per life saved via AMF).
+const ART_NIGHT = `<svg viewBox="0 0 200 140" class="st-art" aria-hidden="true"><circle cx="160" cy="30" r="16" fill="#ffe9a8"/><circle cx="168" cy="25" r="14" fill="#25306a"/>${[[24, 22], [62, 14], [104, 30], [136, 60], [186, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#fff" opacity=".8"/>`).join('')}<rect x="26" y="104" width="148" height="12" rx="4" fill="#5a6ab8"/><rect x="30" y="116" width="6" height="14" fill="#5a6ab8"/><rect x="164" y="116" width="6" height="14" fill="#5a6ab8"/><path d="M60 104c0-12 20-14 40-12s50 2 60 12z" fill="#8fa0e8"/><circle cx="52" cy="96" r="10" fill="#f2c18d"/><path d="M46 95a2 1 0 004 0M54 95a2 1 0 004 0" stroke="#7a4a2a" stroke-width="1.2" fill="none"/><g transform="translate(96 58) rotate(-18)"><path d="M-22 0q22-7 34 0q-12 6-34 0z" fill="#2b2b2b"/><path d="M12 0l20 2" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round"/><ellipse cx="-4" cy="-10" rx="13" ry="5" fill="rgba(255,255,255,.6)" transform="rotate(-20)"/><ellipse cx="2" cy="-9" rx="11" ry="4" fill="rgba(255,255,255,.45)" transform="rotate(15)"/><path d="M-10 2l-6 14M-4 2l-2 16M2 2l4 15M-14 1l-12 10M6 1l12 11" stroke="#2b2b2b" stroke-width="1.4" fill="none"/></g></svg>`;
+const ART_NET = `<svg viewBox="0 0 200 140" class="st-art" aria-hidden="true"><path d="M30 120V78c0-38 31-66 70-66s70 28 70 66v42" fill="rgba(255,255,255,.25)" stroke="#fff" stroke-width="4"/><path d="M100 12v108M66 18l-10 102M134 18l10 102M33 58h134M30 90h140" stroke="#fff" stroke-width="2" opacity=".7"/><rect x="22" y="110" width="156" height="18" rx="9" fill="#fff"/><circle cx="76" cy="102" r="11" fill="#ffd9a8"/><circle cx="118" cy="103" r="10" fill="#e8b27a"/><g transform="translate(176 40)"><ellipse rx="8" ry="3" fill="#2a2a2a"/><path d="M-3-2l-7-7M2-2l5-8" stroke="#2a2a2a" stroke-width="1.5"/></g><path d="M168 34l-8 8M160 34l8 8" stroke="#ff5a5a" stroke-width="3" stroke-linecap="round" transform="translate(4 -2)"/></svg>`;
+function netsStory(then, back = homeSheet) {
+  store.netsStory = 1; save(); netsSeen('src-story');
+  const S = [
+    { c: 'st-night', art: ART_NIGHT, h: 'Nearly every minute, malaria kills a child under five.', p: 'About 450,000 young children a year, almost all in Africa.', fine: 'WHO World Malaria Report 2024' },
+    { c: 'st-net', art: ART_NET, h: 'A $5 bed net stops it.', p: 'Mosquitoes bite at night. One treated net protects 2 people for about 3 years.', fine: 'Against Malaria Foundation' },
+    { c: 'st-us', art: '<div id="stLives" class="st-lives"></div>', h: 'Globe Genius players are saving lives.', p: 'Every gift brings the next one closer. 100% goes to the Against Malaria Foundation.', fine: '' },
+  ];
+  let k = 0;
+  const show = () => {
+    const x = S[k];
+    setSheet(`<div class="story ${x.c}"><div class="st-top"><div class="st-dots">${S.map((_, j) => `<i class="${j <= k ? 'on' : ''}"></i>`).join('')}</div><button class="link st-skip" id="stSkip">Skip</button></div>
+      ${x.art}<h3>${x.h}</h3><p>${x.p}</p>${x.fine ? `<small>${x.fine}</small>` : ''}
+      <button class="btn pbtn st-next" id="stNext">${k < S.length - 1 ? 'Next' : 'Fund a net'}</button></div>`);
+    if (k === 2) netsRaised().then(t => { const el = $('#stLives'); if (el) el.innerHTML = livesRow(t.usd, true); }, () => {});
+    $('#stNext').onclick = () => { buzz(6); if (++k < S.length) show(); else then(); };
+    $('#stSkip').onclick = () => { buzz(5); then(); };
+  };
+  show();
 }
 // Thank-you: what the gift did, and an easy way to tell friends.
 function netsThanks(usd, wasMonthly, back) {
@@ -4852,9 +4919,9 @@ function bindDaily() {
   const learn = () => { buzz(8); learnSheet(); sheet.scrollTop = 0; };
   if ($('#goToday')) $('#goToday').onclick = learn;
   if ($('#tdPlay')) $('#tdPlay').onclick = () => { const k = $('#tdPlay').dataset.next; if (k === 'learn') learn(); else { buzz(8); dailyChallenge(k); } };
-  if ($('#goNets')) { netsSeen('src-home'); $('#goNets').onclick = () => { buzz(8); netsSheet(null, homeSheet, 'home'); };
-    const fill = (k = 0) => { if (!$('#hmNets')) return; if (!CLOUD || !CLOUD.netsTotal) return k < 8 && setTimeout(() => fill(k + 1), 1500);
-      CLOUD.netsTotal().then(t => { const el = $('#hmNets'); if (el && t && t.usd >= NET_USD) el.innerHTML = netsMeter(t); }, () => {}); };
+  if ($('#goNets')) { netsSeen('src-home'); $('#goNets').onclick = () => { buzz(8); store.netsStory ? netsSheet(null, homeSheet, 'home') : netsStory(() => netsSheet(null, homeSheet, 'home')); };
+    const fill = (k = 0) => { if (!$('#hmNets')) return; if (!CLOUD && !NETS.apiKey) return k < 8 && setTimeout(() => fill(k + 1), 1500);
+      netsRaised().then(t => { const el = $('#hmNets'); if (el && t.usd >= NET_USD) el.innerHTML = `${fmtUsd(t.usd)} raised · ${Math.floor(t.usd / LIFE_USD) ? `${Math.floor(t.usd / LIFE_USD)} lives saved ✓` : `${fmtUsd(LIFE_USD - t.usd % LIFE_USD)} to save a life`}`; }, () => {}); };
     fill(); }
   if ($('#goHistCard')) $('#goHistCard').onclick = () => { buzz(8); goHistory(anchorById[store.histLast]); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
@@ -5695,7 +5762,7 @@ else hideSplash();
 };
 </script>
 
-<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":true,"start":"","url":"https://www.every.org/againstmalaria","token":"","perNet":5,"min":5,"verify":false,"hash":"#/donate"}};</script>
+<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":true,"start":"","url":"https://www.every.org/againstmalaria","token":"","perNet":5,"min":5,"verify":false,"hash":"#donate","nonprofit":"againstmalaria","fundraiser":"","apiKey":""}};</script>
 <script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com","gsi":true}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script>
 // Start once the map data has arrived and the deferred map library has run (it runs before DOMContentLoaded).
