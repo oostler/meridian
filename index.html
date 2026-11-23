@@ -393,27 +393,32 @@ h1, h2, h3 { margin: 0; }
 .pprice b { font-size: 28px; font-weight: 900; }
 .pprice small { opacity: .9; font-weight: 700; }
 .pfine { margin: 0; text-align: center; font-size: 13px; font-weight: 800; opacity: .9; }
-a.nets-go { text-decoration: none; justify-content: center; }
-.nets-amts { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 8px; }
-.nets-amt { display: grid; gap: 1px; padding: 10px 4px; border-radius: 14px; border: 2px solid rgba(255,255,255,.6); background: rgba(255,255,255,.16); color: #fff; font: inherit; cursor: pointer; }
-.nets-amt b { font-size: 19px; font-weight: 900; } .nets-amt span { font-size: 12px; font-weight: 800; opacity: .9; }
-.nets-amt { position: relative; } .nets-amt em { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 9px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; background: var(--green, #2bb24c); color: #fff; padding: 2px 6px; border-radius: 8px; white-space: nowrap; }
-.nets-amts { margin-top: 6px; }
+.pwall.nets { text-align: center; justify-items: center; gap: 12px; }
+.nets-art { width: 110px; height: 74px; margin: 2px 0 -4px; }
+.pwall.nets h3 { margin: 0; font-size: 24px; line-height: 1.15; }
+.nets-why1 { margin: -4px 0 0; font-size: 14px; font-weight: 800; opacity: .95; }
+.nets-freq { display: inline-flex; background: rgba(0,0,0,.14); border-radius: 999px; padding: 3px; }
+.nets-freq button { border: 0; background: none; color: #fff; font: inherit; font-weight: 900; font-size: 14px; padding: 7px 16px; border-radius: 999px; cursor: pointer; }
+.nets-freq button.on { background: #fff; color: var(--ink); }
+.nets-amts.four { grid-template-columns: repeat(4, 1fr); }
+.nets-amts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 6px; }
+.nets-amt { position: relative; display: grid; gap: 1px; padding: 12px 4px 10px; border-radius: 16px; border: 2px solid rgba(255,255,255,.6); background: rgba(255,255,255,.16); color: #fff; font: inherit; cursor: pointer; }
+.nets-amt b { font-size: 22px; font-weight: 900; } .nets-amt span { font-size: 12px; font-weight: 800; opacity: .9; }
+.nets-amt em { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 10px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; background: var(--green, #2bb24c); color: #fff; padding: 2px 7px; border-radius: 8px; white-space: nowrap; }
 .nets-amt.on { background: #fff; color: var(--ink); border-color: #fff; box-shadow: 0 4px 0 var(--gold-d); }
-.nets-impact { margin: 0; font-size: 14px; font-weight: 700; text-align: center; min-height: 2.6em; }
-.nets-month { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; font-weight: 800; cursor: pointer; }
-.nets-month input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: #fff; flex: none; } .nets-month small { display: block; font-weight: 700; opacity: .85; font-size: 12px; }
-.nets-goal { background: rgba(255,255,255,.18); border-radius: 12px; padding: 8px 10px; display: grid; gap: 6px; }
-.ng-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 800; } .ng-top span { opacity: .85; }
-.ng-bar { height: 10px; border-radius: 5px; background: rgba(255,255,255,.3); overflow: hidden; } .ng-bar i { display: block; height: 100%; background: #fff; border-radius: 5px; }
-.ng-fine { font-size: 11px; font-weight: 700; opacity: .85; }
-.hm-card.nets-card { display: grid; gap: 8px; text-align: left; background: #fff7e0; border-color: var(--gold); }
-.nets-goal.nc .ng-top b { font-size: 14px; } .nets-goal.nc .ng-top span { font-size: 12px; white-space: nowrap; }
-.nets-goal.nc { background: rgba(0,0,0,.05); color: var(--ink); } .nets-goal.nc .ng-bar { background: rgba(0,0,0,.1); } .nets-goal.nc .ng-bar i { background: var(--orange); }
-.nc-go { font-weight: 900; color: var(--orange-d, #c75d00); display: flex; align-items: center; gap: 4px; }
+a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
+.nets-count { margin: 0; font-size: 13px; font-weight: 700; opacity: .95; }
+.nets-wait { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.nets-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: netspin .8s linear infinite; flex: none; }
+@keyframes netspin { to { transform: rotate(360deg); } }
+.nets-more { margin-top: 4px; font-size: 14px; color: var(--ink-2); } .nets-more summary { cursor: pointer; font-weight: 800; text-align: center; color: var(--ink-3); }
+.nets-more ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.nets-beta { text-align: center; opacity: .8; }
+.hm-card.nets-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; text-align: left; background: #fff7e0; border-color: var(--gold); }
+.nc-ic { font-size: 26px; } .nets-card small { display: block; }
 .md-note.nets-ask { text-align: left; width: 100%; cursor: pointer; font: inherit; }
 table.dash { width: 100%; border-collapse: collapse; font-size: 13px; } table.dash th, table.dash td { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: right; } table.dash td:first-child, table.dash th:first-child { text-align: left; font-weight: 800; }
-.nets-why { padding: 14px 16px; border-radius: 18px; background: var(--card, #fff); border: 2px solid var(--line); } .nets-why b { font-size: 16px; } .nets-why p { margin: 6px 0 0; font-size: 14px; color: var(--ink-2); }
+
 .nets-wait { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .nets-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: netspin .8s linear infinite; flex: none; }
 @keyframes netspin { to { transform: rotate(360deg); } }
@@ -2757,7 +2762,10 @@ const PLUS_CFG = window.MERIDIAN_PLUS || {};
 // In the iPhone app the donation happens in Safari and Plus unlocks on the player's word (Apple guideline 3.2.2(iv)).
 // globegenius.io/?preview=nets shows the owner the donation screen before it's switched on (nothing unlocks).
 const NETS_PREVIEW = !NATIVE && new URLSearchParams(location.search).get('preview') === 'nets';
-const NETS = PLUS_CFG.nets || {}, NETS_LIVE = !!NETS.live || !!(NETS.start && NETS.url && Date.now() >= Date.parse(NETS.start));
+const NETS = PLUS_CFG.nets || {}, NETS_LIVE = (NATIVE ? !!NETS.ios : true) && (!!NETS.live || !!(NETS.start && NETS.url && Date.now() >= Date.parse(NETS.start)));
+// Until Every.org's donation notifications are connected (nets.verify), the web also unlocks on the player's word,
+// and says the automatic unlock is coming.
+const NETS_VERIFY = !!NETS.verify && !!NETS.token;
 const PLUS_LIVE = NETS_LIVE || !!PLUS_CFG.live || !!(PLUS_CFG.start && (PLUS_CFG.ios || PLUS_CFG.web) && Date.now() >= Date.parse(PLUS_CFG.start));
 const PLUS_OPEN = !PLUS_LIVE;
 // Everyone who plays before Plus launches is a founding member and keeps every Plus feature for free.
@@ -2834,122 +2842,108 @@ const fmtUsd = n => '$' + Math.round(n).toLocaleString('en');
 function netsLink(usd, monthly, src) {
   const u = new URL(NETS.url || 'https://www.every.org/againstmalaria'), uid = myUid();
   u.searchParams.set('amount', usd); u.searchParams.set('frequency', monthly ? 'MONTHLY' : 'ONCE');
+  // Every.org's minimum otherwise defaults to $10.
+  u.searchParams.set('min_value', monthly ? 2 : NET_MIN);
   if (NETS.token) u.searchParams.set('webhook_token', NETS.token);
   const v = netsVariant();
   u.searchParams.set('partner_donation_id', (uid || 'anon') + '.' + Date.now());
   u.searchParams.set('partner_metadata', btoa(JSON.stringify({ ...(uid ? { uid } : {}), v, src: src || 'wall', ...(monthly ? { m: 1 } : {}) })));
   return u.toString() + (NETS.hash || '#/donate');
 }
-// The ask, built on what research says raises giving without tricking anyone:
-// - concrete impact on every amount ("protects about 4 people"): tangible detail raises gifts (Cryder & Loewenstein);
-// - a ladder with the middle amount pre-selected: defaults anchor gifts upward without lowering trust (Goswami & Urminsky 2016);
-// - a shared goal with a progress bar: giving rises as a visible goal comes into reach (Cryder et al. 2013, goal gradient);
-// - an optional monthly gift, the single biggest lever on lifetime giving, never pre-ticked;
-// - a thank-you that shows what the gift did and invites sharing it (warm glow, and it brings friends).
-// Every number shown is real (the server's total) or a stated estimate; no fake urgency, no guilt.
-const NET_PPL = 2, NET_GOAL = NETS.goal || 1000;
-// GiveWell's estimate of what a donation to AMF costs per life saved (about $5,500 for its 2021-2023 grants).
+// The ask. Built from the research in launch/reports/Donation paywall design.md:
+// - one strong reason line, not paragraphs, and not nothing (Wikimedia: cutting all copy cost donations);
+// - impact on every amount button ("5 nets a year"): +22% average gift, +41% revenue per visitor (NextAfter);
+// - "a month" pricing, a highlighted recommended amount, round numbers (Reiley & Samek: odd amounts cut big gifts);
+// - monthly first (monthly donors give ~3x a year and ~71% still give after a year, vs ~24% of one-time donors),
+//   with one-time one tap away, never pre-ticked;
+// - "100% goes to AMF, Plus is our thank-you" (thank-you perks only backfire when people think the gift pays for them);
+// - nets funded as a running count rather than a thermometer, and nets rather than cost-per-life
+//   (cost-per-life information lowered giving among small donors: Karlan & Wood);
+// - after a one-time gift, the thank-you offers to make it monthly.
+// First test (the report's #1): which tab opens first, monthly (v-monthly) or one-time (v-once). The dashboard shows
+// dollars raised per 100 views for each. Every number shown is real or a stated estimate; no fake urgency.
+const NET_PPL = 2;
 const LIFE_USD = NETS.life || 5500;
-// Three ways of asking, each player always sees the same one; the server counts what each raises (nets_stats), so the
-// best can be kept. impact: nets and people protected. life: progress to the next life saved. give: "it's free,
-// pay it forward" (reciprocity).
-const NV = NETS.variants || ['impact', 'life', 'give'];
+const NV = NETS.variants || ['monthly', 'once'];
 const netsVariant = () => NV.includes(store.nv) ? store.nv : (store.nv = NV[Math.random() * NV.length | 0], save(), store.nv);
-const netsSeen = key => { if (CLOUD && CLOUD.netsSeen) CLOUD.netsSeen(key).catch(() => {}); };
-// The shared progress bar, from the real total. life: towards the next life saved; nets: towards the next nets goal.
-function netsMeter(t, mode) {
-  const usd = (t && t.usd) || 0;
-  if (mode === 'life') {
-    const lives = Math.floor(usd / LIFE_USD), part = usd - lives * LIFE_USD;
-    return `<div class="ng-top"><b>${lives ? `${lives} li${lives > 1 ? 'ves' : 'fe'} saved by players so far` : 'Players saving their first life'}</b><span>${fmtUsd(part)} of ${fmtUsd(LIFE_USD)}</span></div>
-      <div class="ng-bar"><i style="width:${Math.max(2, part / LIFE_USD * 100)}%"></i></div><small class="ng-fine">About ${fmtUsd(LIFE_USD)} given to AMF saves a life (GiveWell estimate)</small>`;
-  }
-  const n = Math.floor(usd / NET_USD), goal = n >= NET_GOAL ? Math.ceil((n + 1) / NET_GOAL) * NET_GOAL : NET_GOAL;
-  return `<div class="ng-top"><b>${n.toLocaleString('en')} nets funded by players</b><span>Goal ${goal.toLocaleString('en')}</span></div><div class="ng-bar"><i style="width:${Math.max(2, n / goal * 100)}%"></i></div>`;
-}
+const netsSeen = key => { if (!NETS_PREVIEW && CLOUD && CLOUD.netsSeen) CLOUD.netsSeen(key).catch(() => {}); };
 const netsOf = usd => Math.max(1, Math.round(usd / NET_USD));
+// "1,234 nets funded by players" (and lives, once a whole one is reached), from the server's real total.
+function netsMeter(t) {
+  const usd = (t && t.usd) || 0, n = Math.floor(usd / NET_USD), lives = Math.floor(usd / LIFE_USD);
+  return `<b>${n.toLocaleString('en')}</b> nets funded by players${lives ? ` · about <b>${lives}</b> li${lives > 1 ? 'ves' : 'fe'} saved` : ''}`;
+}
+const NET_ART = `<svg class="nets-art" viewBox="0 0 120 80" aria-hidden="true"><path d="M20 70V44c0-22 18-38 40-38s40 16 40 38v26" fill="rgba(255,255,255,.22)" stroke="#fff" stroke-width="3"/><path d="M60 6v64M40 10l-6 60M80 10l6 60M22 30h76M20 48h80" stroke="#fff" stroke-width="1.5" opacity=".7"/><rect x="14" y="62" width="92" height="12" rx="6" fill="#fff"/><circle cx="44" cy="56" r="7" fill="#ffe1b3"/><circle cx="70" cy="57" r="6" fill="#f5c890"/></svg>`;
 function netsSheet(reason, back = homeSheet, src = 'wall') {
-  // Players who already have Plus (or are founders) can still give: the same sheet, without the unlock.
-  const give = hasPlus() && !NETS_PREVIEW, v = NETS_PREVIEW && ['impact', 'life', 'give'].includes(new URLSearchParams(location.search).get('v')) ? new URLSearchParams(location.search).get('v') : netsVariant();
-  if (!NETS_PREVIEW) { netsSeen('v-' + v); netsSeen('src-' + src); }
-  const LIST = [[IC.clock, 'All 76 deep dives', 'Religions, empires, wars and big ideas, each with maps and a quiz.'], [IC.globe, 'Every country’s full history', 'All 194 countries, told as if you were about to visit.'],
-    [IC.flame, 'Streak repair', 'Missed a day? Get your streak back.'], [IC.target, 'Your stats', 'Your scores and strongest topics over time.'], [IC.trophy, 'Private leagues', 'A daily leaderboard for your friends, family or class.']];
-  // The recommended gift is $24 for the year: "just $2 a month". Small per-period framing ("pennies a day") makes the
-  // same amount feel easy (Gourville 1998), and a pre-selected amount anchors gifts upward (Goswami & Urminsky 2016).
-  // $60 sits above it so $24 reads as the sensible middle; $5 stays visible so nobody is priced out.
-  const REC = NETS.rec || 24, REC_M = NETS.recMonthly || 2;
-  const ONCE = NETS.amounts || [NET_MIN, 12, REC, 60], MONTH = NETS.monthlyAmounts || [REC_M, 5, 10];
-  let monthly = false, pick = REC;
-  const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? REC_M : REC;
-  const amtBtn = u => `<button class="nets-amt${u === pick ? ' on' : ''}${u === rec() ? ' rec' : ''}" role="radio" aria-checked="${u === pick}" data-usd="${u}">${u === rec() ? '<em>Recommended</em>' : ''}<b>${fmtUsd(u)}</b><span>${monthly ? 'a month' : u === REC ? '$2 a month' : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`}</span></button>`;
-  setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>${NETS_PREVIEW ? `<p class="md-note"><b>Preview</b><small>This is how the donation screen will look once it's switched on. Try ?preview=nets&v=life or &v=give for the other versions. Donating here doesn't unlock anything yet.</small></p>` : ''}
-    <div class="pwall"><span class="ptag">${give ? '🦟 Players against malaria' : `${IC.star}Globe Genius Plus`}</span>
-      ${give ? `<h3>Fund more mosquito nets</h3><p>Every dollar goes to the <b>Against Malaria Foundation</b>, none to us.</p>`
-        : v === 'life' ? `<h3>Help save a life from malaria, and unlock Plus</h3><p>Give ${fmtUsd(NET_MIN)} or more to the <b>Against Malaria Foundation</b> and Plus unlocks for a year. Together, Globe Genius players are funding nets one life at a time. Every dollar goes to the charity, none to us.</p>`
-        : v === 'give' ? `<h3>Globe Genius is free. Pay it forward with a net.</h3><p>No ads and no subscription. If it’s taught you something, give ${fmtUsd(NET_MIN)} or more to the <b>Against Malaria Foundation</b> and Plus unlocks for a year as our thank-you. Every dollar goes to the charity, none to us.</p>`
-        : `<h3>Fund mosquito nets, unlock Plus</h3><p>Give ${fmtUsd(NET_MIN)} or more to the <b>Against Malaria Foundation</b> and Plus unlocks for a year. Every dollar goes to the charity, none to us.</p>`}
-      <div class="nets-goal" id="pwGoal" hidden></div>
-      <div class="nets-amts" id="pwAmts" role="radiogroup" aria-label="Donation amount">${ONCE.map(amtBtn).join('')}</div>
-      <p class="nets-impact" id="pwImpact"></p>
-      <label class="nets-month"><input type="checkbox" id="pwMonthly"><span>Give monthly instead <small>From $2 a month. Plus stays unlocked while you give; cancel anytime with Every.org.</small></span></label>
-      <a class="btn pbtn nets-go" id="pwGo" href="#" target="_blank" rel="noopener">${give ? '🦟' : IC.star}<span id="pwGoTxt"></span></a>
-      <button class="link plink" id="pwOther">Choose another amount</button>
-      <div id="pwAfter"></div></div>
-    <div class="nets-why"><b>Why nets?</b><p>Malaria kills over half a million people a year, most of them children under five in Africa. Mosquitoes bite at night, so a treated bed net is one of the cheapest, best-proven ways to save a life. The Against Malaria Foundation is rated a top charity by GiveWell and tracks every net to the village it reaches.</p></div>
-    ${give ? '' : `<ul class="pben">${LIST.map(([ic, b, t]) => `<li>${ic}<span><b>${b}</b>${t}</span></li>`).join('')}</ul>`}
-    <p class="fine" style="text-align:center">Your donation goes directly to the Against Malaria Foundation through Every.org, a charity giving platform, which sends your receipt. Globe Genius never receives any of it. Nets are estimated at about ${fmtUsd(NET_USD)} each, each protecting about ${NET_PPL} people. The daily challenges stay free forever.</p>`);
+  // Players who already have Plus can still give: the same sheet, without the unlock.
+  const give = hasPlus() && !NETS_PREVIEW, v = netsVariant();
+  netsSeen('v-' + v); netsSeen('src-' + src);
+  const MONTH = NETS.monthly || [2, 5, 10], ONCE = NETS.once || [5, 10, 25, 50], DEF_M = NETS.defMonthly || 5, DEF_O = NETS.defOnce || 10;
+  let monthly = v === 'monthly', pick = monthly ? DEF_M : DEF_O;
+  const amts = () => monthly ? MONTH : ONCE, rec = () => monthly ? DEF_M : DEF_O;
+  const sub = u => monthly ? `${netsOf(u * 12)} nets a year` : `${netsOf(u)} net${netsOf(u) > 1 ? 's' : ''}`;
+  const btn = u => `<button class="nets-amt${u === pick ? ' on' : ''}" role="radio" aria-checked="${u === pick}" data-usd="${u}"><b>${fmtUsd(u)}</b><span>${sub(u)}</span></button>`;
+  // The headline names what the player reached for; the one reason line stays the same.
+  const HEAD = { country: 'Unlock every country’s history', dive: 'Unlock all 76 deep dives', archive: 'Unlock every past challenge', repair: 'Repair your streak', stats: 'Unlock your stats', league: 'Start a private league' };
+  setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
+    <div class="pwall nets">
+      ${NET_ART}
+      <h3>${give ? 'Fund more malaria nets' : HEAD[reason] || 'Unlock Globe Genius Plus'}</h3>
+      <p class="nets-why1">Fund malaria nets. 100% goes to the Against Malaria Foundation.</p>
+      <div class="nets-freq" role="tablist"><button data-f="o" role="tab">One-time</button><button data-f="m" role="tab">Monthly</button></div>
+      <div class="nets-amts${monthly ? '' : ' four'}" id="pwAmts" role="radiogroup" aria-label="Amount">${amts().map(btn).join('')}</div>
+      <a class="btn pbtn nets-go" id="pwGo" href="#" target="_blank" rel="noopener"><span id="pwGoTxt"></span></a>
+      <p class="nets-count" id="pwCount" hidden></p>
+      <div id="pwAfter"></div>
+    </div>
+    <details class="nets-more"><summary>How it works</summary><ul>
+      <li>You give on Every.org, a charity platform. It goes straight to AMF; we never touch it. Every.org sends your receipt.</li>
+      <li>A net costs about ${fmtUsd(NET_USD)} and protects about ${NET_PPL} people from malaria for around three years.</li>
+      <li>${give ? 'Thank you for already supporting.' : 'Plus unlocks every deep dive and country history, your stats and private leagues for a year.'} Monthly gifts can be cancelled anytime in your <a href="https://www.every.org/" target="_blank" rel="noopener">Every.org account</a>.</li></ul></details>
+    ${NETS_VERIFY || NETS_PREVIEW ? '' : `<p class="fine nets-beta">Beta: automatic unlocking is coming soon. For now, Plus unlocks when you confirm your gift.</p>`}
+    ${NETS_PREVIEW ? `<p class="fine nets-beta">Preview of the donation screen.</p>` : ''}`);
   let poll = null, tries = 0;
   $('#pwBack').onclick = () => { clearInterval(poll); back(); };
-  // The shared goal: real total from the server, shown only once something has been given.
-  if (CLOUD && CLOUD.netsTotal) CLOUD.netsTotal().then(t => { const el = $('#pwGoal'); if (!el || !t || !(t.usd >= NET_USD)) return; el.innerHTML = netsMeter(t, v === 'life' ? 'life' : 'nets'); el.hidden = false; }, () => {});
+  if (CLOUD && CLOUD.netsTotal) CLOUD.netsTotal().then(t => { const el = $('#pwCount'); if (!el || !t || !(t.usd >= NET_USD)) return; el.innerHTML = netsMeter(t); el.hidden = false; }, () => {});
   const after = $('#pwAfter'), go = $('#pwGo');
   const draw = () => {
-    const n = netsOf(pick), ppl = n * NET_PPL;
     sheet.querySelectorAll('.nets-amt').forEach(b => { const on = +b.dataset.usd === pick; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
-    const yr = monthly ? pick * 12 : pick, ny = netsOf(yr), py = ny * NET_PPL;
-    $('#pwImpact').innerHTML = monthly ? `${fmtUsd(pick)} a month is <b>${fmtUsd(yr)} a year</b>: about <b>${ny} nets</b>, protecting about <b>${py} people</b> from malaria. Plus stays unlocked while you give.`
-      : `${fmtUsd(pick)}${pick === REC ? ' (just $2 a month, under 7¢ a day)' : ''} funds about <b>${n} net${n > 1 ? 's' : ''}</b>, protecting about <b>${ppl} people</b> from malaria for around three years.`;
-    $('#pwGoTxt').textContent = `Give ${fmtUsd(pick)}${monthly ? ' a month' : ''}${give ? '' : ' and unlock Plus'}`;
+    sheet.querySelectorAll('.nets-freq button').forEach(b => b.classList.toggle('on', (b.dataset.f === 'm') === monthly));
+    $('#pwGoTxt').textContent = `Give ${fmtUsd(pick)}${monthly ? ' a month' : ''}`;
     go.href = netsLink(pick, monthly, src);
   };
   const bindAmts = () => sheet.querySelectorAll('.nets-amt').forEach(b => b.onclick = () => { buzz(5); pick = +b.dataset.usd; draw(); });
-  bindAmts();
-  // Monthly switches the ladder to monthly amounts ($2 a month recommended).
-  $('#pwMonthly').onchange = e => { monthly = e.target.checked; pick = rec(); $('#pwAmts').innerHTML = amts().map(amtBtn).join(''); bindAmts(); draw(); };
-  $('#pwOther').onclick = () => {
-    const x = Math.round(+prompt(`How much would you like to give, in US dollars?${give ? '' : ` (${fmtUsd(NET_MIN)} or more unlocks Plus)`}`, String(pick)) || 0);
-    if (x > 0) { pick = Math.min(x, 100000); draw(); }
-  };
-  draw();
-  const unlocked = (until, usd) => { clearInterval(poll); store.ent = { until, nets: 1 }; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, back); };
-  // On the web the donation must be linked to an account, so Plus follows the player to every device.
-  if (!NATIVE && !myUid() && !give && !NETS_PREVIEW) {
-    go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to continue</button>`; $('#pwOther').hidden = true;
-    after.innerHTML = '<p class="pfine">Sign in first, so Plus is linked to your profile and works everywhere.</p>';
-    $('#pwIn').onclick = () => signInSheet({ then: () => netsSheet(reason, back) });
+  sheet.querySelectorAll('.nets-freq button').forEach(b => b.onclick = () => { buzz(5); monthly = b.dataset.f === 'm'; pick = rec(); $('#pwAmts').innerHTML = amts().map(btn).join(''); $('#pwAmts').classList.toggle('four', !monthly); bindAmts(); draw(); });
+  bindAmts(); draw();
+  const done = (until, usd, wasMonthly) => { clearInterval(poll); if (!give) { store.ent = { until, nets: 1 }; save(); } buzz([10, 60, 10]); histIdx = null; netsThanks(usd || pick, wasMonthly, back); };
+  // Verified unlocking needs an account (so Plus follows the player); until it's connected, confirming is enough.
+  if (NETS_VERIFY && !NATIVE && !myUid() && !give) {
+    go.outerHTML = `<button class="btn pbtn" id="pwIn">Sign in to give</button>`;
+    $('#pwIn').onclick = () => signInSheet({ then: () => netsSheet(reason, back, src) });
     return;
   }
   const check = () => { if (!$('#pwAfter')) return clearInterval(poll); if (++tries > 150) return clearInterval(poll);
-    if (CLOUD && CLOUD.netPass && myUid()) CLOUD.netPass().then(p => { if (p && p.until > Date.now()) unlocked(p.until, p.last); }, () => {}); };
+    if (CLOUD && CLOUD.netPass && myUid()) CLOUD.netPass().then(p => { if (p && p.until > Date.now()) done(p.until, p.last, monthly); }, () => {}); };
   go.onclick = () => {
     buzz(8); go.href = netsLink(pick, monthly, src);
-    if (give) { after.innerHTML = '<p class="pfine">Thank you! Your gift goes straight to the Against Malaria Foundation.</p>'; return; }
-    after.innerHTML = NATIVE
-      ? `<p class="pfine">Finish your donation on the Against Malaria Foundation’s page, then come back.</p><button class="btn pbtn" id="pwDid">${IC.check}I’ve donated, unlock Plus</button>`
-      : `<p class="pfine nets-wait"><span class="spin"></span>Waiting for your donation to come through. This page unlocks by itself, usually within a minute.</p><button class="link plink" id="pwCheck">Check again</button>`;
-    if ($('#pwDid')) $('#pwDid').onclick = () => { clearInterval(poll); store.ent = { until: Date.now() + 365 * DAY, honour: 1 }; save(); buzz([10, 60, 10]); histIdx = null; netsThanks(pick, back); };
-    if ($('#pwCheck')) $('#pwCheck').onclick = () => { tries = 0; check(); };
-    clearInterval(poll); tries = 0; poll = setInterval(check, 6000);
+    const m = monthly, usd = pick;
+    if (NETS_VERIFY && !NATIVE) {
+      after.innerHTML = `<p class="pfine nets-wait"><span class="spin"></span>Waiting for your gift… this unlocks by itself.</p>`;
+      clearInterval(poll); tries = 0; poll = setInterval(check, 6000);
+    } else {
+      after.innerHTML = `<button class="link plink" id="pwDid">${IC.check}I’ve given${give ? '' : ', unlock Plus'}</button>`;
+      $('#pwDid').onclick = () => done(Date.now() + 365 * DAY, usd, m);
+    }
   };
 }
-// Thank-you: what the gift did, and an easy way to tell friends (which also brings new players).
-function netsThanks(usd, back) {
-  const n = netsOf(usd), ppl = n * NET_PPL;
+// Thank-you: what the gift did, and an easy way to tell friends.
+function netsThanks(usd, wasMonthly, back) {
+  const yr = wasMonthly ? usd * 12 : usd, n = netsOf(yr), ppl = n * NET_PPL;
   setSheet(`<div class="done"><span class="badge">${ART.trophy}</span><div class="title">Thank you!</div>
-      <div class="sub">You funded about <b>${n} mosquito net${n > 1 ? 's' : ''}</b>, protecting about <b>${ppl} people</b> from malaria: about ${Math.max(1, Math.round(usd / LIFE_USD * 1000)) / 10}% of what it takes to save a life. Plus is unlocked.</div></div>
+      <div class="sub">${wasMonthly ? `Every year, that’s about <b>${n} nets</b>` : `That’s about <b>${n} net${n > 1 ? 's' : ''}</b>`}, protecting about <b>${ppl} people</b> from malaria.</div></div>
     <button class="btn primary" id="ntShare">${IC.share}Tell your friends</button>
-    <button class="btn" id="ntGo">Start exploring Plus</button>`);
-  $('#ntShare').onclick = () => { buzz(8); shareOut({ text: `I just funded ${n} mosquito net${n > 1 ? 's' : ''} against malaria by unlocking Globe Genius Plus. Every dollar goes to the Against Malaria Foundation.`, url: 'https://globegenius.io' }); };
+    <button class="btn" id="ntGo">Continue</button>`);
+  $('#ntShare').onclick = () => { buzz(8); shareOut({ text: `I just funded ${n} malaria net${n > 1 ? 's' : ''} with Globe Genius. 100% goes to the Against Malaria Foundation.`, url: 'https://globegenius.io' }); };
   $('#ntGo').onclick = () => { buzz(5); back(); };
 }
 const plusLocked = id => !hasPlus() && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
@@ -3470,7 +3464,7 @@ function finalDone(a, right, n) {
       ${rewardBlock()}
       ${t === 'country' ? ctryGoal() : ''}${t === 'plus' || t === 'country' ? '' : `<div class="goalbar done"><div class="gb-top"><b>${IC.check}${c.k} of ${c.n} chapters complete</b>${was ? '' : `<span>Up from ${c.k - 1}</span>`}</div><div class="gb-bar"><i style="width:${c.k / c.n * 100}%"></i></div></div>`}
       ${facts ? `<div class="md-note"><b>${IC.check}Added to your daily refresher</b><small>${facts} key facts will come back over the coming days, just before you'd forget them.</small></div>` : ''}
-      ${NETS_LIVE && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="fdNets"><b>🦟 Enjoyed ${esc(a.title)}?</b><small>Pass it on: ${fmtUsd(NET_USD)} funds a mosquito net that protects about ${NET_PPL} people from malaria.</small></button>` : ''}
+      ${NETS_LIVE && store.naskDay !== dayKey() ? `<button class="md-note nets-ask" id="fdNets"><b>🦟 Pass it on</b><small>${fmtUsd(NET_USD)} funds a malaria net.</small></button>` : ''}
       ${next ? `<button class="md-next" id="fdNext"><small>Up next on the timeline</small><b>${esc(next.title)} ${IC.next}</b><small>${esc(next.years)}</small></button>` : ''}
       <button class="btn primary" id="fdBack">Continue</button>${a.story ? `<button class="btn" id="fdRead">${IC.book || ''}Read the full summary</button>` : ''}${repFoot(`${a.title} · final quiz · results`)}`
     : `<div class="done"><span class="badge">${ART.medal}</span><div class="title">${right} of ${n} right</div><div class="sub">You need ${passMark(n)} to complete ${esc(a.title)}</div></div>
@@ -4829,10 +4823,10 @@ function todayCard() {
     ${dg.no > 1 ? `<button class="link td-arc" id="goArc">Missed a day? Play past challenges</button>` : ''}
   </div>`;
 }
-// Players against malaria: the shared progress to the next life saved, on the home screen (not a pop-up).
+// Players against malaria: a small card on the home screen (not a pop-up), with the real count of nets funded.
 function netsCard() {
   if (!NETS_LIVE) return '';
-  return `<button class="hm-card nets-card" id="goNets"><b>🦟 Players against malaria</b><div class="nets-goal nc" id="hmNets"><small>Every dollar given to unlock Plus buys mosquito nets.</small></div><small class="nc-go">Fund a net ${IC.next}</small></button>`;
+  return `<button class="hm-card nets-card" id="goNets"><span class="nc-ic">🦟</span><span><b>Fund malaria nets</b><small id="hmNets">100% goes to the Against Malaria Foundation</small></span>${IC.next}</button>`;
 }
 // The daily refresher: what you've learned that is due to fade (places, chapter facts), a couple of minutes a day.
 function refreshCard() {
@@ -4855,7 +4849,7 @@ function bindDaily() {
   if ($('#tdPlay')) $('#tdPlay').onclick = () => { const k = $('#tdPlay').dataset.next; if (k === 'learn') learn(); else { buzz(8); dailyChallenge(k); } };
   if ($('#goNets')) { netsSeen('src-home'); $('#goNets').onclick = () => { buzz(8); netsSheet(null, homeSheet, 'home'); };
     const fill = (k = 0) => { if (!$('#hmNets')) return; if (!CLOUD || !CLOUD.netsTotal) return k < 8 && setTimeout(() => fill(k + 1), 1500);
-      CLOUD.netsTotal().then(t => { const el = $('#hmNets'); if (el && t && t.usd >= NET_USD) el.innerHTML = netsMeter(t, 'life'); }, () => {}); };
+      CLOUD.netsTotal().then(t => { const el = $('#hmNets'); if (el && t && t.usd >= NET_USD) el.innerHTML = netsMeter(t); }, () => {}); };
     fill(); }
   if ($('#goHistCard')) $('#goHistCard').onclick = () => { buzz(8); goHistory(anchorById[store.histLast]); };
   if ($('#goDaily')) $('#goDaily').onclick = () => { buzz(8); dailyChallenge('geo'); };
@@ -5696,7 +5690,7 @@ else hideSplash();
 };
 </script>
 
-<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":false,"start":"","url":"https://www.every.org/againstmalaria","hash":"#/donate","token":"","perNet":5,"min":5}};</script>
+<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":true,"start":"","url":"https://www.every.org/againstmalaria","token":"","perNet":5,"min":5,"verify":false,"hash":"#/donate"}};</script>
 <script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com","gsi":true}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script>
 // Start once the map data has arrived and the deferred map library has run (it runs before DOMContentLoaded).
