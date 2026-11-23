@@ -121,6 +121,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 #ctrls.away { opacity: 0; pointer-events: none; }
 #ctrls #zbase[aria-pressed="true"] { color: var(--blue); border-color: var(--blue); box-shadow: 0 3px 0 var(--blue-d); }
 .maplibregl-ctrl-attrib { font-size: 10px; font-family: system-ui, sans-serif; font-weight: 400; }
+/* Credits stay folded into the (i) button until it's tapped (MapLibre opens them on wide screens at start). */
+.maplibregl-ctrl-attrib:not(.gg-open) .maplibregl-ctrl-attrib-inner { display: none; }
+.maplibregl-ctrl-attrib:not(.gg-open).maplibregl-compact-show { padding: 0; background: none; }
 
 #toast { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px); transform: translate(-50%, -6px); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; font-size: 15px; font-weight: 800; opacity: 0; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; z-index: 5; }
 .report { position: absolute; inset: 0; z-index: 8; background: rgb(0 0 0 / .35); display: grid; align-items: start; justify-items: center; padding: calc(env(safe-area-inset-top, 0px) + 64px) 16px 16px; animation: fade .2s; }
@@ -1410,6 +1413,8 @@ const map = new maplibregl.Map({
   attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, fadeDuration: 0,
 });
 map.touchZoomRotate.disableRotation();
+// The (i) button opens and closes the credits (see the CSS: they start folded).
+document.addEventListener('click', e => { const btn = e.target.closest && e.target.closest('.maplibregl-ctrl-attrib-button'); if (btn) btn.closest('.maplibregl-ctrl-attrib').classList.toggle('gg-open'); }, true);
 if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__map = map;  // tests only
 map.keyboard.disableRotation();
 let ready = false;
