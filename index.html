@@ -393,6 +393,10 @@ h1, h2, h3 { margin: 0; }
 .pprice b { font-size: 28px; font-weight: 900; }
 .pprice small { opacity: .9; font-weight: 700; }
 .pfine { margin: 0; text-align: center; font-size: 13px; font-weight: 800; opacity: .9; }
+a.pw-plan { text-decoration: none; } .nets-count { opacity: 1; background: rgba(255,255,255,.18); border-radius: 12px; padding: 8px 10px; }
+.nets-wait { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.nets-wait .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: netspin .8s linear infinite; flex: none; }
+@keyframes netspin { to { transform: rotate(360deg); } }
 .pwall .unlock input { background: #fff; border-color: #fff; color: #3c2a00; }
 .pwall .unlock .err { color: #fff; background: rgba(234, 43, 43, .85); border-radius: 10px; padding: 0 10px; min-height: 0; width: fit-content; }
 .pwall .unlock .err:empty { display: none; }
@@ -2726,7 +2730,13 @@ const PLUS_FREE = 'dd-vikings';
 // The paywall code stays in case that ever changes; false brings it back, with store.plus deciding.
 // Plus switches on by itself at plus.config.json "start" (once its keys are set), so the app update can be approved
 // before launch day; "live": true switches it on immediately.
-const PLUS_CFG = window.MERIDIAN_PLUS || {}, PLUS_LIVE = !!PLUS_CFG.live || !!(PLUS_CFG.start && (PLUS_CFG.ios || PLUS_CFG.web) && Date.now() >= Date.parse(PLUS_CFG.start));
+const PLUS_CFG = window.MERIDIAN_PLUS || {};
+// Net Pass: Plus is unlocked by donating to the Against Malaria Foundation through Every.org (plus.config.json "nets").
+// The money goes straight to the charity; Globe Genius never receives it. On the web (and wherever an outside link is
+// allowed) the server confirms each donation (firebase/functions netsHook) and unlocks the account automatically.
+// In the iPhone app the donation happens in Safari and Plus unlocks on the player's word (Apple guideline 3.2.2(iv)).
+const NETS = PLUS_CFG.nets || {}, NETS_LIVE = !!NETS.live || !!(NETS.start && NETS.url && Date.now() >= Date.parse(NETS.start));
+const PLUS_LIVE = NETS_LIVE || !!PLUS_CFG.live || !!(PLUS_CFG.start && (PLUS_CFG.ios || PLUS_CFG.web) && Date.now() >= Date.parse(PLUS_CFG.start));
 const PLUS_OPEN = !PLUS_LIVE;
 // Everyone who plays before Plus launches is a founding member and keeps every Plus feature for free.
 const hasPlus = () => PLUS_OPEN || !!store.plus || !!store.founder || !!(store.ent && store.ent.until > Date.now());
@@ -2742,6 +2752,15 @@ const myUid = () => CLOUD && CLOUD.myId ? CLOUD.myId() : null;
 // Keep a paying member's Plus cached for three days, so it works offline; checked again whenever the app opens.
 async function refreshPlus() {
   if (!PLUS_LIVE || store.founder || store.plus) return;
+  if (NETS_LIVE) {
+    try {
+      if (!CLOUD || !CLOUD.netPass || !myUid()) return;
+      const p = await CLOUD.netPass();
+      if (p && p.until > Date.now()) { store.ent = { until: p.until, nets: 1 }; save(); }
+      else if (store.ent && store.ent.nets) { store.ent = null; save(); }
+    } catch (e) {}
+    return;
+  }
   try {
     const B = await billing(); if (!B.ready() || (!NATIVE && !myUid())) return;
     const r = await B.isPlus(myUid()); store.ent = r.plus ? { until: Date.now() + 3 * DAY } : null; store.manage = r.manage || null; save();
@@ -2752,6 +2771,7 @@ const PW = { country: 'Every country’s full history', dive: 'Unlock every deep
 function paywallSheet(reason, back = homeSheet) {
   if (hasPlus()) return back();
   if (!PLUS_LIVE) { toast('Plus is coming soon'); return back(); }
+  if (NETS_LIVE) return netsSheet(reason, back);
   const LIST = [[IC.clock, 'All 76 deep dives', 'Religions, empires, wars and big ideas, each with maps and a quiz.'], [IC.flame, 'Streak repair', 'Missed a day? Get your streak back within 48 hours, plus a second weekly freeze.'],
     [IC.globe, 'Every past challenge', 'Play any day you missed and see how you’d have ranked.'], [IC.target, 'Your stats', 'Your scores, rank and strongest topics over time.'], [IC.trophy, 'Private leagues', 'A daily leaderboard for your friends, family or class.']];
   setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
@@ -2783,6 +2803,64 @@ function paywallSheet(reason, back = homeSheet) {
     });
   }, () => { if ($('#pwPlans')) box.innerHTML = '<p class="pfine">Couldn’t load prices. Check your connection.</p>'; });
   $('#pwRestore').onclick = () => { buzz(5); billing().then(B => B.restore(myUid())).then(ok => ok ? done(true) : toast('No purchases to restore'), () => toast('Couldn’t restore. Try again.')); };
+}
+// ---------- Net Pass: fund mosquito nets to unlock Plus ----------
+const NET_USD = NETS.perNet || 5, NET_MIN = NETS.min || 5;
+const fmtUsd = n => '$' + Math.round(n).toLocaleString('en');
+// The donate link: Every.org's page for AMF, the amount, and (when signed in) the player's id, so the server knows
+// whose Plus to unlock. webhook_token makes Every.org report the donation to our server.
+function netsLink(usd) {
+  const u = new URL(NETS.url || 'https://www.every.org/againstmalaria'), uid = myUid();
+  u.searchParams.set('amount', usd); u.searchParams.set('frequency', 'ONCE');
+  if (NETS.token) u.searchParams.set('webhook_token', NETS.token);
+  if (uid) { u.searchParams.set('partner_donation_id', uid + '.' + Date.now()); u.searchParams.set('partner_metadata', btoa(JSON.stringify({ uid }))); }
+  return u.toString() + (NETS.hash || '#/donate');
+}
+// "Globe Genius players have given $X: about N nets", from the server's running total.
+function netsCounter(el) {
+  if (!el || !CLOUD || !CLOUD.netsTotal) return;
+  CLOUD.netsTotal().then(t => { if (!el.isConnected || !t || !t.usd) return; const n = Math.floor(t.usd / NET_USD);
+    el.innerHTML = `<b>${fmtUsd(t.usd)}</b> given by Globe Genius players so far: about <b>${n.toLocaleString('en')}</b> net${n === 1 ? '' : 's'}`; el.hidden = false; }, () => {});
+}
+function netsSheet(reason, back = homeSheet) {
+  if (hasPlus()) return back();
+  const LIST = [[IC.clock, 'All 76 deep dives', 'Religions, empires, wars and big ideas, each with maps and a quiz.'], [IC.globe, 'Every country’s full history', 'All 194 countries, told as if you were about to visit.'],
+    [IC.flame, 'Streak repair', 'Missed a day? Get your streak back.'], [IC.target, 'Your stats', 'Your scores and strongest topics over time.'], [IC.trophy, 'Private leagues', 'A daily leaderboard for your friends, family or class.']];
+  const AMTS = [[NET_MIN, 'about 1 net'], [NET_USD * 2 > NET_MIN ? NET_USD * 2 : NET_MIN * 2, 'about 2 nets'], [NET_USD * 5, 'about 5 nets']];
+  setSheet(`<button class="back" id="pwBack">${IC.back}Back</button>
+    <div class="pwall"><span class="ptag">${IC.star}Globe Genius Plus</span><h3>Fund mosquito nets, unlock Plus</h3>
+      <p>Give ${fmtUsd(NET_MIN)} or more to the <b>Against Malaria Foundation</b>, one of the world’s most effective charities, and Plus unlocks for a year. A bed net protects children from malaria while they sleep.</p>
+      <p class="pfine nets-count" id="pwCount" hidden></p>
+      <div class="pw-plans" id="pwPlans">${AMTS.map(([u, t], i) => `<a class="pw-plan${i === 1 ? ' best' : ''}" data-usd="${u}" href="#" rel="noopener"><b>${fmtUsd(u)}</b><span>${t}</span></a>`).join('')}</div>
+      <div id="pwAfter"></div></div>
+    <ul class="pben">${LIST.map(([ic, b, t]) => `<li>${ic}<span><b>${b}</b>${t}</span></li>`).join('')}</ul>
+    <p class="fine" style="text-align:center">Your donation goes directly to the Against Malaria Foundation through Every.org, a charity giving platform. Globe Genius never receives any of it. Every.org sends your receipt.
+      The daily challenges stay free forever.</p>`);
+  $('#pwBack').onclick = () => { clearInterval(poll); back(); };
+  netsCounter($('#pwCount'));
+  const after = $('#pwAfter');
+  const unlocked = until => { clearInterval(poll); store.ent = { until, nets: 1 }; save(); buzz([10, 60, 10]); toast('Thank you! Plus is unlocked'); histIdx = null; back(); };
+  // On the web the donation must be linked to an account, so Plus follows the player to every device.
+  if (!NATIVE && !myUid()) {
+    $('#pwPlans').innerHTML = `<p class="pfine">Sign in first, so Plus is linked to your profile and works everywhere.</p><button class="btn pbtn" id="pwIn">Sign in to continue</button>`;
+    $('#pwIn').onclick = () => signInSheet({ then: () => netsSheet(reason, back) });
+    return;
+  }
+  let poll = null, tries = 0;
+  const check = () => { if (!$('#pwAfter')) return clearInterval(poll); if (++tries > 150) return clearInterval(poll);
+    if (CLOUD && CLOUD.netPass && myUid()) CLOUD.netPass().then(p => { if (p && p.until > Date.now()) unlocked(p.until); }, () => {}); };
+  sheet.querySelectorAll('[data-usd]').forEach(b => {
+    b.href = netsLink(+b.dataset.usd); b.target = '_blank';
+    b.onclick = () => {
+      buzz(8); b.href = netsLink(+b.dataset.usd);
+      after.innerHTML = NATIVE
+        ? `<p class="pfine">Finish your donation on the Against Malaria Foundation’s page, then come back.</p><button class="btn pbtn" id="pwDid">${IC.check}I’ve donated, unlock Plus</button>`
+        : `<p class="pfine nets-wait"><span class="spin"></span>Waiting for your donation to come through. This page unlocks by itself, usually within a minute.</p><button class="link plink" id="pwCheck">Check again</button>`;
+      if ($('#pwDid')) $('#pwDid').onclick = () => { unlocked(Date.now() + 365 * DAY); store.ent.honour = 1; delete store.ent.nets; save(); };
+      if ($('#pwCheck')) $('#pwCheck').onclick = () => { tries = 0; check(); };
+      clearInterval(poll); tries = 0; poll = setInterval(check, 6000);
+    };
+  });
 }
 const plusLocked = id => !hasPlus() && id !== PLUS_FREE && trackOf(anchorById[id] || {}) === 'plus';
 const PLUS_CAT = { faith: 'Religions and beliefs', empires: 'Empires and civilisations', wars: 'Wars and conflicts', ideas: 'Ideas, science and money', nations: 'Nations and regions' };
@@ -5504,7 +5582,7 @@ else { map.once('idle', hideSplash); setTimeout(hideSplash, 4000); }
 };
 </script>
 
-<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus"};</script>
+<script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":false,"start":"","url":"https://www.every.org/againstmalaria","hash":"#/donate","token":"","perNet":5,"min":5}};</script>
 <script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com","gsi":true}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script>
 // Start once the map data has arrived and the deferred map library has run (it runs before DOMContentLoaded).
