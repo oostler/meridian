@@ -2128,7 +2128,10 @@ const MORE = MORE_OK ? Promise.resolve() : (window.__more || Promise.reject(new 
   for (const a of ANCHORS) {
     const c = m.cards && m.cards[a.id]; if (c && a.lesson) a.lesson.units.forEach((u, i) => { u.cards = c[i] || []; });
     const st = m.story && m.story[a.id]; if (st) a.story = Object.assign(a.story || {}, st);
+    const mp = m.mp && m.mp[a.id]; if (mp && a.maps) a.maps.forEach((M, i) => { const x = mp[i]; if (!x) return;
+      if (x.text != null) M.text = x.text; if (x.notes) M.notes = x.notes; (M.pins || []).forEach((p, k) => { if (x.pn && x.pn[k]) p.note = x.pn[k]; }); });
   }
+  histIdx = null;
   for (const [id, txt] of Object.entries(m.h || {})) { const f = byId[id]; if (f) f.h = Object.assign(f.h || {}, txt); }
   G.ctry = m.ctry || {}; MORE_OK = true;
   // A place card opened before the texts arrived shows them now.
@@ -2785,6 +2788,7 @@ function atYear(y) {
   return maps.filter(x => x.from <= y && y <= x.to).sort((p, q) => (p.from !== y) - (q.from !== y) || p.rank - q.rank || p.span - q.span || (p.to - p.from) - (q.to - q.from) || q.from - p.from);
 }
 function timeSheet(i, pick) {
+  if (!MORE_OK) return afterMore(() => timeSheet(i, pick));
   const { years } = timeStops();
   if (i == null) i = state.timeI != null ? state.timeI : years.findIndex(y => y >= 1914);
   i = Math.max(0, Math.min(years.length - 1, i)); state.timeI = i;
@@ -3477,6 +3481,7 @@ const passMark = n => Math.ceil(n * 0.8);
 
 // The map story for one moment: the map's headline, then each group in turn, then the key places.
 function startMoment(id, m) {
+  if (!MORE_OK) return afterMore(() => startMoment(id, m));
   const a = anchorById[id]; if (a && a.lesson) return startUnit(a, m);
   if (!a || !a.maps || !a.maps[m]) return;
   if (plusLocked(id)) return unlockSheet(id);
@@ -5346,6 +5351,7 @@ function qRight(stats) {
 }
 // For the content automation: globegenius.io/?daily=<day> prints that day's questions, answers and % right as JSON.
 async function dailyJson(no) {
+  await MORE;
   const out = { day: no, date: ddDate(no), link: 'https://globegenius.io', kinds: {} };
   for (const kind of ['geo', 'hist']) {
     const K = DD_KIND[kind], s = CLOUD ? await CLOUD.dailyStats(K.doc(no)).catch(() => ({})) : {}, qr = qRight(s);
@@ -5406,8 +5412,8 @@ async function statsSheet() {
   $('#stHome').onclick = () => { history.replaceState(null, '', location.pathname); homeSheet(); };
 }
 function dailyChallenge(kind = 'geo', no) {
-  // Archive days before day 27 drew some history questions from country texts, which arrive in the second part.
-  if (!MORE_OK && kind === 'hist' && no && no < DQ_V3) return afterMore(() => dailyChallenge(kind, no));
+  // Daily history's answers explain themselves with the chapter maps' notes, which also arrive in the second part.
+  if (!MORE_OK && kind === 'hist') return afterMore(() => dailyChallenge(kind, no));
   const K = DD_KIND[kind], d = dailyState(kind, no), qs = dailyQs(d.no, kind), from = state.tab, prevScope = state.scope, arc = !!d.arc;
   dailyKeep(kind, d); save();
   clearTimeout(advanceT); gainStart();
