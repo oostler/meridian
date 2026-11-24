@@ -2128,6 +2128,7 @@ const MORE = MORE_OK ? Promise.resolve() : (window.__more || Promise.reject(new 
   for (const a of ANCHORS) {
     const c = m.cards && m.cards[a.id]; if (c && a.lesson) a.lesson.units.forEach((u, i) => { u.cards = c[i] || []; });
     const st = m.story && m.story[a.id]; if (st) a.story = Object.assign(a.story || {}, st);
+    if (m.quiz && m.quiz[a.id]) a.quiz = m.quiz[a.id];
     const mp = m.mp && m.mp[a.id]; if (mp && a.maps) a.maps.forEach((M, i) => { const x = mp[i]; if (!x) return;
       if (x.text != null) M.text = x.text; if (x.notes) M.notes = x.notes; (M.pins || []).forEach((p, k) => { if (x.pn && x.pn[k]) p.note = x.pn[k]; }); });
   }
@@ -3951,6 +3952,7 @@ function reviewCard() {
   return `<button class="go tile review" id="goReview" style="--c:var(--orange)"><span class="go-ic">${IC.flame}</span><span><b>Today's review</b><small>${n} to review · about ${Math.max(1, Math.round(n / 3))} min. Keeps what you've learned from fading.</small></span>${IC.next}</button>`;
 }
 function startReview() {
+  if (!MORE_OK) return afterMore(startReview);
   const { places, hist } = reviewDue();
   const ps = places.map(f => ({ f, kind: 'type' })), hs = hist.map(h => ({ h, kind: 'hist' })), queue = [];
   while (ps.length || hs.length) { if (ps.length) queue.push(ps.shift()); if (ps.length) queue.push(ps.shift()); if (hs.length) queue.push(hs.shift()); }
