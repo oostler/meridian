@@ -419,6 +419,12 @@ a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .nets-bigway { grid-column: 1 / -1; margin: 2px 0 0; font-size: 13px !important; font-weight: 700 !important; } .nets-bigway a { color: #fff; text-decoration: underline; }
 .tier-card { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--gold-l); border: 2px solid var(--gold); text-align: left; }
 .tier-e { font-size: 34px; } .tier-card b { display: block; font-size: 17px; } .tier-card small { color: var(--ink-2); font-weight: 700; font-size: 13px; }
+.gtip-bg { position: fixed; inset: 0; z-index: 70; opacity: 0; transition: opacity .2s; } .gtip-bg.in { opacity: 1; } .gtip-bg.out { opacity: 0; }
+.gtip-hole { position: fixed; border-radius: 18px; box-shadow: 0 0 0 9999px rgba(10,15,30,.6), 0 0 0 3px #fff inset; cursor: pointer; animation: gtipPulse 1.6s ease-in-out infinite; }
+@keyframes gtipPulse { 50% { box-shadow: 0 0 0 9999px rgba(10,15,30,.6), 0 0 0 5px #fbbf24 inset; } }
+.gtip { position: fixed; width: min(320px, calc(100vw - 24px)); padding: 16px; border-radius: 18px; background: #fff; color: #1f2937; box-shadow: 0 12px 40px rgba(0,0,0,.3); display: grid; gap: 8px; }
+.gtip::before { content: ''; position: absolute; top: -8px; left: 28px; width: 16px; height: 16px; background: inherit; transform: rotate(45deg); }
+.gtip b { font-size: 17px; color: #1f2937; } .gtip p { margin: 0; font-size: 15px; color: #4b5563; }
 .npop-bg { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 20px; background: rgba(10,15,30,.55); opacity: 0; transition: opacity .2s; }
 .npop-bg.in { opacity: 1; } .npop-bg.out { opacity: 0; }
 .npop { position: relative; width: min(400px, 100%); display: grid; gap: 12px; text-align: center; padding: 22px 18px 16px; border-radius: 24px; color: #fff; background: radial-gradient(130% 120% at 0% 0%, #c25e00 0%, #b45309 40%, #8a3410 100%); box-shadow: 0 20px 60px rgba(0,0,0,.35); transform: translateY(16px) scale(.97); transition: transform .25s cubic-bezier(.2,.9,.3,1.2); }
@@ -2150,10 +2156,10 @@ function fullHistBtn(f) {
 function storyHtml(f, link = true) {
   if (!f || !f.h) return '';
   const h = f.h;
-  // Linked cards list every map the place is on; the chapter chips only stand in where there are none.
-  const tl = link ? onTimeline(f) : '';
-  return `<div class="story">${tl ? '' : eraChips(f, link)}
-    <h4>History</h4><p>${esc(h.t)}</p>${tl}
+  // A short history and today, then one clear way in: the full history lesson. (The long "On the timeline" list of
+  // every chapter map was removed: it cluttered the card and confused people.)
+  return `<div class="story">
+    <h4>History</h4><p>${esc(h.t)}</p>
     <h4>Today</h4><p>${esc(h.c)}</p>${h.p ? `<p>${esc(h.p)}</p>` : ''}${leadersHtml(f)}${fullHistBtn(f)}${link ? `<button class="flag" data-report="${esc(f.n + ' · story')}">Report an error</button>` : ''}</div>`;
 }
 // Every chapter map a country is lit or noted on, oldest first: its whole history at a glance.
@@ -5143,8 +5149,29 @@ function histCard() {
   const st = modState(a);
   return `<button class="hm-card histc" id="goHistCard"><small>History · ${esc(a.title)}</small><b>${st.cur ? `Continue: ${esc(momYears(st.cur) ? momYears(st.cur) + ', ' : '')}${esc(st.cur.M.tab)}` : 'Take the final quiz'}</b><small>${st.cur ? `Moment ${st.ms.indexOf(st.cur) + 1} of ${st.n}` : `${st.n} of ${st.n} moments done`}</small></button>`;
 }
+// One quick tip, shown once: where to switch what you learn (the whole world, a continent, US states...).
+function scopeTip() {
+  if (store.tipScope || $('#npop') || $('#gtip') || !$('#tdPlay, #goToday') || state.mode !== 'explore' && state.mode !== 'home') return;
+  const btn = $('#scopeBtn'); if (!btn || !btn.offsetParent) return;
+  store.tipScope = 1; save();
+  const el = document.createElement('div'); el.id = 'gtip'; el.className = 'gtip-bg';
+  el.innerHTML = `<div class="gtip-hole"></div><div class="gtip" role="dialog" aria-label="Tip"><b>Choose what you learn 🌍</b>
+    <p>Tap here to switch between the whole world, a continent like Africa, US states, Canadian provinces and more.</p>
+    <button class="btn primary" id="gtipOk">Got it</button></div>`;
+  document.body.append(el);
+  const place = () => { const r = btn.getBoundingClientRect(), hole = el.querySelector('.gtip-hole'), tip = el.querySelector('.gtip');
+    Object.assign(hole.style, { left: r.left - 6 + 'px', top: r.top - 6 + 'px', width: r.width + 12 + 'px', height: r.height + 12 + 'px' });
+    tip.style.top = r.bottom + 16 + 'px'; tip.style.left = Math.max(12, Math.min(r.left, innerWidth - tip.offsetWidth - 12)) + 'px'; };
+  place(); addEventListener('resize', place);
+  const close = open => { removeEventListener('resize', place); el.classList.add('out'); setTimeout(() => el.remove(), 180); if (open) btn.click(); };
+  el.querySelector('#gtipOk').onclick = () => { buzz(5); close(false); };
+  el.querySelector('.gtip-hole').onclick = () => { buzz(5); close(true); };
+  el.onclick = e => { if (e.target === el) close(false); };
+  requestAnimationFrame(() => el.classList.add('in'));
+}
 function bindDaily() {
   bindVs(); bindRepair();
+  if (!store.tipScope) setTimeout(scopeTip, 2200);
   // Today's lesson opens Learn, where you pick geography or history.
   const learn = () => { buzz(8); learnSheet(); sheet.scrollTop = 0; };
   if ($('#goToday')) $('#goToday').onclick = learn;
