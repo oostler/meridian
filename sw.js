@@ -1,5 +1,5 @@
 // Cache-first service worker: the app works offline, and so do map areas you've already seen.
-const CACHE = 'meridian-908c53f0dadb';
+const CACHE = 'meridian-c5283e68d556';
 const TILES = 'meridian-tiles';
 const CORE = ["./","index.html","geo-live.json","geo-more.json","maplibre-gl.js","manifest.webmanifest","icon.svg","icon-180.png","icon-192.png","icon-512.png"];
 const isTile = url => /arcgis(online)?\.com/.test(url);
@@ -25,7 +25,8 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.match(e.request, { ignoreSearch: !tile }).then(hit => {
     if (hit) return hit;
     return fetch(e.request).then(res => {
-      if (res.ok || res.type === 'opaque') {
+      // A map tile's 404 means empty ocean on the label layer: keep it too, so it isn't asked for again on every visit.
+      if (res.ok || res.type === 'opaque' || tile && res.status === 404) {
         const copy = res.clone();
         caches.open(tile ? TILES : CACHE).then(c => c.put(e.request, copy).then(() => tile && trim(c)));
       }
