@@ -413,6 +413,8 @@ h1, h2, h3 { margin: 0; }
 .nets-amt.on { background: #fff; color: #5a2208; border-color: #fff; box-shadow: 0 4px 0 #6b2a0c; }
 a.nets-go { text-decoration: none; justify-content: center; width: 100%; }
 .nets-count { width: 100%; }
+.more-wait { display: grid; justify-items: center; gap: 8px; padding: 40px 16px; text-align: center; } .more-wait small { color: var(--ink-2); }
+.more-wait .spin { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--blue); animation: netspin .8s linear infinite; }
 .don { font-size: .95em; margin-left: 3px; white-space: nowrap; }
 .nets-more-amts { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; width: 100%; }
 .nets-amt.big b { font-size: 19px; } .nets-amt.big b small { font-size: 12px; } .nets-amt.other { border-style: dashed; }
@@ -2119,6 +2121,24 @@ sheet.addEventListener('pointerdown', e => {
 
 // ---------- history layer ----------
 const ANCHORS = G.anchors || [];
+// On the website the lesson cards, chapter summaries and country histories arrive a moment after start-up
+// (geo-more.json, see build/bundle.mjs). Screens that need them wait for it, with a short "Loading…" if it isn't in yet.
+let MORE_OK = !G.more;
+const MORE = MORE_OK ? Promise.resolve() : (window.__more || Promise.reject(new Error('no more'))).then(m => {
+  for (const a of ANCHORS) {
+    const c = m.cards && m.cards[a.id]; if (c && a.lesson) a.lesson.units.forEach((u, i) => { u.cards = c[i] || []; });
+    const st = m.story && m.story[a.id]; if (st) a.story = Object.assign(a.story || {}, st);
+  }
+  G.ctry = m.ctry || {}; MORE_OK = true;
+}).catch(() => {});
+// Run fn now if the content is here, else show a short loading note and run it when it arrives.
+function afterMore(fn) {
+  if (MORE_OK) return fn();
+  setSheet(`<div class="more-wait"><span class="spin"></span><b>Loading…</b><small>Getting the lessons ready.</small></div>`);
+  MORE.then(() => { if (MORE_OK) return fn();
+    setSheet(`<div class="more-wait"><b>Couldn't load the lessons</b><small>Check your connection and try again.</small><button class="btn" id="mwBack">Back</button></div>`);
+    $('#mwBack').onclick = () => homeSheet(); });
+}
 const anchorById = Object.fromEntries(ANCHORS.map(a => [a.id, a]));
 // Section headings in the chapter list, at the first chapter of each.
 const SECTION = { cradles: 'The ancient world', americas: 'The Middle Ages', old: 'Empires and revolutions', ww1: 'The 20th century', today: 'Today' };
@@ -2694,9 +2714,10 @@ function ctryAnchor(id) {
   const hw = G.ctry && G.ctry[id];
   if (hw) { const a = { id: key, ctry: id, track: 'country', xq: [], title: `The history of ${nm}`, years: '', maps: [], story: {}, lesson: hw }; anchorById[key] = a; return a; }
   const a = { id: key, ctry: id, track: 'country', xq, title: `The history of ${nm}`, years: '', maps: ms.map(x => x.M), story: {}, lesson: { units: units.filter(u => u.cards.length) } };
-  anchorById[key] = a; return a;
+  if (MORE_OK) anchorById[key] = a; return a;
 }
 function countrySheet(id) {
+  if (!MORE_OK) return afterMore(() => countrySheet(id));
   const f = byId[id]; if (!f || !f.h) return;
   clearTimeout(advanceT); keyHandler = null;
   state.mode = 'explore'; state.era = null; state.sel = f; state.target = null; state.solved.clear();
@@ -3235,6 +3256,7 @@ function unlockSheet(id) {
   };
 }
 function eraSheet(id, keepView, mapI) {
+  if (!MORE_OK) return afterMore(() => eraSheet(id, keepView, mapI));
   clearTimeout(advanceT); keyHandler = null;
   const a0 = anchorById[id]; if (!a0) return;
   if (a0.ctry) { state.lmap = null; state.mode = 'explore'; return countrySheet(a0.ctry); }
@@ -3526,6 +3548,7 @@ function lessonScene(g) {
     lines: (g.lines || []).map(([color, pts, label]) => ({ color, pts, label: label || '', arrow: color !== 'slate' && !/Line|line|Curtain/.test(label || '') })), box: g.box };
 }
 function startUnit(a, k) {
+  if (!MORE_OK) return afterMore(() => startUnit(a, k));
   if (plusLocked(a.id)) return unlockSheet(a.id);
   const U = a.lesson.units[k]; if (!U) return;
   const x = moments(a)[k], yrs = momYears(x), cards = U.cards, n = cards.length;
@@ -3686,6 +3709,7 @@ function momentDone(a, m, right, n) {
   setRound(true); draw();
 }
 function startFinal(id) {
+  if (!MORE_OK) return afterMore(() => startFinal(id));
   const a = anchorById[id]; if (!a) return;
   if (plusLocked(id)) return unlockSheet(id);
   histRun(a, finalQs(a));
@@ -6045,7 +6069,10 @@ else hideSplash();
 // Start once the map data has arrived and the deferred map library has run (it runs before DOMContentLoaded).
 const parsed = new Promise(r => document.readyState === 'loading' ? addEventListener('DOMContentLoaded', r) : r());
 Promise.all([window.__geo, parsed]).then(([g]) => {
-  window.GEO = g; setTimeout(window.__start);
+  window.GEO = g;
+  // The rest of the content starts downloading only once the first part is in, so it never slows the start.
+  if (g.more) window.__more = fetch('geo-more.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  setTimeout(window.__start);
   // Accounts load after the globe, so they don't compete with the map data for bandwidth.
   const s = document.createElement('script'); s.type = 'module'; s.src = 'cloud.js'; document.head.appendChild(s);
 }, () => { document.getElementById('sheet').textContent = 'Could not load the map data. Check your connection and reload.'; });
