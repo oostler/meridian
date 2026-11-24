@@ -1341,7 +1341,17 @@ const ESRI_KEY = window.MERIDIAN_ESRI_KEY || '';
 const ESRI = ESRI_KEY ? 'https://ibasemaps-api.arcgis.com/arcgis/rest/services/' : 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const ESRI_ATTR = 'Map &copy; <a href="https://www.esri.com">Esri</a>, GEBCO, Garmin, Maxar';
 const NE_ATTR = 'Borders: <a href="https://www.naturalearthdata.com">Natural Earth</a> · Country facts: <a href="https://github.com/mledoze/countries">mledoze/countries</a> (ODbL), <a href="https://www.wikidata.org">Wikidata</a>';
+const ESRI_PUBLIC = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const raster = (path, maxzoom) => ({ type: 'raster', tiles: [ESRI + path + '/MapServer/tile/{z}/{y}/{x}' + (ESRI_KEY ? '?token=' + ESRI_KEY : '')], tileSize: 256, maxzoom, attribution: ESRI_ATTR });
+// If the key ever expires or is rejected, switch every basemap to Esri's public service, so the globe keeps working.
+let esriFellBack = false;
+function esriFallback() {
+  if (!ESRI_KEY || esriFellBack || typeof map === 'undefined') return; esriFellBack = true;
+  for (const [id, src] of Object.entries(map.getStyle().sources || {})) {
+    const s0 = map.getSource(id), t = src.tiles && src.tiles[0];
+    if (s0 && s0.setTiles && t && t.includes('ibasemaps-api.arcgis.com')) s0.setTiles([t.replace('https://ibasemaps-api.arcgis.com/arcgis/rest/services/', ESRI_PUBLIC).replace(/\?token=.*$/, '')]);
+  }
+}
 
 const decodeRing = ring => {
   const out = []; let x = 0, y = 0;
@@ -1447,6 +1457,14 @@ const map = new maplibregl.Map({
   attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, fadeDuration: 0,
 });
 map.touchZoomRotate.disableRotation();
+// A few failed imagery tiles while using the key (expired, revoked or over its limit): fall back to the public service.
+let esriErrs = 0;
+// Check the key once at start-up with a single tile: if it's expired or rejected, use the public service from the start.
+if (ESRI_KEY && TILES_ON) fetch(ESRI + 'World_Imagery/MapServer/tile/0/0/0?token=' + ESRI_KEY).then(r => {
+  if (!r.ok || !/image/.test(r.headers.get('content-type') || '')) { if (map.loaded()) esriFallback(); else map.once('load', esriFallback); }
+}, () => {});
+map.on('error', e => { if (!ESRI_KEY || esriFellBack) return; const st = e && e.error && e.error.status, id = e && e.sourceId;
+  if ([401, 403, 498, 499].includes(st)) esriFallback(); });  // empty-ocean label tiles return 404: that's normal
 // The (i) button opens and closes the credits (see the CSS: they start folded).
 document.addEventListener('click', e => { const btn = e.target.closest && e.target.closest('.maplibregl-ctrl-attrib-button'); if (btn) btn.closest('.maplibregl-ctrl-attrib').classList.toggle('gg-open'); }, true);
 if (window.MERIDIAN_FIREBASE && window.MERIDIAN_FIREBASE.emulator) window.__map = map;  // tests only
@@ -5979,6 +5997,7 @@ else hideSplash();
 };
 </script>
 
+<script>window.MERIDIAN_ESRI_KEY = "AAPTaijKqNG0OqNfwVbxrxDCZRg..IhqwbSCZD4DqTwo6goVH_v2insoIiDr3PficYBobH8LV8zur4w2YFAjd5Gi5nE7cqY2_r7co0Qfdo8M4_xpvFjHT7akdWVH4NiqD7uj7HkccbYz8SQrHwSbeYQ4hUZEu6RVeJgoL5Y5ELe5CZbs1ME9Api-fhOYmK4jckwk2yyNanpDN8XkvJlK1ZKNlInzWsDtuNZt5er0srKWdOCRe5wk6Yeacc6FC-3IsaxnVIsiuFcQIxDCtAT1_5XRQGVOz";</script>
 <script>window.MERIDIAN_PLUS = {"live":false,"start":"2026-12-26T00:00:00-05:00","ios":"","web":"","entitlement":"plus","nets":{"live":true,"start":"","url":"https://www.every.org/againstmalaria","token":"","perNet":5,"min":5,"verify":false,"hash":"#donate","nonprofit":"againstmalaria","fundraiser":"globe-genius-players","apiKey":"pk_live_f43b008179e06df3349353e41a2162c1","ios":true}};</script>
 <script>window.MERIDIAN_FIREBASE = {"apiKey":"AIzaSyClcp4xTM3TCejLHqtGQ2qvWlICQxc7lE4","authDomain":"meridian-3a592.firebaseapp.com","databaseURL":"https://meridian-3a592-default-rtdb.firebaseio.com","projectId":"meridian-3a592","storageBucket":"meridian-3a592.firebasestorage.app","messagingSenderId":"330789862319","appId":"1:330789862319:web:3dfec2736660f299fe4d5a","googleClientId":"330789862319-4266okoa2hbfabmb53uom4pneqfkak94.apps.googleusercontent.com","gsi":true}; window.MERIDIAN_FORCE_SIGNIN = true;</script>
 <script>
