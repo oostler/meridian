@@ -2129,7 +2129,10 @@ const MORE = MORE_OK ? Promise.resolve() : (window.__more || Promise.reject(new 
     const c = m.cards && m.cards[a.id]; if (c && a.lesson) a.lesson.units.forEach((u, i) => { u.cards = c[i] || []; });
     const st = m.story && m.story[a.id]; if (st) a.story = Object.assign(a.story || {}, st);
   }
+  for (const [id, txt] of Object.entries(m.h || {})) { const f = byId[id]; if (f) f.h = Object.assign(f.h || {}, txt); }
   G.ctry = m.ctry || {}; MORE_OK = true;
+  // A place card opened before the texts arrived shows them now.
+  if ($('.story-wait') && state.sel) homeSheet();
 }).catch(() => {});
 // Run fn now if the content is here, else show a short loading note and run it when it arrives.
 function afterMore(fn) {
@@ -2176,6 +2179,7 @@ function fullHistBtn(f) {
 function storyHtml(f, link = true) {
   if (!f || !f.h) return '';
   const h = f.h;
+  if (!MORE_OK && !h.t) return `<div class="story story-wait"><h4>History</h4><p class="hint">Loading…</p></div>`;
   // A short history and today, then one clear way in: the full history lesson. (The long "On the timeline" list of
   // every chapter map was removed: it cluttered the card and confused people.)
   return `<div class="story">
@@ -2417,7 +2421,7 @@ function placeOfDay() {
   return pool[h % pool.length];
 }
 function startHtml() {
-  const d = placeOfDay(), first = d ? d.h.t.split(/(?<=\.)\s/)[0] : '';
+  const d = placeOfDay(), first = d ? (d.h.t || '').split(/(?<=\.)\s/)[0] : '';
   return `<div class="foot"><button class="link" id="openSettings">Settings</button><span>·</span><button class="link" id="openAbout">About</button><span>·</span><a class="link" href="privacy.html" target="_blank" rel="noopener">Privacy</a></div>`;
 }
 // Settings and About open inside the Explore panel, with a back link.
@@ -2648,6 +2652,7 @@ function ctryGoal() {
     <div class="ct-conts">${c.by.map(([n, k, t]) => `<span class="${k === t ? 'all' : k ? 'some' : ''}">${esc(n)} <b>${k}/${t}</b></span>`).join('')}</div></div>`;
 }
 function countryMenu() {
+  if (!MORE_OK) return afterMore(countryMenu);
   const free = ['CAN', 'USA', 'CHN'].map(id => byId[id]).filter(Boolean), rest = histCountries().filter(f => !CTRACK_OF[f.id]);
   const st = f => { if (ctryLocked(f.id)) return `<i>${IC.lock}</i>`; const g = ctryProg(f.id);
     return g.done ? `<em class="ct-ok">${IC.check}Learned</em>` : g.k ? `<small class="ct-part">${g.k} of ${g.n} ${g.unit}s</small>` : CTRACK_OF[f.id] ? `<small>${g.n} chapters</small>` : ''; };
@@ -4030,6 +4035,7 @@ function histPool() {
   return { mapQs, chQs, clues };
 }
 function startHistQuiz() {
+  if (!MORE_OK) return afterMore(startHistQuiz);
   // Mostly ideas, causes and turning points (six), with two place clues and two map questions: ten in all.
   const { mapQs, chQs, clues } = histPool(), seen = new Set(), maps = [];
   const cs = shuffle(clues).slice(0, clues.length >= 4 ? 2 : 0), nMap = chQs.length >= 6 ? 2 : 5;
@@ -4641,6 +4647,7 @@ function hrCard() {
     <span class="ch-txt"><b>History run</b><small>${line}</small></span><span class="ch-go">Play</span></button>`;
 }
 function startHistRun() {
+  if (!MORE_OK) return afterMore(startHistRun);
   const qs = hrQuestions(), t0 = Date.now(), missed = [];
   let i = 0, n = 0, lives = 3, cur = null;
   gainStart(); clearTimeout(advanceT);
@@ -4998,6 +5005,7 @@ function ddStatsCard(kind) {
 const archiveFree = no => no === dailyNo() - 1;
 // Past challenges: yesterday's are free for everyone; older days come with Plus.
 function archiveSheet() {
+  if (!MORE_OK) return afterMore(archiveSheet);
   const today = dailyNo(), from = state.tab;
   // At launch only yesterday is open; older days say "coming soon" on the web and aren't listed in the app.
   const rows = Array.from({ length: Math.min(PLUS_LIVE || hasPlus() || !NATIVE ? 30 : 1, today - 1) }, (_, k) => today - 1 - k).map(no => {
@@ -5398,6 +5406,8 @@ async function statsSheet() {
   $('#stHome').onclick = () => { history.replaceState(null, '', location.pathname); homeSheet(); };
 }
 function dailyChallenge(kind = 'geo', no) {
+  // Archive days before day 27 drew some history questions from country texts, which arrive in the second part.
+  if (!MORE_OK && kind === 'hist' && no && no < DQ_V3) return afterMore(() => dailyChallenge(kind, no));
   const K = DD_KIND[kind], d = dailyState(kind, no), qs = dailyQs(d.no, kind), from = state.tab, prevScope = state.scope, arc = !!d.arc;
   dailyKeep(kind, d); save();
   clearTimeout(advanceT); gainStart();
