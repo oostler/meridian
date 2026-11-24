@@ -1,5 +1,5 @@
 // Cache-first service worker: the app works offline, and so do map areas you've already seen.
-const CACHE = 'meridian-5c003738eeed';
+const CACHE = 'meridian-2bceef9655d9';
 const TILES = 'meridian-tiles';
 const CORE = ["./","index.html","geo-live.json","maplibre-gl.js","manifest.webmanifest","icon.svg","icon-180.png","icon-192.png","icon-512.png"];
 const isTile = url => /arcgis(online)?\.com/.test(url);
